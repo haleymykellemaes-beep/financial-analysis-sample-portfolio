@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hero Chart Prototype | Haley Maes</title>
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#382a23" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Shared styles are read-only for this prototype; all changes live in hero-chart-proto.css. -->
+  <link rel="stylesheet" href="../css/site.css" />
+  <link rel="stylesheet" href="hero-chart-proto.css" />
+</head>
+<body class="home">
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top" aria-label="Haley Maes home">
+        <span class="brand-mark" aria-hidden="true">HM<span class="brand-dot">.</span></span>
+        <span class="brand-sub">Haley Maes <span>Financial Intelligence</span></span>
+      </a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
+      <nav class="nav-links" id="nav-links" aria-label="Primary">
+        <a href="#top" aria-current="page">Home</a>
+        <a href="../index.html#work">Work</a>
+        <a href="../index.html#capabilities">Capabilities</a>
+        <a href="../index.html#about">About</a>
+        <a class="nav-contact-mobile" href="../index.html#contact">Contact</a>
+      </nav>
+      <a class="nav-contact home-button" href="../index.html#contact">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
+        Contact
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="home-scene" id="top" aria-labelledby="hero-title">
+      <div class="hero-stage">
+        <div class="hero-copy">
+          <p class="hero-overline">Data Analyst <span aria-hidden="true">/</span> Financial Intelligence</p>
+          <h1 id="hero-title">Haley Maes<span class="hero-period">.</span></h1>
+          <p class="hero-tagline"><em>Finding value in the variables.</em></p>
+          <p class="hero-description">I turn complex financial and operational data into clear insights, smarter systems, and decisions you can stand behind.</p>
+          <div class="hero-actions">
+            <a class="home-button home-button-primary" href="../index.html#work">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 6-6 4 4 7-8m-5 0h5v5"/></svg>
+              Explore the work
+            </a>
+            <a class="home-button" href="../index.html#about">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20v-1.5a6.5 6.5 0 0 1 13 0V20"/></svg>
+              My story
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-chart" aria-hidden="true" inert>
+            <!-- Prototype: self-hosted canvas chart -->
+            <div class="hero-chart-proto" data-hero-chart data-style="candles" data-seed="20261118">
+              <canvas></canvas>
+            </div>
+            <!-- Comparison only: the current static chart from the live homepage -->
+            <div class="hero-chart-sample hero-chart-current">
+              <img src="../assets/hero-candles.svg" alt="" width="1000" height="560" />
+            </div>
+          </div>
+          <img class="hero-portrait" src="../assets/haley.png" alt="Portrait of Haley Maes" width="800" height="800" fetchpriority="high" />
+        </div>
+
+        <div class="hero-chart-controls">
+          <p class="hero-chart-readout" data-hero-chart-readout>
+            <span class="label">Illustrative index</span>
+            <span data-price aria-hidden="true">--</span>
+            <span data-change aria-hidden="true"></span>
+          </p>
+        </div>
+
+        <nav class="hero-shortcuts" aria-label="Explore projects">
+          <a href="../projects/revenue-intelligence/index.html">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 27h24M7 27V17h4v10m3 0V12h4v15m3 0V6h4v21M5 12l8-5 5 1 6-5"/></svg>
+            <span>Revenue Forecasting</span>
+          </a>
+          <a href="../projects/sports-market/index.html">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 26h22M6 26c4 0 5-3 7-10s4-12 7-5 2 15 7 15M16 6v20" stroke-linecap="round"/></svg>
+            <span>Expected Value</span>
+          </a>
+          <a href="../projects/working-capital/index.html">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="m16 4 12 6-12 6-12-6 12-6Zm12 12-12 6-12-6m24 6-12 6-12-6"/></svg>
+            <span>Working Capital</span>
+          </a>
+          <a href="../projects/portfolio-risk/index.html">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M13.5 5.3A11 11 0 1 0 26.7 18H13.5V5.3Z"/><path d="M17.5 4v10.5H28A11 11 0 0 0 17.5 4Z"/></svg>
+            <span>Portfolio Risk</span>
+          </a>
+        </nav>
+      </div>
+    </section>
+  </main>
+
+  <!-- Prototype-only review controls; not part of the component. -->
+  <div class="proto-toolbar" role="toolbar" aria-label="Prototype review controls">
+    <strong>Prototype</strong>
+    <button type="button" data-proto="style" data-value="candles" aria-pressed="true">Candles</button>
+    <button type="button" data-proto="style" data-value="line" aria-pressed="false">Line</button>
+    <button type="button" data-proto="pause" aria-pressed="false">Pause</button>
+    <button type="button" data-proto="compare" aria-pressed="false">Show current</button>
+  </div>
+
+  <script src="../js/nav.js"></script>
+  <script src="hero-chart-proto.js"></script>
+  <script>
+    (function () {
+      const mount = document.querySelector("[data-hero-chart]");
+      const buttons = document.querySelectorAll("[data-proto]");
+      buttons.forEach((btn) => btn.addEventListener("click", () => {
+        const kind = btn.dataset.proto;
+        if (kind === "style") {
+          mount.dataset.style = btn.dataset.value;
+          document.querySelectorAll('[data-proto="style"]').forEach((b) =>
+            b.setAttribute("aria-pressed", String(b === btn)));
+        } else if (kind === "pause") {
+          const paused = mount.dataset.paused !== "true";
+          mount.dataset.paused = String(paused);
+          btn.setAttribute("aria-pressed", String(paused));
+        } else if (kind === "compare") {
+          const on = document.body.classList.toggle("show-current");
+          btn.setAttribute("aria-pressed", String(on));
+        }
+      }));
+    })();
+  </script>
+</body>
+</html>

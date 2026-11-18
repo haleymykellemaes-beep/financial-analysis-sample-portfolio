@@ -1,0 +1,94 @@
+/* Hero chart prototype styles. Layered on top of ../css/site.css, which is not modified. */
+
+.hero-chart-proto {
+  position: absolute;
+  inset: 0 -2% 0 0;
+  opacity: .82;
+  /* Fade the left side out under the headline, and the top/bottom into the scene. */
+  mask-image:
+    linear-gradient(90deg, transparent 0%, #0002 22%, #0008 42%, #000 62%, #000 97%, transparent),
+    linear-gradient(180deg, transparent, #000 12%, #000 90%, transparent);
+  mask-composite: intersect;
+}
+
+.hero-chart-proto canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Illustrative readout, replaces the TradingView link in the controls row. */
+.hero-chart-readout {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  font: 500 .72rem/1.4 var(--mono);
+  letter-spacing: .04em;
+  color: var(--home-muted);
+}
+
+.hero-chart-readout .label {
+  font-family: var(--sans);
+  font-size: .64rem;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  opacity: .8;
+}
+
+.hero-chart-readout [data-price] { color: var(--home-cream); }
+.hero-chart-readout [data-change][data-dir="up"] { color: #ecd0ad; }
+.hero-chart-readout [data-change][data-dir="down"] { color: #d9a090; }
+
+@media (max-width: 820px) {
+  .hero-chart-proto { inset: 0; opacity: .55; }
+}
+
+/* ---------- Prototype-only review toolbar (not part of the component) ---------- */
+.proto-toolbar {
+  position: fixed;
+  z-index: 90;
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100vw - 32px);
+  padding: 8px;
+  border: 1px solid #e1bc9d55;
+  border-radius: 14px;
+  background: #241a15e8;
+  backdrop-filter: blur(8px);
+  color: var(--home-muted);
+  font: 500 .72rem/1.2 var(--sans);
+  box-shadow: 0 12px 30px #0006;
+}
+
+.proto-toolbar strong {
+  padding: 0 6px;
+  color: var(--home-cream);
+  font-size: .62rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.proto-toolbar button {
+  min-height: 32px;
+  padding: 4px 11px;
+  border: 1px solid #e1bc9d55;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-size: .72rem;
+  cursor: pointer;
+}
+
+.proto-toolbar button:hover { color: var(--home-cream); border-color: #e1bc9daa; }
+.proto-toolbar button[aria-pressed="true"] { background: #73533d; color: var(--home-cream); }
+
+/* "Current" comparison mode: show the existing static SVG instead of the canvas. */
+.hero-chart-current { display: none; }
+body.show-current .hero-chart-current { display: block; }
+body.show-current .hero-chart-proto,
+body.show-current .hero-chart-readout { display: none; }

@@ -6,10 +6,8 @@
   const gsap = window.gsap;
   gsap.registerPlugin(window.ScrollTrigger);
 
-  const portrait = document.querySelector("[data-parallax='portrait']");
-  const halo = document.querySelector("[data-parallax='halo']");
-  const widget = document.querySelector(".signal-widget");
-  const label = document.querySelector(".portrait-label");
+  const icons = document.querySelector(".icon-column");
+  const cards = document.querySelector(".hero-widgets");
   const hero = document.querySelector(".hero");
   const mobile = window.matchMedia("(max-width: 760px)").matches;
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -72,17 +70,11 @@
     currentX += (pointerX - currentX) * 0.06;
     currentY += (pointerY - currentY) * 0.06;
     const scroll = progress * depth;
-    if (portrait) {
-      portrait.style.transform = "translate3d(" + (currentX * -12) + "px," + (currentY * -8 + scroll * -46) + "px,0)";
+    if (icons) {
+      icons.style.transform = "translate3d(" + (currentX * 10) + "px," + (currentY * -12) + "px,0)";
     }
-    if (halo) {
-      halo.style.transform = "translate3d(" + (currentX * 10) + "px," + (currentY * 7 + scroll * -18) + "px,0)";
-    }
-    if (label) {
-      label.style.transform = "translate3d(" + (currentX * -6) + "px," + (scroll * -28) + "px,0)";
-    }
-    if (widget) {
-      widget.style.transform = "translate3d(0," + (scroll * 18) + "px,0)";
+    if (cards) {
+      cards.style.transform = "translate3d(" + (currentX * -8) + "px," + (scroll * 16 + currentY * 6) + "px,0)";
     }
   });
 })();

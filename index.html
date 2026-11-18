@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Haley Maes | Financial &amp; Data Analytics</title>
   <meta name="description" content="Haley Maes — financial and data analysis, forecasting, risk, and operational intelligence. Finding value in the variables." />
-  <meta name="theme-color" content="#1c1c1b" />
+  <meta name="theme-color" content="#3a312b" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <!-- Fonts are loaded in site.css for consistent typography across project pages. -->
-  <link rel="stylesheet" href="css/site.css" />
+  <link rel="stylesheet" href="css/site.css?v=tape" />
 </head>
 <body>
   <a class="skip" href="#work">Skip to work</a>
@@ -28,56 +28,60 @@
   </header>
 
 
-  <header class="hero" id="top">
+  <header class="hero scene-hero" id="top">
     <canvas id="ribbon" aria-hidden="true"></canvas>
+    <img class="hero-portrait" src="assets/haley-scene.jpg" alt="Haley Maes at a desk, smiling, with one hand resting against her cheek and a laptop in front of her." width="1024" height="576" fetchpriority="high" decoding="async" />
     <div class="hero-veil" aria-hidden="true"></div>
     <div class="hero-grid" aria-hidden="true"></div>
 
     <div class="wrap hero-stage">
       <div class="hero-copy">
         <p class="hero-overline"><span class="pulse-dot" aria-hidden="true"></span> DATA ANALYST <span class="overline-slash">/</span> FINANCIAL INTELLIGENCE</p>
-        <h1>Haley<br />Maes<span class="hero-period">.</span></h1>
+        <h1>Haley Maes<span class="hero-period">.</span></h1>
         <p class="tagline">Finding value in <em>the variables.</em></p>
         <p class="hero-description">I turn complex financial and operational data into clear insights, smarter systems, and decisions you can stand behind.</p>
         <div class="hero-actions">
-          <a class="pill" href="#work">Explore the work <span aria-hidden="true">↗</span></a>
-          <a class="quiet-link" href="#about">More about me <span aria-hidden="true">↗</span></a>
+          <a class="pill" href="#work">Explore the Work <span aria-hidden="true">↗</span></a>
+          <a class="hero-secondary" href="#about">More About Me</a>
         </div>
       </div>
 
-      <div class="hero-visual" id="hero-visual">
-        <div class="halo-shift" data-parallax="halo">
-          <div class="portrait-halo" aria-hidden="true"></div>
-        </div>
-        <div class="portrait-shift" data-parallax="portrait">
-          <div class="portrait-frame">
-            <img src="https://haleymykellemaes-beep.github.io/img/haley.png" alt="Portrait of Haley Maes" fetchpriority="high" decoding="async" />
-          </div>
-        </div>
-        <div class="portrait-label" aria-hidden="true"><span>HM</span><span>FINANCIAL / DATA ANALYTICS</span></div>
+      <ul class="icon-column" aria-hidden="true">
+        <li><svg viewBox="0 0 24 24"><path d="M8 4h8M8 20h8M9 4c0 4 6 4 6 8s-6 4-6 8M15 4c0 4-6 4-6 8s6 4 6 8"/></svg><span>Python</span></li>
+        <li><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="18" cy="17" r="1.4"/></svg><span>SQL</span></li>
+        <li><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 15v-3M12 15V8M16 15v-5"/></svg><span>Forecast</span></li>
+        <li><svg viewBox="0 0 24 24"><path d="M5 16c3-7 5-7 8 0s5 6 7-3"/></svg><span>Signal</span></li>
+        <li><svg viewBox="0 0 24 24"><path d="M12 4v10M8 10l4 4 4-4"/><path d="M6 19h12"/></svg><span>Model</span></li>
+      </ul>
+    </div>
 
-        <div class="signal-widget" aria-label="Illustrative market-style chart, not live financial data">
-          <div class="signal-widget-top">
-            <span>01 / MARKET SIGNAL</span>
-            <span class="signal-widget-status"><i aria-hidden="true"></i> SIMULATED</span>
-          </div>
-          <svg viewBox="0 0 370 100" aria-hidden="true" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="signalFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dbc49e" stop-opacity=".18"/><stop offset="1" stop-color="#dbc49e" stop-opacity="0"/></linearGradient>
-            </defs>
-            <g stroke="#d9c9aa" stroke-opacity=".1" stroke-width=".8"><path d="M0 24H370M0 50H370M0 76H370M70 0V100M140 0V100M210 0V100M280 0V100M350 0V100"/></g>
-            <path d="M0 82 L24 73 L46 78 L72 56 L91 61 L115 48 L132 59 L151 41 L176 44 L193 31 L215 43 L235 24 L251 33 L273 19 L294 29 L314 14 L337 20 L356 6 L370 11 L370 100 L0 100 Z" fill="url(#signalFill)"/>
-            <path class="signal-spark" d="M0 82 L24 73 L46 78 L72 56 L91 61 L115 48 L132 59 L151 41 L176 44 L193 31 L215 43 L235 24 L251 33 L273 19 L294 29 L314 14 L337 20 L356 6 L370 11" fill="none" stroke="#e7d2ad" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="356" cy="6" r="3" fill="#f1dfbc" />
-          </svg>
-          <div class="signal-widget-bottom"><span>ANALYSIS IN MOTION</span><span>DATA → DECISIONS</span></div>
+    <div class="hero-widgets">
+      <section class="glass signal-card" aria-label="Simulated market signal">
+        <div class="glass-top"><span>MARKET SIGNAL</span><span class="glass-live">SIMULATED</span></div>
+        <svg viewBox="0 0 220 72" aria-hidden="true">
+          <polyline id="signal-path" fill="none" stroke="#f0ddc2" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </section>
+      <section class="glass scenario-card" id="scenario" aria-label="Simulated scenario explorer">
+        <div class="glass-top"><span>SCENARIO</span><span id="scenario-change" class="glass-stat">—</span></div>
+        <svg viewBox="0 0 220 64" aria-hidden="true">
+          <polyline id="scenario-line" fill="none" stroke="#e7d3b4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <div class="scenario-controls" role="group" aria-label="Choose a simulated scenario">
+          <button type="button" data-scenario="downside">Downside</button>
+          <button type="button" data-scenario="base" aria-pressed="true">Base</button>
+          <button type="button" data-scenario="upside">Upside</button>
         </div>
-      </div>
+      </section>
     </div>
 
     <div class="wrap hero-foot">
-      <span>SCROLL TO EXPLORE <span aria-hidden="true">↓</span></span>
-      <span>SQL <b>·</b> PYTHON <b>·</b> EXCEL <b>·</b> FINANCIAL ANALYSIS</span>
+      <ul class="hero-services">
+        <li><span>01</span> Forecasting</li>
+        <li><span>02</span> Probability</li>
+        <li><span>03</span> Risk</li>
+        <li><span>04</span> Operations</li>
+      </ul>
     </div>
   </header>
 
@@ -236,7 +240,7 @@
                 <circle cx="120" cy="74" r="4" /><circle cx="148" cy="84" r="3" /><circle cx="176" cy="70" r="4" />
                 <circle cx="204" cy="78" r="3" /><circle cx="232" cy="66" r="4" /><circle cx="260" cy="76" r="3" />
               </g>
-              <circle cx="286" cy="28" r="6" fill="#e39b96" />
+              <circle class="outlier" cx="286" cy="28" r="6" fill="#e39b96" />
             </svg>
           </a>
           <a class="tile market-preview" data-preview="scenarios" href="projects/scenario-analysis/index.html">
@@ -289,9 +293,11 @@
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js"></script>
+  <script src="js/market-data.js"></script>
   <script src="js/nav.js"></script>
   <script src="js/ribbon.js"></script>
+  <script src="js/widgets.js"></script>
+  <script src="js/previews.js"></script>
   <script src="js/motion.js"></script>
-  <script src="js/previews.js" defer></script>
 </body>
 </html>

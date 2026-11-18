@@ -111,7 +111,7 @@
             <p>A console for trailing revenue, a forward range, and the assumptions that hold the range together.</p>
             <a class="quiet-link" href="projects/revenue-intelligence/index.html">View prototype</a>
           </div>
-          <a class="console-link" href="projects/revenue-intelligence/index.html" aria-label="Open the revenue intelligence prototype">
+          <a class="console-link market-preview" data-preview="revenue" href="projects/revenue-intelligence/index.html" aria-label="Open the revenue intelligence prototype">
             <div class="console">
               <div class="console-top"><span>REV-01 · Forecast</span><span class="chip">Illustrative</span></div>
               <div class="metric-row">
@@ -123,9 +123,9 @@
                 <g stroke="rgba(237,233,220,0.08)" stroke-width="1">
                   <path d="M0 40H640M0 100H640M0 160H640" />
                 </g>
-                <path d="M400 92 L470 48 L540 70 L630 36 L630 112 L540 108 L470 100 L400 92Z" fill="rgba(122,167,255,0.16)" />
-                <polyline points="20,150 90,138 160,146 230,112 300,120 370,86 400,92" fill="none" stroke="#7ddee6" stroke-width="2.4" />
-                <polyline points="400,92 470,74 540,82 630,58" fill="none" stroke="#7aa7ff" stroke-width="2" stroke-dasharray="5 6" />
+                <path data-revenue-band d="M400 92 L470 48 L540 70 L630 36 L630 112 L540 108 L470 100 L400 92Z" fill="rgba(122,167,255,0.16)" />
+                <polyline data-revenue-history points="20,150 90,138 160,146 230,112 300,120 370,86 400,92" fill="none" stroke="#7ddee6" stroke-width="2.4" />
+                <polyline data-revenue-projection points="400,92 470,74 540,82 630,58" fill="none" stroke="#7aa7ff" stroke-width="2" stroke-dasharray="5 6" />
               </svg>
               <p class="fine">Sample path for the layout. Not a forecast of a real business.</p>
             </div>
@@ -139,18 +139,28 @@
             <p>A price is a probability. This prototype compares implied odds with an estimate and computes expected value from those inputs.</p>
             <a class="quiet-link" href="projects/sports-market/index.html">Open the simulator</a>
           </div>
-          <a class="console-link" href="projects/sports-market/index.html" aria-label="Open the expected value simulator">
+          <a class="console-link market-preview" data-preview="odds" href="projects/sports-market/index.html" aria-label="Open the expected value simulator">
             <div class="console">
-              <div class="console-top"><span>EV-01 · Price vs. estimate</span><span class="chip chip-live">Calculator</span></div>
+              <div class="console-top"><span>EV-01 · Price vs. estimate</span><span class="chip chip-live">Demo feed</span></div>
               <div class="metric-row">
-                <div class="metric"><span>Example price</span><strong>−110</strong></div>
-                <div class="metric"><span>Implied</span><strong>52.4%</strong></div>
-                <div class="metric"><span>Your input</span><strong>Live</strong></div>
+                <div class="metric"><span>Demo market price</span><strong data-odds-main>−110</strong></div>
+                <div class="metric"><span>Implied probability</span><strong data-odds-implied>52.4%</strong></div>
+                <div class="metric"><span>Model estimate</span><strong data-odds-model>55.5%</strong></div>
               </div>
-              <div class="dist" aria-hidden="true">
-                <i style="--h:18%"></i><i style="--h:30%"></i><i style="--h:46%"></i><i style="--h:68%"></i><i style="--h:88%"></i><i class="on" style="--h:100%"></i><i style="--h:84%"></i><i style="--h:60%"></i><i style="--h:38%"></i><i style="--h:22%"></i>
+              <div class="odds-preview-board" aria-hidden="true">
+                <div class="odds-board-heading"><span>ILLUSTRATIVE MARKET BOARD</span><span>MODEL VS. PRICE</span></div>
+                <div class="odds-board-row">
+                  <div class="odds-outcome"><b>OUTCOME A</b><small>Implied / model</small></div>
+                  <div class="odds-price" data-odds-price-a>−110</div>
+                  <div class="odds-model"><strong data-odds-prob-a>52.4% / 55.5%</strong><small>+3.1 percentage pts</small></div>
+                </div>
+                <div class="odds-board-row">
+                  <div class="odds-outcome"><b>OUTCOME B</b><small>Implied / model</small></div>
+                  <div class="odds-price" data-odds-price-b>+105</div>
+                  <div class="odds-model"><strong data-odds-prob-b>48.8% / 46.0%</strong><small>−2.8 percentage pts</small></div>
+                </div>
               </div>
-              <p class="fine">The distribution is decorative. The simulator on the next page uses the odds and probability you enter.</p>
+              <p class="fine">Simulated odds movements, not an actual sportsbook feed. Open the calculator to test your own inputs.</p>
             </div>
           </a>
         </article>
@@ -162,7 +172,7 @@
             <p>An aging view for where cash sits: current, slowing, and late enough to change a collection priority.</p>
             <a class="quiet-link" href="projects/working-capital/index.html">View prototype</a>
           </div>
-          <a class="console-link" href="projects/working-capital/index.html" aria-label="Open the working capital prototype">
+          <a class="console-link market-preview" data-preview="receivables" href="projects/working-capital/index.html" aria-label="Open the working capital prototype">
             <div class="console">
               <div class="console-top"><span>AR-01 · Aging mix</span><span class="chip">Illustrative</span></div>
               <div class="metric-row">
@@ -203,7 +213,7 @@
           <h2>Smaller studies, still in sketch form.</h2>
         </div>
         <div class="gallery">
-          <a class="tile" href="projects/portfolio-risk/index.html">
+          <a class="tile market-preview" data-preview="risk" href="projects/portfolio-risk/index.html">
             <div class="tile-top"><span class="tile-kicker">04 · Allocation</span><span class="chip">Illustrative</span></div>
             <h3>Portfolio Risk &amp; Allocation</h3>
             <p>A weight map for concentration. Not an investment recommendation.</p>
@@ -216,7 +226,7 @@
               </svg>
             </div>
           </a>
-          <a class="tile" href="projects/anomaly-detection/index.html">
+          <a class="tile market-preview" data-preview="anomalies" href="projects/anomaly-detection/index.html">
             <div class="tile-top"><span class="tile-kicker">05 · Exceptions</span><span class="chip">Illustrative</span></div>
             <h3>Transaction Anomaly Detection</h3>
             <p>A field of ordinary amounts, and the point that does not belong.</p>
@@ -229,7 +239,7 @@
               <circle cx="286" cy="28" r="6" fill="#e39b96" />
             </svg>
           </a>
-          <a class="tile" href="projects/scenario-analysis/index.html">
+          <a class="tile market-preview" data-preview="scenarios" href="projects/scenario-analysis/index.html">
             <div class="tile-top"><span class="tile-kicker">06 · Sensitivity</span><span class="chip">Illustrative</span></div>
             <h3>Scenario &amp; Sensitivity</h3>
             <p>Which driver bends the result, in either direction.</p>
@@ -282,5 +292,6 @@
   <script src="js/nav.js"></script>
   <script src="js/ribbon.js"></script>
   <script src="js/motion.js"></script>
+  <script src="js/previews.js" defer></script>
 </body>
 </html>

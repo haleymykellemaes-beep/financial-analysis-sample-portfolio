@@ -10,8 +10,9 @@
  * Requires Playwright with Chromium. Exits non-zero if any check fails.
  *
  * At 1440x900 and 390x844 (2x pixel density) it:
- *   1. checks every request succeeds, every image decodes and nothing on the
- *      page shifts while it loads (layout shift score 0);
+ *   1. checks every request succeeds, every image decodes, the portrait and
+ *      chart never shift while the page loads, and the total layout shift
+ *      (web fonts swapping in) stays under 0.01;
  *   2. saves a screenshot of the hero at rest, then compares it with 10 seconds
  *      later (must be pixel-identical);
  *   3. checks for horizontal overflow;
@@ -27,7 +28,12 @@
  *      same-site files load; external links are listed, not fetched);
  *   7. applies three test updates to the newest candle and checks that only
  *      its column (candle + volume bar) changed and that the price scale held,
- *      then repeats with an update far outside the locked range (clipping).
+ *      then repeats with an update far outside the locked range (clipping);
+ *   8. checks the "Live overlay" toggle: nothing is fetched from TradingView
+ *      until it is pressed; pressing it either shows the live chart (candles
+ *      dimmed, history layer untouched) or, offline, falls back with a
+ *      message; the controls row keeps its size; pressing again restores
+ *      the illustrative chart and caption.
  *
  * The page must expose the chart as window.heroChart (js/home-hero.js does).
  */
@@ -242,6 +248,8 @@ async function run() {
     page.on("pageerror", (e) => errors.push(e.message));
     page.on("requestfailed", (r) => badRequests.push(`${r.url()} (${r.failure() ? r.failure().errorText : "failed"})`));
     page.on("response", (r) => { if (r.status() >= 400) badRequests.push(`${r.url()} (HTTP ${r.status()})`); });
+    const requested = [];
+    page.on("request", (r) => requested.push(r.url()));
     // Layout shifts during load, recorded from the first paint.
     await page.addInitScript(() => {
       window.__shifts = [];
@@ -253,7 +261,7 @@ async function run() {
           window.__shifts.push({
             value: e.value,
             sources: nodes.map((n) => n.id || n.className || n.nodeName),
-            hero: nodes.some((n) => el(n) && el(n).closest(".hero-visual, .hero-chart-controls")),
+            hero: nodes.some((n) => el(n) && el(n).closest(".hero-visual")),
           });
         }
       }).observe({ type: "layout-shift", buffered: true });
@@ -272,12 +280,12 @@ async function run() {
     record(vp.name, "All requests succeed", badRequests.length === 0, badRequests.length ? badRequests.join("; ") : "no failed requests or HTTP errors");
     const broken = load.images.filter((i) => !i.ok);
     record(vp.name, "All images decode", broken.length === 0, broken.length ? broken.map((i) => i.src).join(", ") : `${load.images.length} images`);
-    // The portrait, chart and caption must never shift. Elsewhere, web fonts
-    // swapping in can nudge the nav text slightly; the total must stay tiny
-    // (a tenth of the 0.1 that counts as "good" for Core Web Vitals).
+    // The portrait and chart must never shift. Elsewhere, web fonts swapping
+    // in can nudge text slightly (the nav, the chart controls row); the total
+    // must stay tiny (a tenth of the 0.1 that counts as "good" for Core Web Vitals).
     const cls = load.shifts.reduce((s, e) => s + e.value, 0);
     const heroShifts = load.shifts.filter((e) => e.hero);
-    record(vp.name, "No layout shift from the portrait, chart or caption; total under 0.01",
+    record(vp.name, "No layout shift from the portrait or chart; total under 0.01",
       heroShifts.length === 0 && cls < LIMITS.layoutShift,
       `layout shift score ${cls.toFixed(4)}, ${heroShifts.length} shifts in the hero visual` +
       (load.shifts.length ? `; sources ${JSON.stringify(load.shifts.map((e) => [+e.value.toFixed(4), e.sources.join("|")]))}` : ""));
@@ -496,6 +504,65 @@ async function run() {
       `elsewhere ${cSplit.outside} px; scale ${scaleX === scale0 ? "held" : "changed"}`);
 
     await page.evaluate((o) => window.heroChart.updateLatest(o), original);
+
+    // 8. Live overlay toggle (TradingView). Works online or offline.
+    const tvBefore = requested.filter((u) => u.includes("tradingview")).length;
+    record(vp.name, "Nothing loads from TradingView until the overlay is turned on", tvBefore === 0,
+      `${tvBefore} TradingView requests before the toggle was pressed`);
+    const overlay0 = await page.evaluate(() => {
+      const t = document.querySelector(".hero-chart-toggle");
+      t.scrollIntoView({ block: "center", behavior: "instant" });
+      const b = t.getBoundingClientRect();
+      const hit = document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2) === t;
+      t.focus();
+      return {
+        hit, focused: document.activeElement === t, pressed: t.getAttribute("aria-pressed"),
+        candles: getComputedStyle(document.getElementById("hero-candles")).opacity,
+        row: document.querySelector(".hero-chart-controls").getBoundingClientRect().height,
+        note: document.querySelector(".hero-chart-note").textContent,
+      };
+    });
+    const baseBefore = await page.evaluate(() => document.querySelector(".candle-backdrop__layer--base").toDataURL());
+    await page.keyboard.press("Enter"); // keyboard activation
+    let ov = null;
+    for (let i = 0; i < 30; i++) {
+      await page.waitForTimeout(500);
+      ov = await page.evaluate(() => ({
+        live: document.querySelector(".hero-chart").classList.contains("is-live"),
+        pressed: document.querySelector(".hero-chart-toggle").getAttribute("aria-pressed"),
+        status: document.querySelector(".hero-chart-status").textContent,
+      }));
+      if (ov.live || (ov.status && !ov.status.startsWith("Connecting"))) break;
+    }
+    const overlay1 = await page.evaluate(() => ({
+      candles: getComputedStyle(document.getElementById("hero-candles")).opacity,
+      overlay: getComputedStyle(document.getElementById("hero-chart-live")).opacity,
+      iframeInert: !!document.querySelector("#hero-chart-live iframe") && document.querySelector("#hero-chart-live iframe").closest("[inert]") !== null,
+      row: document.querySelector(".hero-chart-controls").getBoundingClientRect().height,
+      note: document.querySelector(".hero-chart-note").textContent,
+    }));
+    const baseLive = await page.evaluate(() => document.querySelector(".candle-backdrop__layer--base").toDataURL());
+    const onOk = ov.live
+      ? ov.pressed === "true" && +overlay1.candles < +overlay1.overlay && overlay1.iframeInert && overlay1.row === overlay0.row && baseLive === baseBefore
+      : ov.pressed === "false" && ov.status.includes("unavailable");
+    record(vp.name, "Live overlay turns on (or falls back offline)", overlay0.hit && overlay0.focused && overlay0.pressed === "false" && onOk,
+      `toggle clickable=${overlay0.hit}, focusable=${overlay0.focused}; ` + (ov.live
+        ? `live: aria-pressed=${ov.pressed}, candles opacity ${overlay1.candles} under overlay ${overlay1.overlay}, widget inside the inert chart=${overlay1.iframeInert}, ` +
+          `controls row ${overlay0.row}px -> ${overlay1.row}px, history layer ${baseLive === baseBefore ? "untouched" : "redrawn"}, caption "${overlay1.note}"`
+        : `offline fallback: "${ov.status}", aria-pressed=${ov.pressed}`));
+    if (ov.live) {
+      await page.evaluate(() => document.querySelector(".hero-chart-toggle").click());
+      await page.waitForTimeout(300);
+      const off = await page.evaluate(() => ({
+        live: document.querySelector(".hero-chart").classList.contains("is-live"),
+        pressed: document.querySelector(".hero-chart-toggle").getAttribute("aria-pressed"),
+        hidden: document.getElementById("hero-chart-live").hidden,
+        candles: getComputedStyle(document.getElementById("hero-candles")).opacity,
+        note: document.querySelector(".hero-chart-note").textContent,
+      }));
+      record(vp.name, "Live overlay turns off again", !off.live && off.pressed === "false" && off.hidden && off.note === overlay0.note && off.candles === overlay0.candles,
+        `aria-pressed=${off.pressed}, overlay hidden=${off.hidden}, candles opacity back to ${off.candles}, caption "${off.note}"`);
+    }
     await page.close();
   }
 

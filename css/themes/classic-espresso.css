@@ -66,6 +66,14 @@
   --theme-chart-grid: rgba(255, 240, 222, .1);
   --theme-chart-opacity: .92;
   --theme-chart-opacity-mobile: .9;
+  --theme-chart-opacity-live: .42;               /* candles while the live overlay is on */
+
+  /* Live overlay (TradingView) and its toggle */
+  --theme-live-opacity: .76;
+  --theme-live-opacity-mobile: .6;
+  --theme-toggle-border: #e1bc9d70;
+  --theme-toggle-bg: #32251db3;
+  --theme-toggle-active-bg: #73533d;
 
   /* Intro band below the hero */
   --theme-intro-bg: linear-gradient(155deg, #e9d6c4, #f5eee4 60%);

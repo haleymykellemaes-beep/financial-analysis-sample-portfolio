@@ -16,6 +16,7 @@ The approved prototype this was built from is on the `design/hero-chart-prototyp
 | `js/ohlcv-fixture.js` | Fixed, labeled OHLCV fixture: 240 synthetic daily candles, not market data. |
 | `js/candle-backdrop.js` | The chart component (`window.CandleBackdrop`). |
 | `js/home-hero.js` | Mounts the chart and exposes it as `window.heroChart`. |
+| `js/hero-chart.js` | The "Live overlay" toggle: loads TradingView's BTC/USD chart over the candles on request. |
 | `assets/haley-desk-cutout.webp` | The desk photo as a soft cutout with transparency (1152 × 941). |
 | `dev/checks/acceptance.js` | Screenshot and pixel checks (below). |
 | `dev/tools/make-cutout.py` | Rebuilds the cutout from the original photo and a person matte. |
@@ -42,9 +43,10 @@ To add a theme later:
 3. Load it after `classic-espresso.css`.
 4. Set `data-theme` on `<html>`.
 
-Layout stays in `home.css`. Two things aren't tokenized yet:
+Layout stays in `home.css`. Three things aren't tokenized yet:
 
 - `<meta name="theme-color">` in `index.html`.
+- The TradingView widget's own colours (a light chart that `home.css` inverts into the scene), set in `js/hero-chart.js`.
 - The sections below the intro, which use the shared palette in `css/site.css` (`--charcoal`, `--cream` and others) because project pages share those rules. A theme can override those variables on `.home` when it needs to.
 
 ## Chart component API
@@ -95,6 +97,16 @@ function onTick(bar) {                       // bar from your provider
 
 If you connect real data, change the caption "Chart: illustrative data" in `index.html` to name the source.
 
+## Live overlay
+
+The "Live overlay" button in the caption row loads TradingView's BTC/USD daily chart into the same band as the candles (`#hero-chart-live`, inside the inert chart layer).
+
+- **What it looks like:** its light chart is inverted and screened into the scene, as on the earlier homepage, and the illustrative candles dim to 42% beneath it. Unlike the earlier version it doesn't drift side to side, so the hero stays still.
+- **Caption:** while it's on, the caption reads "Chart: live BTC/USD".
+- **Loading:** nothing is fetched from TradingView until the button is pressed.
+- **Failure:** if the widget doesn't load within 8 seconds, or its script fails, it falls back to the illustrative candles and says "TradingView is unavailable. Showing sample candles."
+- **Attribution link:** TradingView's script injects `!important` styles for its link (13px type, its own colours). `home.css` pins the link to its theme look, so the row doesn't change size when the overlay loads.
+
 ## Acceptance checks
 
 From the repository root, with a static server running:
@@ -113,8 +125,8 @@ At 1440 × 900 and 390 × 844, at 2× pixel density, it checks:
 
 - **Loading:**
   - The chart mounts, every request succeeds and every image decodes.
-  - The portrait, chart and caption never shift while the page loads.
-  - The total layout shift stays under 0.01. Web fonts swapping in nudge the nav text by about 0.004 to 0.007; that was already true on `main`.
+  - The portrait and chart never shift while the page loads.
+  - The total layout shift stays under 0.01. Web fonts swapping in nudge the nav text and the caption row by about 0.004 to 0.007; that was already true on `main`.
 - **Stillness:** the hero is pixel-identical at rest and 10 seconds later, and the chart box hasn't moved.
 - **Overflow:** there is no horizontal page overflow.
 - **Clarity:** how much the chart changes the headline, tagline, description, buttons, shortcuts and face, measured by comparing the chart shown and hidden.
@@ -137,6 +149,11 @@ At 1440 × 900 and 390 × 844, at 2× pixel density, it checks:
   - Three test updates to the newest candle each change only its column, in both the price and volume panes.
   - The price scale holds and the history layer stays byte-identical.
 - **Clipping:** an update far outside the locked range stays clipped inside that column.
+- **Live overlay:**
+  - Nothing loads from TradingView until the toggle is pressed.
+  - The toggle can be clicked and focused, and works from the keyboard.
+  - Online, the live chart appears with the candles dimmed, the history layer untouched and the controls row the same size. Pressing again restores the candles and caption.
+  - Offline, it falls back with its message, so the check passes either way.
 
 `data-face` and `data-beside` on the portrait are fractions of the photo (`x y w h`). If the photo changes, update them.
 

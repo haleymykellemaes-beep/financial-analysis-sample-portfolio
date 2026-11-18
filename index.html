@@ -62,6 +62,9 @@
         <div class="hero-visual">
           <div class="hero-chart" aria-hidden="true" inert>
             <div class="candle-backdrop" id="hero-candles"></div>
+            <div class="tradingview-widget-container hero-chart-live" id="hero-chart-live" hidden>
+              <div class="tradingview-widget-container__widget"></div>
+            </div>
           </div>
           <!-- data-face / data-beside: boxes on this photo (fractions x y w h) used by dev/checks/acceptance.js. -->
           <img class="hero-portrait" src="assets/haley-desk-cutout.webp" alt="Portrait of Haley Maes at her desk" width="1152" height="941" fetchpriority="high"
@@ -71,6 +74,14 @@
 
         <div class="hero-chart-controls">
           <p class="hero-chart-note">Chart: illustrative data</p>
+          <button class="hero-chart-toggle" type="button" aria-controls="hero-chart-live" aria-pressed="false">Live overlay</button>
+          <div class="tradingview-widget-copyright">
+            <a href="https://www.tradingview.com/chart/?symbol=BITSTAMP%3ABTCUSD" target="_blank" rel="noopener noreferrer nofollow">
+              View BTC/USD on TradingView
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4m-6 0h6v6"/></svg>
+            </a>
+          </div>
+          <span class="hero-chart-status" role="status"></span>
         </div>
 
         <nav class="hero-shortcuts" aria-label="Explore projects">
@@ -293,5 +304,6 @@
   <script src="js/ohlcv-fixture.js"></script>
   <script src="js/candle-backdrop.js"></script>
   <script src="js/home-hero.js"></script>
+  <script src="js/hero-chart.js"></script>
 </body>
 </html>

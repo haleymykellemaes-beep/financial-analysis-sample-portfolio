@@ -1,10 +1,24 @@
+/*
+ * Homepage hero: the "Live overlay" toggle. On request, loads TradingView's
+ * BTC/USD daily chart over the illustrative candles (css/home.css styles it
+ * to blend into the scene). Nothing is loaded from TradingView until the
+ * button is pressed. If the widget doesn't load within 8 seconds, it falls
+ * back to the illustrative candles and says so.
+ */
 (function () {
   const button = document.querySelector(".hero-chart-toggle");
   const status = document.querySelector(".hero-chart-status");
+  const note = document.querySelector(".hero-chart-note");
   const live = document.getElementById("hero-chart-live");
+  if (!button || !status || !live) return;
   const chart = live.parentElement;
+  const noteText = note ? note.textContent : "";
   let pending = false;
   let timeout;
+
+  function setNote(isLive) {
+    if (note) note.textContent = isLive ? "Chart: live BTC/USD" : noteText;
+  }
 
   function showSample(message = "") {
     window.clearTimeout(timeout);
@@ -14,6 +28,7 @@
     button.removeAttribute("aria-busy");
     button.setAttribute("aria-pressed", "false");
     status.textContent = message;
+    setNote(false);
 
     const widget = document.createElement("div");
     widget.className = "tradingview-widget-container__widget";
@@ -33,6 +48,7 @@
     button.removeAttribute("aria-busy");
     button.setAttribute("aria-pressed", "true");
     status.textContent = "";
+    setNote(true);
   }, true);
 
   button.addEventListener("click", () => {
@@ -73,6 +89,4 @@
     });
     live.append(script);
   });
-
-  button.hidden = false;
 })();

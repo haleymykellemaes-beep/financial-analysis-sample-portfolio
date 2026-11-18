@@ -1,0 +1,82 @@
+/*
+ * Classic Espresso: the homepage's active theme, and for now its only one.
+ *
+ * Every colour on the homepage hero, navigation and intro band comes from a
+ * --theme-* token below. css/home.css holds the layout and uses only these
+ * tokens for colour, so a theme can change the look without touching layout.
+ *
+ * Adding a theme later: copy this file, rename it (for example
+ * css/themes/mile-high.css), scope its block to :root[data-theme="mile-high"],
+ * load it after this file, and set data-theme on <html>. These values stay the
+ * default whenever no other theme is selected.
+ *
+ * Not covered here yet: <meta name="theme-color"> in index.html (#382a23),
+ * and the sections below the intro (work, capabilities, lab, about, footer),
+ * which still use the shared palette in css/site.css.
+ */
+:root {
+  /* Hero text and lines */
+  --theme-text: #fff0de;
+  --theme-text-muted: #e9d7c6;
+  --theme-text-hover: #fff6e9;
+  --theme-line: #daba9a;
+  --theme-accent: #e7c0a1;                       /* brand dot and headline period */
+
+  /* Hero scene */
+  --theme-scene-bg:
+    radial-gradient(ellipse at 76% 44%, #c89e78c2 0%, #a2765480 29%, transparent 66%),
+    linear-gradient(108deg, #31251f 0%, #49372d 51%, #624a3b 100%);
+  --theme-scene-bg-mobile:
+    radial-gradient(ellipse at 64% 68%, #b38867a8, transparent 57%),
+    linear-gradient(140deg, #342720 0%, #4c392f 59%, #634b3b 100%);
+  --theme-scene-rule: linear-gradient(90deg, #e3c4aa26, #edccaa88 63%, #e3c4aa26);
+
+  /* Navigation */
+  --theme-brand-divider: #e6c3a640;
+  --theme-nav-current: #f4c7a1;
+  --theme-nav-current-glow: #edb68b50;
+  --theme-menu-bg: #392a22;
+  --theme-menu-border: #e0b38c60;
+  --theme-menu-divider: #e0b38c35;
+  --theme-menu-shadow: #23181170;
+
+  /* Hero copy rules */
+  --theme-overline-rule: #e4b99160;
+  --theme-tagline-rule: linear-gradient(90deg, #d7a57f00, #d7a57f82 48%, #ffcc9d 84%, #d7a57f00);
+  --theme-tagline-rule-glow: #e1a4772e;
+
+  /* Buttons */
+  --theme-button-border: #e5c09cbd;
+  --theme-button-hover-bg: #e5c09c22;
+  --theme-button-primary-bg: linear-gradient(180deg, #f6d8ba, #dcb18f);
+  --theme-button-primary-hover-bg: #f9dfc7;
+  --theme-button-primary-border: #f6d4b2;
+  --theme-button-primary-text: #31231d;
+  --theme-button-primary-glow: #edba8c35;
+
+  /* Project shortcuts (capability icons) */
+  --theme-shortcut-icon: #ebc59f;
+  --theme-shortcut-divider: #e1bc9d4f;
+
+  /* Hero chart (decorative; passed to the --cb-* properties in home.css) */
+  --theme-chart-up: #58a593;
+  --theme-chart-down: #c9744f;
+  --theme-chart-up-volume: rgba(88, 165, 147, .4);
+  --theme-chart-down-volume: rgba(201, 116, 79, .4);
+  --theme-chart-grid: rgba(255, 240, 222, .1);
+  --theme-chart-opacity: .92;
+  --theme-chart-opacity-mobile: .9;
+  --theme-chart-opacity-live: .42;               /* candles while the live overlay is on */
+
+  /* Live overlay (TradingView) and its toggle */
+  --theme-live-opacity: .76;
+  --theme-live-opacity-mobile: .6;
+  --theme-toggle-border: #e1bc9d70;
+  --theme-toggle-bg: #32251db3;
+  --theme-toggle-active-bg: #73533d;
+
+  /* Intro band below the hero */
+  --theme-intro-bg: linear-gradient(155deg, #e9d6c4, #f5eee4 60%);
+  --theme-intro-text: #372b23;
+  --theme-intro-eyebrow: #73533d;
+}

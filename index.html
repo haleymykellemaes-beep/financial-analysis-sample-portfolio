@@ -11,6 +11,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <!-- Fonts are loaded in site.css for consistent typography across project pages. -->
   <link rel="stylesheet" href="css/site.css" />
+  <!-- Homepage only: active theme tokens, hero chart component, homepage layout. -->
+  <link rel="stylesheet" href="css/themes/classic-espresso.css" />
+  <link rel="stylesheet" href="css/candle-backdrop.css" />
+  <link rel="stylesheet" href="css/home.css" />
 </head>
 <body class="home">
   <a class="skip" href="#work">Skip to work</a>
@@ -57,18 +61,20 @@
 
         <div class="hero-visual">
           <div class="hero-chart" aria-hidden="true" inert>
-            <div class="hero-chart-sample">
-              <img src="assets/hero-candles.svg" alt="" width="1000" height="560" />
-            </div>
+            <div class="candle-backdrop" id="hero-candles"></div>
             <div class="tradingview-widget-container hero-chart-live" id="hero-chart-live" hidden>
               <div class="tradingview-widget-container__widget"></div>
             </div>
           </div>
-          <img class="hero-portrait" src="assets/haley.png" alt="Portrait of Haley Maes" width="800" height="800" fetchpriority="high" />
+          <!-- data-face / data-beside: boxes on this photo (fractions x y w h) used by dev/checks/acceptance.js. -->
+          <img class="hero-portrait" src="assets/haley-desk-cutout.webp" alt="Portrait of Haley Maes at her desk" width="1152" height="941" fetchpriority="high"
+               data-face="0.556 0.213 0.130 0.234"
+               data-beside='{"beside the shoulder, left of the hair": [0.296, 0.444, 0.081, 0.163], "above the left shoulder, right of the hair": [0.762, 0.188, 0.238, 0.151]}' />
         </div>
 
         <div class="hero-chart-controls">
-          <button class="hero-chart-toggle" type="button" aria-controls="hero-chart-live" aria-pressed="false" hidden>Live overlay</button>
+          <p class="hero-chart-note">Chart: illustrative data</p>
+          <button class="hero-chart-toggle" type="button" aria-controls="hero-chart-live" aria-pressed="false">Live overlay</button>
           <div class="tradingview-widget-copyright">
             <a href="https://www.tradingview.com/chart/?symbol=BITSTAMP%3ABTCUSD" target="_blank" rel="noopener noreferrer nofollow">
               View BTC/USD on TradingView
@@ -295,6 +301,9 @@
   </footer>
 
   <script src="js/nav.js"></script>
+  <script src="js/ohlcv-fixture.js"></script>
+  <script src="js/candle-backdrop.js"></script>
+  <script src="js/home-hero.js"></script>
   <script src="js/hero-chart.js"></script>
 </body>
 </html>

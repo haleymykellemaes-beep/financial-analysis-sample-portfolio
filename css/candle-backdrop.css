@@ -1,0 +1,61 @@
+/*
+ * CandleBackdrop component styles. Every rule is scoped to .candle-backdrop,
+ * the container passed to CandleBackdrop.mount(). The host page positions and
+ * sizes the container; these properties tune the drawing:
+ *
+ *   --cb-up / --cb-down                 candle body and wick colors
+ *   --cb-up-volume / --cb-down-volume   volume bar colors
+ *   --cb-grid                           grid line color
+ *   --cb-grid-rows                      approximate number of price grid lines
+ *   --cb-spacing                        distance between candle centers (px)
+ *   --cb-body                           body width as a fraction of spacing
+ *   --cb-wick                           wick width (px)
+ *   --cb-right-pad                      space right of the newest candle (px or % of width)
+ *   --cb-pad-top / --cb-pad-bottom      space above the price pane / below volume (px or % of height)
+ *   --cb-volume-height                  volume pane height (px or % of height)
+ *   --cb-pane-gap                       gap between price and volume panes (px or % of height)
+ *   --cb-mask / --cb-mask-composite     optional fade mask for the whole chart
+ *
+ * Changes to these take effect on the next resize or setData() call.
+ */
+.candle-backdrop {
+  --cb-up: #58a593;
+  --cb-down: #c9744f;
+  --cb-up-volume: rgba(88, 165, 147, 0.4);
+  --cb-down-volume: rgba(201, 116, 79, 0.4);
+  --cb-grid: rgba(255, 240, 222, 0.08);
+  --cb-grid-rows: 6;
+  --cb-spacing: 8px;
+  --cb-body: 0.64;
+  --cb-wick: 1px;
+  --cb-right-pad: 24px;
+  --cb-pad-top: 6%;
+  --cb-pad-bottom: 2%;
+  --cb-volume-height: 16%;
+  --cb-pane-gap: 3%;
+  --cb-mask: none;
+  --cb-mask-composite: add;
+
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Width and height are set inline by the script (one canvas pixel per device
+   pixel). The mask goes here rather than on the container: see the script. */
+.candle-backdrop > .candle-backdrop__stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  -webkit-mask-image: var(--cb-mask);
+  mask-image: var(--cb-mask);
+  mask-composite: var(--cb-mask-composite);
+}
+
+.candle-backdrop__stage > .candle-backdrop__layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  max-width: none;
+}

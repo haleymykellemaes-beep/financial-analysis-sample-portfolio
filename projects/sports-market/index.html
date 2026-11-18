@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Expected Value · Haley Maes</title>
+  <meta name="theme-color" content="#1c1c1b" />
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="../../css/site.css" />
+</head>
+<body class="subpage">
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="../../index.html">Haley Maes</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
+      <nav class="nav-links" id="nav-links" aria-label="Primary">
+        <a href="../../index.html#work">Work</a>
+        <a href="../../index.html#capabilities">Capabilities</a>
+        <a href="../../index.html#about">About</a>
+        <a href="../../index.html#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+  <main class="case">
+    <div class="wrap">
+      <div class="case-top">
+        <div>
+          <p class="status">Prototype · Simulator is live</p>
+          <h1>Sports Market Pricing &amp; Expected Value</h1>
+        </div>
+        <div class="prose">
+          <p class="case-lead">Enter an American price, your estimated probability, and a stake. Implied probability, edge, and expected value are calculated from those inputs.</p>
+          <p><a class="quiet-link" href="../../index.html#work">All work</a></p>
+        </div>
+      </div>
+
+      <section class="console" aria-labelledby="sim-title">
+        <div class="console-top"><span id="sim-title">EV-01 · Working calculation</span><span class="chip chip-live">Your inputs</span></div>
+        <form id="ev-form">
+          <div class="ev-fields">
+            <label class="field" for="odds">American odds
+              <input id="odds" name="odds" type="number" inputmode="numeric" step="1" value="-110" />
+            </label>
+            <label class="field" for="prob">Estimated probability
+              <input id="prob" name="prob" type="range" min="1" max="99" value="55" />
+              <span id="prob-out" class="field-value">55%</span>
+            </label>
+            <label class="field" for="stake">Stake
+              <input id="stake" name="stake" type="number" inputmode="decimal" min="1" step="1" value="100" />
+            </label>
+          </div>
+        </form>
+        <p id="ev-error" class="ev-error" hidden></p>
+        <dl class="ev-readout">
+          <div><dt>Implied probability</dt><dd id="out-implied">—</dd></div>
+          <div><dt>Decimal odds</dt><dd id="out-decimal">—</dd></div>
+          <div><dt>Edge</dt><dd id="out-edge">—</dd></div>
+          <div><dt>Expected value</dt><dd id="out-ev">—</dd></div>
+        </dl>
+        <div class="compare" aria-hidden="true">
+          <div class="compare-row"><span>Implied</span><div class="compare-bar"><i id="bar-implied" style="--w:0%"></i></div></div>
+          <div class="compare-row"><span>Estimate</span><div class="compare-bar"><i id="bar-estimate" style="--w:0%"></i></div></div>
+        </div>
+        <p id="out-note" class="fine"></p>
+        <p class="fine">A learning tool for price versus estimated probability. Not betting, investment, or financial advice. The distribution below is a sketch and does not follow these inputs.</p>
+      </section>
+
+      <section class="console">
+        <div class="console-top"><span>Distribution sketch</span><span class="chip">Illustrative</span></div>
+        <div class="dist" aria-hidden="true">
+          <i style="--h:18%"></i><i style="--h:30%"></i><i style="--h:46%"></i><i style="--h:68%"></i><i style="--h:88%"></i><i class="on" style="--h:100%"></i><i style="--h:84%"></i><i style="--h:60%"></i><i style="--h:38%"></i><i style="--h:22%"></i>
+        </div>
+        <p class="fine">Shape only. It does not change when the calculator changes, and it is not a fitted distribution.</p>
+      </section>
+    </div>
+  </main>
+  <script src="../../js/nav.js"></script>
+  <script src="../../js/ev.js"></script>
+</body>
+</html>

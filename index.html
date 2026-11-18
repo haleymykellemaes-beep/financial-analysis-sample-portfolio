@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Haley Maes · Financial Analysis Sample Portfolio</title>
+  <meta name="description" content="Haley Maes — financial analysis sample portfolio. Finding value in the variables." />
+  <meta name="theme-color" content="#1c1c1b" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="css/site.css" />
+</head>
+<body>
+  <a class="skip" href="#work">Skip to work</a>
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top">Haley Maes</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
+      <nav class="nav-links" id="nav-links" aria-label="Primary">
+        <a href="#work">Work</a>
+        <a href="#capabilities">Capabilities</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <header class="hero" id="top">
+    <canvas id="ribbon" aria-hidden="true"></canvas>
+    <div class="hero-veil" aria-hidden="true"></div>
+    <div class="wrap hero-copy">
+      <p class="eyebrow">Financial Intelligence</p>
+      <h1>Haley<br />Maes</h1>
+      <p class="tagline">Finding Value in the <em>Variables.</em></p>
+      <div class="hero-actions">
+        <a class="pill" href="#work">Explore Work</a>
+        <a class="quiet-link" href="#about">About</a>
+      </div>
+    </div>
+    <div class="wrap hero-foot">
+      <span>Independent prototype</span>
+      <span>Excel · SQL · Python</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro" id="intro">
+      <div class="wrap intro-grid">
+        <div>
+          <p class="eyebrow">Approach</p>
+          <h2>A number is useful once it can support a decision.</h2>
+        </div>
+        <div class="prose">
+          <p class="lede">I am a data analyst interested in financial modeling, probability, risk, revenue intelligence, and the systems that make those questions easier to see.</p>
+          <p>The work starts with the decision, then the record behind it: what was booked, what is still open, what a price implies, and which assumption would change the answer. Excel, SQL, and Python are the tools. Clarity is the standard.</p>
+          <p>This site is a visual prototype for that practice. It is separate from my data analytics portfolio, and the interfaces below are proposed systems, not completed studies.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="band-dark" id="work">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Selected systems</p>
+          <h2>Analytical surfaces for money, odds, and time.</h2>
+          <p class="section-note">Dashboard figures on this page are illustrative layout data. Nothing here is a published result.</p>
+        </div>
+
+        <article class="feature">
+          <div class="feature-copy">
+            <p class="feature-index">01</p>
+            <h3>Revenue Intelligence &amp; Forecasting</h3>
+            <p>A console for trailing revenue, a forward range, and the assumptions that hold the range together.</p>
+            <a class="quiet-link" href="projects/revenue-intelligence/index.html">View prototype</a>
+          </div>
+          <a class="console-link" href="projects/revenue-intelligence/index.html" aria-label="Open the revenue intelligence prototype">
+            <div class="console">
+              <div class="console-top"><span>REV-01 · Forecast</span><span class="chip">Illustrative</span></div>
+              <div class="metric-row">
+                <div class="metric"><span>Booked</span><strong>$4.8M</strong></div>
+                <div class="metric"><span>Range</span><strong>±6%</strong></div>
+                <div class="metric"><span>Horizon</span><strong>4 mo</strong></div>
+              </div>
+              <svg class="chart" viewBox="0 0 640 220" role="img" aria-label="Illustrative revenue path with a forward band">
+                <g stroke="rgba(237,233,220,0.08)" stroke-width="1">
+                  <path d="M0 40H640M0 100H640M0 160H640" />
+                </g>
+                <path d="M400 92 L470 48 L540 70 L630 36 L630 112 L540 108 L470 100 L400 92Z" fill="rgba(122,167,255,0.16)" />
+                <polyline points="20,150 90,138 160,146 230,112 300,120 370,86 400,92" fill="none" stroke="#7ddee6" stroke-width="2.4" />
+                <polyline points="400,92 470,74 540,82 630,58" fill="none" stroke="#7aa7ff" stroke-width="2" stroke-dasharray="5 6" />
+              </svg>
+              <p class="fine">Sample path for the layout. Not a forecast of a real business.</p>
+            </div>
+          </a>
+        </article>
+
+        <article class="feature reverse">
+          <div class="feature-copy">
+            <p class="feature-index">02</p>
+            <h3>Sports Market Pricing &amp; Expected Value</h3>
+            <p>A price is a probability. This prototype compares implied odds with an estimate and computes expected value from those inputs.</p>
+            <a class="quiet-link" href="projects/sports-market/index.html">Open the simulator</a>
+          </div>
+          <a class="console-link" href="projects/sports-market/index.html" aria-label="Open the expected value simulator">
+            <div class="console">
+              <div class="console-top"><span>EV-01 · Price vs. estimate</span><span class="chip chip-live">Calculator</span></div>
+              <div class="metric-row">
+                <div class="metric"><span>Example price</span><strong>−110</strong></div>
+                <div class="metric"><span>Implied</span><strong>52.4%</strong></div>
+                <div class="metric"><span>Your input</span><strong>Live</strong></div>
+              </div>
+              <div class="dist" aria-hidden="true">
+                <i style="--h:18%"></i><i style="--h:30%"></i><i style="--h:46%"></i><i style="--h:68%"></i><i style="--h:88%"></i><i class="on" style="--h:100%"></i><i style="--h:84%"></i><i style="--h:60%"></i><i style="--h:38%"></i><i style="--h:22%"></i>
+              </div>
+              <p class="fine">The distribution is decorative. The simulator on the next page uses the odds and probability you enter.</p>
+            </div>
+          </a>
+        </article>
+
+        <article class="feature">
+          <div class="feature-copy">
+            <p class="feature-index">03</p>
+            <h3>Working Capital &amp; Receivables Intelligence</h3>
+            <p>An aging view for where cash sits: current, slowing, and late enough to change a collection priority.</p>
+            <a class="quiet-link" href="projects/working-capital/index.html">View prototype</a>
+          </div>
+          <a class="console-link" href="projects/working-capital/index.html" aria-label="Open the working capital prototype">
+            <div class="console">
+              <div class="console-top"><span>AR-01 · Aging mix</span><span class="chip">Illustrative</span></div>
+              <div class="metric-row">
+                <div class="metric"><span>Open</span><strong>$1.2M</strong></div>
+                <div class="metric"><span>Current</span><strong>58%</strong></div>
+                <div class="metric"><span>90+</span><strong>8%</strong></div>
+              </div>
+              <div class="aging" aria-hidden="true">
+                <div class="aging-row"><span>Current</span><i style="--w:58%"></i><b>58</b></div>
+                <div class="aging-row"><span>1–30</span><i style="--w:22%"></i><b>22</b></div>
+                <div class="aging-row"><span>31–60</span><i style="--w:12%"></i><b>12</b></div>
+                <div class="aging-row"><span>90+</span><i style="--w:8%"></i><b>8</b></div>
+              </div>
+              <p class="fine">Sample mix for the interface. Not a client ledger.</p>
+            </div>
+          </a>
+        </article>
+      </div>
+    </section>
+
+    <section class="capabilities" id="capabilities">
+      <div class="wrap">
+        <p class="eyebrow">Capabilities</p>
+        <h2>Four questions I like the work to answer.</h2>
+        <div class="cap-grid">
+          <article class="cap"><p>01</p><h3>Forecasting</h3><p>Revenue paths, ranges, and the assumptions underneath a forward number.</p></article>
+          <article class="cap"><p>02</p><h3>Risk</h3><p>Concentration, exposure, and what would have to move before the answer changes.</p></article>
+          <article class="cap"><p>03</p><h3>Probability</h3><p>Implied price versus an estimated likelihood, and the expected value in between.</p></article>
+          <article class="cap"><p>04</p><h3>Operations</h3><p>Receivables, timing, and the cash story sitting inside a ledger.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="gallery-section" id="gallery">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Also in the lab</p>
+          <h2>Smaller studies, still in sketch form.</h2>
+        </div>
+        <div class="gallery">
+          <a class="tile" href="projects/portfolio-risk/index.html">
+            <div class="tile-top"><span class="tile-kicker">04 · Allocation</span><span class="chip">Illustrative</span></div>
+            <h3>Portfolio Risk &amp; Allocation</h3>
+            <p>A weight map for concentration. Not an investment recommendation.</p>
+            <div class="tile-viz">
+              <svg class="donut" viewBox="0 0 120 120" aria-hidden="true">
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#2a3140" stroke-width="12" />
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#7aa7ff" stroke-width="12" stroke-dasharray="110 154" transform="rotate(-90 60 60)" />
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#7ddee6" stroke-width="12" stroke-dasharray="74 190" stroke-dashoffset="-110" transform="rotate(-90 60 60)" />
+                <circle cx="60" cy="60" r="42" fill="none" stroke="#c9a0c4" stroke-width="12" stroke-dasharray="48 216" stroke-dashoffset="-184" transform="rotate(-90 60 60)" />
+              </svg>
+            </div>
+          </a>
+          <a class="tile" href="projects/anomaly-detection/index.html">
+            <div class="tile-top"><span class="tile-kicker">05 · Exceptions</span><span class="chip">Illustrative</span></div>
+            <h3>Transaction Anomaly Detection</h3>
+            <p>A field of ordinary amounts, and the point that does not belong.</p>
+            <svg class="scatter tile-viz" viewBox="0 0 320 140" aria-hidden="true">
+              <g fill="#7aa7ff">
+                <circle cx="40" cy="92" r="4" /><circle cx="70" cy="80" r="4" /><circle cx="96" cy="88" r="3" />
+                <circle cx="120" cy="74" r="4" /><circle cx="148" cy="84" r="3" /><circle cx="176" cy="70" r="4" />
+                <circle cx="204" cy="78" r="3" /><circle cx="232" cy="66" r="4" /><circle cx="260" cy="76" r="3" />
+              </g>
+              <circle cx="286" cy="28" r="6" fill="#e39b96" />
+            </svg>
+          </a>
+          <a class="tile" href="projects/scenario-analysis/index.html">
+            <div class="tile-top"><span class="tile-kicker">06 · Sensitivity</span><span class="chip">Illustrative</span></div>
+            <h3>Scenario &amp; Sensitivity</h3>
+            <p>Which driver bends the result, in either direction.</p>
+            <div class="tornado tile-viz" aria-hidden="true">
+              <div class="tornado-row"><span>Price</span><div class="tornado-track"><i class="down" style="--w:46%"></i><i class="up" style="--w:62%"></i></div></div>
+              <div class="tornado-row"><span>Volume</span><div class="tornado-track"><i class="down" style="--w:38%"></i><i class="up" style="--w:44%"></i></div></div>
+              <div class="tornado-row"><span>Lag</span><div class="tornado-track"><i class="down" style="--w:58%"></i><i class="up" style="--w:22%"></i></div></div>
+              <div class="tornado-row"><span>Discount</span><div class="tornado-track"><i class="down" style="--w:28%"></i><i class="up" style="--w:30%"></i></div></div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="about" id="about">
+      <div class="wrap about-grid">
+        <div>
+          <p class="eyebrow">Profile</p>
+          <h2>My story</h2>
+        </div>
+        <div class="prose">
+          <p class="lede">Data analyst with an investigator’s eye. I turn messy operational and financial data into clear decisions through Excel, SQL, Python, and visualization.</p>
+          <p>I’m especially interested in financial modeling, reporting, reconciliation, and identifying the why behind a number — not just the number itself. I value accuracy, practical tools, and analysis people can actually use.</p>
+          <ul class="edu">
+            <li><strong>B.S., Data Analytics</strong><span>Western Governors University</span></li>
+            <li><strong>Computational Mathematical Sciences</strong><span>Arizona State University</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="contact">
+    <div class="wrap">
+      <p class="eyebrow">Contact</p>
+      <div class="footer-grid">
+        <p class="footer-name">Haley Maes</p>
+        <ul class="footer-links">
+          <li><a href="https://github.com/haleymykellemaes-beep" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/haleymmaes" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+          <li><a href="https://haleymykellemaes-beep.github.io/Haley-Maes-Resume.html" target="_blank" rel="noopener noreferrer">Resume</a></li>
+        </ul>
+      </div>
+      <p class="fine">Arvada, CO. Open to data analyst, financial analyst, and analytics-focused operations roles. This laboratory does not offer investment, betting, or financial advice.</p>
+    </div>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <script src="js/ribbon.js"></script>
+</body>
+</html>

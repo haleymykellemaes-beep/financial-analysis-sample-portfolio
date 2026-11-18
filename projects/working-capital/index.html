@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Working Capital · Haley Maes</title>
+  <meta name="theme-color" content="#1c1c1b" />
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="../../css/site.css" />
+</head>
+<body class="subpage">
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="../../index.html">Haley Maes</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
+      <nav class="nav-links" id="nav-links" aria-label="Primary">
+        <a href="../../index.html#work">Work</a>
+        <a href="../../index.html#capabilities">Capabilities</a>
+        <a href="../../index.html#about">About</a>
+        <a href="../../index.html#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+  <main class="case">
+    <div class="wrap">
+      <div class="case-top">
+        <div>
+          <p class="status">Prototype · In development</p>
+          <h1>Working Capital &amp; Receivables</h1>
+        </div>
+        <div class="prose">
+          <p class="case-lead">A proposed view of where open receivables sit by age. The mix is a sample so the screen can be judged. It is not a ledger result.</p>
+          <p><a class="quiet-link" href="../../index.html#work">All work</a></p>
+        </div>
+      </div>
+      <div class="console">
+        <div class="console-top"><span>AR-01 · Sample aging</span><span class="chip">Illustrative</span></div>
+        <div class="metric-row">
+          <div class="metric"><span>Open balance</span><strong>$1.20M</strong></div>
+          <div class="metric"><span>Current</span><strong>58%</strong></div>
+          <div class="metric"><span>Past 60</span><strong>20%</strong></div>
+        </div>
+        <div class="aging">
+          <div class="aging-row"><span>Current</span><i style="--w:58%"></i><b>58%</b></div>
+          <div class="aging-row"><span>1–30</span><i style="--w:22%"></i><b>22%</b></div>
+          <div class="aging-row"><span>31–60</span><i style="--w:12%"></i><b>12%</b></div>
+          <div class="aging-row"><span>90+</span><i style="--w:8%"></i><b>8%</b></div>
+        </div>
+        <p class="fine">Shares are chosen for the drawing and sum to 100. A finished version would read an actual aging extract.</p>
+      </div>
+      <div class="points">
+        <article><h3>The question</h3><p>Which balances are still inside terms, and which are old enough to change a collection priority?</p></article>
+        <article><h3>Still to build</h3><p>Customer concentration, promise dates, and a tie from aging buckets to cash timing. None of that is calculated here.</p></article>
+      </div>
+    </div>
+  </main>
+  <script src="../../js/nav.js"></script>
+</body>
+</html>

@@ -1,32 +1,41 @@
 #!/usr/bin/env node
 /*
- * Acceptance checks for the hero candlestick prototype.
+ * Acceptance checks for the homepage hero and its candlestick backdrop.
  *
  * Usage (with a static server running at the repository root):
  *   python3 -m http.server 8765
- *   node chart-prototype/checks/acceptance.js [previewUrl] [outputDir]
+ *   node dev/checks/acceptance.js [pageUrl] [outputDir]
  *
- * Defaults: http://localhost:8765/chart-prototype/ and chart-prototype/checks/output/
+ * Defaults: http://localhost:8765/ and dev/checks/output/ (git-ignored).
  * Requires Playwright with Chromium. Exits non-zero if any check fails.
  *
- * At 1440x900 and 390x844 it:
- *   1. saves a screenshot of the hero at rest, then compares it with 10 seconds
+ * At 1440x900 and 390x844 (2x pixel density) it:
+ *   1. checks every request succeeds, every image decodes and nothing on the
+ *      page shifts while it loads (layout shift score 0);
+ *   2. saves a screenshot of the hero at rest, then compares it with 10 seconds
  *      later (must be pixel-identical);
- *   2. checks for horizontal overflow;
- *   3. measures how much the chart changes the pixels of the headline, tagline,
+ *   3. checks for horizontal overflow;
+ *   4. measures how much the chart changes the pixels of the headline, tagline,
  *      description, buttons, shortcuts and face (chart shown vs hidden); the
  *      face box comes from the portrait's data-face attribute, and any
  *      data-beside boxes must show the chart (minimum change);
- *   4. checks the hero buttons receive clicks and the chart is out of the tab order;
- *   5. applies each demo test update and checks that only the newest candle's
- *      column (candle + volume bar) changed and that the price scale held,
+ *   5. checks the chart is crisp: every grid line is exactly one CSS pixel
+ *      (DPR device pixels) wide on the canvas, and on screen it covers exactly
+ *      those device pixels, with no bleed into its neighbours;
+ *   6. checks the hero buttons receive clicks, the chart is out of the tab
+ *      order, and every link on the page resolves (in-page anchors exist and
+ *      same-site files load; external links are listed, not fetched);
+ *   7. applies three test updates to the newest candle and checks that only
+ *      its column (candle + volume bar) changed and that the price scale held,
  *      then repeats with an update far outside the locked range (clipping).
+ *
+ * The page must expose the chart as window.heroChart (js/home-hero.js does).
  */
 const fs = require("fs");
 const path = require("path");
 const { chromium } = require("playwright");
 
-const URL = process.argv[2] || "http://localhost:8765/chart-prototype/";
+const URL = process.argv[2] || "http://localhost:8765/";
 const OUT = path.resolve(process.argv[3] || path.join(__dirname, "output"));
 const VIEWPORTS = [
   { name: "desktop", width: 1440, height: 900 },
@@ -36,7 +45,8 @@ const DPR = 2;
 
 // Region limits: mean absolute RGB change (0-255) the chart may add.
 // visible: minimum mean change where a page asks for the chart to show (data-beside).
-const LIMITS = { text: 3, face: 0.5, visible: 2 };
+// layoutShift: maximum total layout shift score while the page loads.
+const LIMITS = { text: 3, face: 0.5, visible: 2, layoutShift: 0.01 };
 
 fs.mkdirSync(OUT, { recursive: true });
 const results = [];
@@ -121,6 +131,72 @@ async function makeLab(browser) {
       });
     };
 
+    // Grid-line crispness. canvases: [base, latest] PNGs of the chart layers;
+    // origin: where the canvas's top-left falls in the screenshots (device px).
+    // Finds full-width grid rows and full-height grid columns on the base layer,
+    // then checks that on screen (a = chart shown, b = hidden) each line changes
+    // exactly its own device pixels: where both neighbours are empty on the
+    // canvas, they must be unchanged in the screenshot. Any resampling of the
+    // canvas (a blurry chart) shows up as changed neighbours. Samples inside
+    // `skip` rects (device px) are ignored: page content layered above the
+    // chart (the hero copy) can itself render a level differently when the
+    // chart is hidden, which says nothing about the chart's sharpness.
+    window.crisp = async (a, b, canvases, origin, skip) => {
+      const A = await load(a), B = await load(b);
+      const [C, Lt] = await Promise.all(canvases.map(load));
+      const W = C.width, H = C.height;
+      const filled = (x, y) => x >= 0 && y >= 0 && x < W && y < H &&
+        (C.data[(y * W + x) * 4 + 3] > 0 || Lt.data[(y * W + x) * 4 + 3] > 0);
+      const runs = (flags) => {
+        const out = []; let s = -1;
+        flags.forEach((f, i) => { if (f && s < 0) s = i; if (!f && s >= 0) { out.push([s, i - 1]); s = -1; } });
+        if (s >= 0) out.push([s, flags.length - 1]);
+        return out;
+      };
+      const rowFlags = [], colFlags = [];
+      for (let y = 0; y < H; y++) { let n = 0; for (let x = 0; x < W; x++) if (C.data[(y * W + x) * 4 + 3]) n++; rowFlags.push(n > 0.9 * W); }
+      const ya = Math.floor(H * 0.15), yb = Math.floor(H * 0.85);
+      for (let x = 0; x < W; x++) { let n = 0; for (let y = ya; y < yb; y++) if (C.data[(y * W + x) * 4 + 3]) n++; colFlags.push(n > 0.9 * (yb - ya)); }
+      const rows = runs(rowFlags), cols = runs(colFlags);
+      const changed = (x, y) => {
+        if (x < 0 || y < 0 || x >= A.width || y >= A.height) return null;
+        const i = (y * A.width + x) * 4;
+        return A.data[i] !== B.data[i] || A.data[i + 1] !== B.data[i + 1] || A.data[i + 2] !== B.data[i + 2];
+      };
+      const measure = (dx, dy) => {
+        let samples = 0, bleed = 0;
+        const where = [];
+        const probe = (line, before, after) => {
+          const sx = before[0] + dx, sy = before[1] + dy;
+          if (skip.some((r) => sx >= r.x0 && sx < r.x1 && sy >= r.y0 && sy < r.y1)) return;
+          if (!line.every((p) => changed(p[0] + dx, p[1] + dy) === true)) return; // masked out or under the photo
+          const u = changed(before[0] + dx, before[1] + dy), d = changed(after[0] + dx, after[1] + dy);
+          if (u === null || d === null) return;
+          samples++;
+          if (u || d) { bleed++; if (where.length < 8) where.push({ line: line.map((q) => [q[0] + dx, q[1] + dy]), before: [before[0] + dx, before[1] + dy, u], after: [after[0] + dx, after[1] + dy, d] }); }
+        };
+        for (const [s, e] of rows) for (let x = 0; x < W; x++) {
+          if (filled(x, s - 1) || filled(x, e + 1)) continue;
+          const line = []; for (let y = s; y <= e; y++) line.push([x, y]);
+          probe(line, [x, s - 1], [x, e + 1]);
+        }
+        for (const [s, e] of cols) for (let y = 0; y < H; y++) {
+          if (filled(s - 1, y) || filled(e + 1, y)) continue;
+          const line = []; for (let x = s; x <= e; x++) line.push([x, y]);
+          probe(line, [s - 1, y], [e + 1, y]);
+        }
+        return { samples, bleed, where };
+      };
+      let best = null;
+      for (let dy = Math.floor(origin.y) - 1; dy <= Math.ceil(origin.y) + 1; dy++) {
+        for (let dx = Math.floor(origin.x) - 1; dx <= Math.ceil(origin.x) + 1; dx++) {
+          const m = measure(dx, dy);
+          if (!best || m.samples > best.samples || (m.samples === best.samples && m.bleed < best.bleed)) best = { ...m, dx, dy };
+        }
+      }
+      return { rows: rows.map(([s, e]) => e - s + 1), cols: cols.map(([s, e]) => e - s + 1), ...best };
+    };
+
     // Before | after | changed-pixel map, cropped around a rect and enlarged.
     window.triptych = async (a, b, rect, scale) => {
       const A = await load(a), B = await load(b);
@@ -162,10 +238,49 @@ async function run() {
   for (const vp of VIEWPORTS) {
     const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: DPR });
     const errors = [];
+    const badRequests = [];
     page.on("pageerror", (e) => errors.push(e.message));
+    page.on("requestfailed", (r) => badRequests.push(`${r.url()} (${r.failure() ? r.failure().errorText : "failed"})`));
+    page.on("response", (r) => { if (r.status() >= 400) badRequests.push(`${r.url()} (HTTP ${r.status()})`); });
+    // Layout shifts during load, recorded from the first paint.
+    await page.addInitScript(() => {
+      window.__shifts = [];
+      new PerformanceObserver((list) => {
+        for (const e of list.getEntries()) {
+          if (e.hadRecentInput) continue;
+          const nodes = (e.sources || []).map((s) => s.node).filter(Boolean);
+          const el = (n) => (n.nodeType === 1 ? n : n.parentElement);
+          window.__shifts.push({
+            value: e.value,
+            sources: nodes.map((n) => n.id || n.className || n.nodeName),
+            hero: nodes.some((n) => el(n) && el(n).closest(".hero-visual, .hero-chart-controls")),
+          });
+        }
+      }).observe({ type: "layout-shift", buffered: true });
+    });
     await page.goto(URL, { waitUntil: "networkidle" });
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(500);
+
+    const load = await page.evaluate(() => ({
+      images: [...document.images].map((i) => ({ src: i.getAttribute("src"), ok: i.complete && i.naturalWidth > 0 })),
+      shifts: window.__shifts,
+      chart: !!window.heroChart && !!document.querySelector("#hero-candles canvas"),
+    }));
+    // 1. Assets, images and layout shift while loading.
+    record(vp.name, "Chart mounted", load.chart, load.chart ? "window.heroChart and its canvases present" : "chart did not mount");
+    record(vp.name, "All requests succeed", badRequests.length === 0, badRequests.length ? badRequests.join("; ") : "no failed requests or HTTP errors");
+    const broken = load.images.filter((i) => !i.ok);
+    record(vp.name, "All images decode", broken.length === 0, broken.length ? broken.map((i) => i.src).join(", ") : `${load.images.length} images`);
+    // The portrait, chart and caption must never shift. Elsewhere, web fonts
+    // swapping in can nudge the nav text slightly; the total must stay tiny
+    // (a tenth of the 0.1 that counts as "good" for Core Web Vitals).
+    const cls = load.shifts.reduce((s, e) => s + e.value, 0);
+    const heroShifts = load.shifts.filter((e) => e.hero);
+    record(vp.name, "No layout shift from the portrait, chart or caption; total under 0.01",
+      heroShifts.length === 0 && cls < LIMITS.layoutShift,
+      `layout shift score ${cls.toFixed(4)}, ${heroShifts.length} shifts in the hero visual` +
+      (load.shifts.length ? `; sources ${JSON.stringify(load.shifts.map((e) => [+e.value.toFixed(4), e.sources.join("|")]))}` : ""));
 
     const geo = await page.evaluate(() => {
       const r = (el) => { const b = el.getBoundingClientRect(); return { x: b.x + scrollX, y: b.y + scrollY, w: b.width, h: b.height }; };
@@ -216,12 +331,12 @@ async function run() {
       x1: Math.ceil((r.x + r.w) * DPR), y1: Math.ceil((r.y + r.h - heroClip.y) * DPR),
     });
 
-    // 1. Screenshot at rest (viewport view for review, plus the whole hero for checks).
+    // 2. Screenshot at rest (viewport view for review, plus the whole hero for checks).
     await page.screenshot({ path: path.join(OUT, `${vp.name}-${vp.width}x${vp.height}.png`) });
     const rest = await shoot(`${vp.name}-hero-rest.png`);
     record(vp.name, "No page errors", errors.length === 0, errors.join("; "));
 
-    // 1b. Still after 10 seconds, measured from the at-rest frame before any interaction.
+    // 2b. Still after 10 seconds, measured from the at-rest frame before any interaction.
     const t0 = rest;
     const box0 = await page.evaluate(() => JSON.stringify(document.getElementById("hero-candles").getBoundingClientRect()));
     await page.waitForTimeout(10000);
@@ -232,14 +347,14 @@ async function run() {
       `${still.changed} changed pixels, chart box ${box0 === box10 ? "unchanged" : "moved"}`);
 
 
-    // 2. Horizontal overflow.
+    // 3. Horizontal overflow.
     const overflow = await page.evaluate(() => ({
       doc: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       body: document.body.scrollWidth - document.documentElement.clientWidth,
     }));
     record(vp.name, "No horizontal overflow", overflow.doc <= 0 && overflow.body <= 0, `scrollWidth - clientWidth = ${overflow.doc}px`);
 
-    // 3. Chart contribution over text and face (chart shown vs hidden).
+    // 4. Chart contribution over text and face (chart shown vs hidden).
     await page.addStyleTag({ content: "#hero-candles{visibility:hidden!important}" });
     await page.waitForTimeout(100);
     const noChart = await shoot(`${vp.name}-hero-no-chart.png`);
@@ -265,7 +380,21 @@ async function run() {
         `mean change ${d.mean.toFixed(2)} / 255 (minimum ${LIMITS.visible}), max ${d.max.toFixed(0)}`));
     }
 
-    // 4. Buttons stay clickable; chart is outside the tab order.
+    // 5. Crisp chart: grid lines map 1:1 onto device pixels.
+    const layers = await page.evaluate(() => [...document.querySelectorAll("#hero-candles canvas")].map((c) => c.toDataURL().split(",")[1]));
+    const origin = { x: geo.chart.x * DPR, y: (geo.chart.y - heroClip.y) * DPR };
+    const above = await page.evaluate(() => [".hero-copy", ".hero-shortcuts", ".hero-chart-controls"].map((s) => {
+      const b = document.querySelector(s).getBoundingClientRect(); return { x: b.x + scrollX, y: b.y + scrollY, w: b.width, h: b.height };
+    }));
+    const sharp = await lab.evaluate(([a, b, c, o, k]) => window.crisp(a, b, c, o, k), [rest, noChart, layers, origin, above.map(dev)]);
+    const widths = [...sharp.rows, ...sharp.cols];
+    record(vp.name, "Chart is crisp (grid lines 1 CSS px, no resampling)",
+      widths.length > 0 && widths.every((w) => w === DPR) && sharp.samples >= 300 && sharp.bleed === 0,
+      `${sharp.rows.length} horizontal and ${sharp.cols.length} vertical grid lines, widths ${[...new Set(widths)].join("/")} device px; ` +
+      `${sharp.samples} on-screen samples, ${sharp.bleed} with bleed into neighbouring pixels` +
+      (sharp.bleed ? `; at (device px in hero) ${JSON.stringify(sharp.where)}` : ""));
+
+    // 6. Buttons stay clickable; chart is outside the tab order.
     const hits = await page.evaluate(() => [...document.querySelectorAll(".hero-actions a")].map((a) => {
       a.scrollIntoView({ block: "center" });
       const b = a.getBoundingClientRect();
@@ -291,17 +420,48 @@ async function run() {
       a11y.inert && a11y.hidden === "true" && a11y.pointer === "none" && a11y.focusable === 0 && !tabbed.some(Boolean),
       `inert=${a11y.inert}, aria-hidden=${a11y.hidden}, pointer-events=${a11y.pointer}, focus never entered chart over 25 Tabs`);
 
-    // 5. Test updates change only the newest candle's column.
+    // Links: in-page anchors exist; same-site files load; external links listed.
+    const links = await page.evaluate(() => [...document.querySelectorAll("a[href]")].map((a) => ({ href: a.getAttribute("href"), url: a.href })));
+    const origin0 = new globalThis.URL(URL).origin;
+    const linkProblems = [];
+    let internal = 0, anchors = 0, external = 0;
+    for (const l of links) {
+      if (l.href.startsWith("#")) {
+        anchors++;
+        const ok = await page.evaluate((id) => !!document.getElementById(id), l.href.slice(1));
+        if (!ok) linkProblems.push(`${l.href} (no such id)`);
+      } else if (new globalThis.URL(l.url).origin === origin0) {
+        internal++;
+        const res = await page.request.get(l.url);
+        if (res.status() !== 200) linkProblems.push(`${l.href} (HTTP ${res.status()})`);
+        const hash = new globalThis.URL(l.url).hash;
+        if (hash && res.status() === 200 && !(await res.text()).includes(`id="${hash.slice(1)}"`)) linkProblems.push(`${l.href} (no such id)`);
+      } else {
+        external++;
+      }
+    }
+    record(vp.name, "Page links resolve", linkProblems.length === 0,
+      `${anchors} in-page anchors, ${internal} same-site links, ${external} external links (not fetched)` +
+      (linkProblems.length ? `; problems: ${linkProblems.join(", ")}` : ""));
+
+    // 7. Test updates change only the newest candle's column.
     const col = geo.column;
     const colPage = { x: geo.chart.x + col.left, y: geo.chart.y + col.priceTop, w: col.right - col.left, h: col.volumeBottom - col.priceTop };
     const pricePage = { x: colPage.x, y: geo.chart.y + col.priceTop, w: colPage.w, h: col.priceBottom - col.priceTop };
     const volPage = { x: colPage.x, y: geo.chart.y + col.volumeTop, w: colPage.w, h: col.volumeBottom - col.volumeTop };
+    // Three fixed revisions of the newest candle: up, down, then up again.
+    const original = await page.evaluate(() => window.heroChart.getLatest());
+    const testUpdates = [
+      { c: +(original.c * 1.018).toFixed(2), h: +(original.h * 1.022).toFixed(2), v: Math.round(original.v * 1.3) },
+      { c: +(original.o * 0.988).toFixed(2), l: +(original.o * 0.982).toFixed(2), v: Math.round(original.v * 1.45) },
+      { c: +(original.c * 1.006).toFixed(2), v: Math.round(original.v * 1.6) },
+    ];
     let before = await shoot();
     const scale0 = await page.evaluate(() => JSON.stringify(window.heroChart.getScale()));
     const base0 = await page.evaluate(() => document.querySelector(".candle-backdrop__layer--base").toDataURL());
     for (let step = 1; step <= 3; step++) {
       const latest0 = await page.evaluate(() => window.heroChart.getLatest());
-      await page.evaluate(() => document.getElementById("proto-update").click()); // no scrolling
+      await page.evaluate((u) => window.heroChart.updateLatest(u), testUpdates[step - 1]); // no scrolling
       await page.waitForTimeout(150);
       const latest1 = await page.evaluate(() => window.heroChart.getLatest());
       const after = await shoot(step === 1 ? `${vp.name}-hero-after-update.png` : undefined);
@@ -335,7 +495,7 @@ async function run() {
     record(vp.name, "Out-of-range update is clipped to the newest column", extreme && cSplit.outside === 0 && scaleX === scale0,
       `elsewhere ${cSplit.outside} px; scale ${scaleX === scale0 ? "held" : "changed"}`);
 
-    await page.evaluate(() => document.getElementById("proto-reset").click());
+    await page.evaluate((o) => window.heroChart.updateLatest(o), original);
     await page.close();
   }
 

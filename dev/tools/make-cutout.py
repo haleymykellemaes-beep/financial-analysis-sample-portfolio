@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the soft desk-photo cutout used by chart-prototype/desk.html.
+"""Build the soft desk-photo cutout used by the homepage hero (assets/haley-desk-cutout.webp).
 
     python3 make-cutout.py <photo.jpg> <person-matte.png> <out.webp>
 

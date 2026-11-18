@@ -1,101 +1,198 @@
-/* Animated simulated market traces: decorative only, not real or live prices. */
+/* Simulated market traces. Decorative only — not prices, and not a repeating sine wave. */
 (() => {
   const canvas = document.getElementById("ribbon");
   if (!canvas) return;
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d", { alpha: true });
   if (!ctx) return;
-  const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-  let width = 0, height = 0, raf = 0, visible = true, last = 0, pointer = 0, scroll = 0;
-  let paths = [];
 
-  const ease = (a, b, t) => a + (b - a) * t;
-  function randomCurve(seed, count) {
-    // Deterministic pseudo-random walk: market-like turns, not periodic sine waves.
+  const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const colors = [
+    "rgba(212,194,162,0.16)",
+    "rgba(222,198,155,0.28)",
+    "rgba(237,226,204,0.62)",
+    "rgba(212,194,162,0.22)",
+    "rgba(186,166,132,0.18)",
+    "rgba(232,214,176,0.34)",
+    "rgba(212,194,162,0.14)"
+  ];
+
+  let width = 0;
+  let height = 0;
+  let raf = 0;
+  let running = false;
+  let last = 0;
+  let carry = 0;
+  let obstacle = null;
+  let series = [];
+
+  function randFactory(seed) {
     let s = seed >>> 0;
-    const rand = () => {
+    return () => {
       s = (Math.imul(1664525, s) + 1013904223) >>> 0;
       return s / 4294967296;
     };
-    let value = 0.5, momentum = 0;
+  }
+
+  function gaussian(rand) {
+    const u = Math.max(rand(), 1e-7);
+    const v = rand();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(Math.PI * 2 * v);
+  }
+
+  function makeSeries(seed, lane) {
+    const rand = randFactory(seed);
+    const count = Math.ceil(width / 7) + 8;
     const points = [];
-    for (let i = 0; i < count; i++) {
-      const shock = (rand() - 0.5) * 0.11;
-      momentum = momentum * 0.38 + shock + (i % 65 > 51 ? -0.0015 : 0.001);
-      value = Math.max(0.13, Math.min(0.86, value + momentum));
+    let value = (rand() - 0.5) * 0.2;
+    let momentum = 0;
+    for (let i = 0; i < count; i += 1) {
+      momentum = momentum * 0.74 + gaussian(rand) * (0.045 + Math.abs(lane) * 0.01);
+      value = Math.max(-1, Math.min(1, value * 0.992 + momentum));
       points.push(value);
     }
-    return points;
+    return { rand, lane, points, value, momentum, vol: 0.04 + (seed % 4) * 0.008 };
   }
+
+  function stepSeries(item) {
+    item.momentum = item.momentum * 0.78 + gaussian(item.rand) * item.vol;
+    item.value = Math.max(-1, Math.min(1, item.value * 0.994 + item.momentum));
+    item.points.push(item.value);
+    item.points.shift();
+  }
+
+  function measureObstacle() {
+    const frame = document.querySelector(".portrait-frame");
+    if (!frame) {
+      obstacle = null;
+      return;
+    }
+    const canvasBox = canvas.getBoundingClientRect();
+    const frameBox = frame.getBoundingClientRect();
+    if (!frameBox.width || !canvasBox.width) {
+      obstacle = null;
+      return;
+    }
+    obstacle = {
+      cx: frameBox.left - canvasBox.left + frameBox.width / 2,
+      cy: frameBox.top - canvasBox.top + frameBox.height / 2,
+      r: frameBox.width / 2 + 10
+    };
+  }
+
   function resize() {
     const rect = canvas.getBoundingClientRect();
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     width = Math.max(rect.width, 1);
     height = Math.max(rect.height, 1);
+    const dpr = Math.min(window.devicePixelRatio || 1, width < 760 ? 1.25 : 1.5);
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    paths = Array.from({length: 18}, (_, i) => randomCurve(8201 + i * 779, 370));
-    draw(0);
+    const lanes = width < 760 ? [-0.55, -0.18, 0.16, 0.5] : [-0.7, -0.42, -0.16, 0.02, 0.22, 0.44, 0.68];
+    series = lanes.map((lane, index) => makeSeries(1901 + index * 977, lane));
+    measureObstacle();
+    draw();
   }
-  function trace(points, index, time) {
-    const mobile = width < 760;
-    const left = mobile ? width * -.35 : width * .2;
-    const right = width * 1.15;
-    const scaleX = (right - left) / (points.length - 1);
-    const band = index - 8.5;
-    const primary = index === 9;
-    const shift = !motionQuery.matches ? (time * .007 * (index % 3 + 1)) % scaleX : 0;
+
+  function sampleY(baseY, x, lane) {
+    if (!obstacle) return baseY;
+    const reach = obstacle.r * 1.45;
+    const nx = (x - obstacle.cx) / reach;
+    if (nx <= -1 || nx >= 1) return baseY;
+    const bell = 1 - nx * nx;
+    const clearance = Math.abs(baseY - obstacle.cy) / (obstacle.r * 2.4);
+    const proximity = Math.max(0, 1 - clearance);
+    const side = lane < 0 ? -1 : 1;
+    return baseY + side * bell * obstacle.r * (0.42 + proximity * 0.95);
+  }
+
+  function trace(item, index) {
+    const points = item.points;
+    const step = width / (points.length - 1);
     ctx.beginPath();
-    for (let i = 0; i < points.length; i++) {
-      const x = left + i * scaleX - shift;
-      const y = height * (.49 + band * .025) + (points[i] - .5) * height * (.38 + (index % 3) * .035)
-        + pointer * height * .015 * (index / 18) - scroll * height * .045;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
+    let started = false;
+    for (let i = 0; i < points.length; i += 1) {
+      const x = i * step - 12;
+      const baseY = height * (0.5 + item.lane * 0.32) + points[i] * height * 0.055;
+      const y = sampleY(baseY, x, item.lane);
+      if (!started) {
+        ctx.moveTo(x, y);
+        started = true;
+      } else if (i < points.length - 1) {
+        const nx = (i + 1) * step - 12;
+        const nBase = height * (0.5 + item.lane * 0.32) + points[i + 1] * height * 0.055;
+        const ny = sampleY(nBase, nx, item.lane);
+        ctx.quadraticCurveTo(x, y, (x + nx) / 2, (y + ny) / 2);
+      } else {
+        ctx.lineTo(x, y);
+      }
     }
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
-    ctx.lineWidth = primary ? 1.55 : index % 4 === 0 ? 1.05 : .56;
-    ctx.strokeStyle = primary ? "rgba(230,204,162,.72)" : index % 4 === 0
-      ? "rgba(227,193,148,.24)" : "rgba(208,186,151,.095)";
+    ctx.lineWidth = index === 2 ? 1.45 : 0.7;
+    ctx.strokeStyle = colors[index % colors.length];
     ctx.stroke();
   }
-  function draw(time) {
+
+  function draw() {
     if (!width || !height) return;
     ctx.clearRect(0, 0, width, height);
-    const t = motionQuery.matches ? 0 : time;
-    paths.forEach((p, i) => trace(p, i, t));
-    const cx = width * .77, cy = height * .41;
-    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, width * .35);
-    glow.addColorStop(0, "rgba(232,194,133,.045)");
-    glow.addColorStop(1, "rgba(232,194,133,0)");
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, width, height);
-  }
-  function frame(time) {
-    if (!visible) return;
-    if (time - last > 32) { draw(time); last = time; }
-    if (!motionQuery.matches) raf = window.requestAnimationFrame(frame);
-  }
-  function restart() {
-    cancelAnimationFrame(raf);
-    visible = !document.hidden;
-    if (visible) {
-      draw(0);
-      if (!motionQuery.matches) raf = requestAnimationFrame(frame);
+    ctx.save();
+    if (obstacle) {
+      ctx.beginPath();
+      ctx.rect(0, 0, width, height);
+      ctx.arc(obstacle.cx, obstacle.cy, obstacle.r, 0, Math.PI * 2, true);
+      ctx.clip("evenodd");
     }
+    series.forEach(trace);
+    ctx.restore();
   }
-  canvas.parentElement.addEventListener("pointermove", e => {
-    if (motionQuery.matches) return;
-    const r = canvas.getBoundingClientRect();
-    pointer = (e.clientY - r.top) / r.height - .5;
-  }, {passive:true});
-  window.addEventListener("scroll", () => {
-    scroll = Math.min(window.scrollY / Math.max(height, 1), 1);
-  }, {passive:true});
-  window.addEventListener("resize", resize, {passive:true});
-  document.addEventListener("visibilitychange", restart);
-  motionQuery.addEventListener?.("change", restart);
+
+  function frame(time) {
+    if (!running) return;
+    const dt = Math.min(0.05, (time - last) / 1000 || 0.016);
+    last = time;
+    if (motionQuery.matches) {
+      measureObstacle();
+      draw();
+      return;
+    }
+    carry += dt;
+    while (carry > 0.11) {
+      carry -= 0.11;
+      series.forEach(stepSeries);
+    }
+    measureObstacle();
+    draw();
+    raf = window.requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (running) return;
+    running = true;
+    last = performance.now();
+    raf = window.requestAnimationFrame(frame);
+  }
+
+  function stop() {
+    running = false;
+    cancelAnimationFrame(raf);
+  }
+
+  const hero = canvas.parentElement;
+  const observer = new IntersectionObserver((entries) => {
+    if (entries.some((entry) => entry.isIntersecting) && !document.hidden) start();
+    else stop();
+  }, { threshold: 0.05 });
+  observer.observe(hero);
+
+  window.addEventListener("resize", resize, { passive: true });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stop();
+    else start();
+  });
+  motionQuery.addEventListener?.("change", () => {
+    resize();
+  });
   resize();
-  restart();
+  if (!document.hidden) start();
 })();

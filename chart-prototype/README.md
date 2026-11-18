@@ -10,7 +10,12 @@ From the repository root:
 python3 -m http.server 8765
 ```
 
-Open http://localhost:8765/chart-prototype/. The review panel under the hero shows the newest candle's values and has two buttons:
+There are two previews of the same chart, linked from each other's review panel:
+
+- http://localhost:8765/chart-prototype/ (`index.html`) uses the current masked headshot.
+- http://localhost:8765/chart-prototype/desk.html uses the desk photo as a soft cutout (see [Desk photo variant](#desk-photo-variant)).
+
+The review panel under the hero shows the newest candle's values and has two buttons:
 
 - **Apply test update** revises the newest candle. Each click applies the next of three fixed updates: up, down, then up.
 - **Reset to fixture** restores the newest candle to its fixture values.
@@ -23,7 +28,10 @@ Open http://localhost:8765/chart-prototype/. The review panel under the hero sho
 | `candle-backdrop.css` | Component styles, all scoped to `.candle-backdrop` |
 | `ohlcv-fixture.js` | Fixed, labeled OHLCV fixture: 240 synthetic daily candles, not market data |
 | `hero-placement.css` | Homepage-specific placement, fades and sizing (moves into `site.css` on integration) |
-| `index.html`, `preview.css` | Standalone preview and its review panel (prototype only) |
+| `index.html`, `preview.css` | Standalone preview (current headshot) and its review panel (prototype only) |
+| `desk.html`, `desk-placement.css` | Desk-photo variant of the preview, and the placement rules it adds on top of `hero-placement.css` |
+| `assets/haley-desk-cutout.webp` | The desk photo as a soft cutout with transparency (1152 × 941) |
+| `tools/make-cutout.py` | Rebuilds the cutout from the original photo and a person matte |
 | `tools/make-fixture.py` | Regenerates the fixture. Values are written out literally. |
 | `checks/acceptance.js` | Screenshot and pixel checks (see below) |
 
@@ -48,7 +56,7 @@ const chart = CandleBackdrop.mount(container, candles, options);
 | `getScale()` | Returns the locked `{ min, max, volumeMax }`. |
 | `destroy()` | Removes the canvases and listeners. |
 
-The chart is drawn on two canvases. History and grid are drawn once on the base layer, and the newest candle has its own layer, so an update cannot disturb anything else. The canvases are aligned to device pixels, which keeps edges crisp at fractional layout positions.
+The chart is drawn on two canvases. History and grid are drawn once on the base layer, and the newest candle has its own layer, so an update cannot disturb anything else. Each canvas pixel maps to exactly one device pixel, and the fade mask sits on an inner stage element rather than on the container. Together these keep every edge crisp when the container lands on a fractional position: measured on both previews at both sizes, each 1px grid line covers exactly 2 device rows at 2× density.
 
 Appearance is set with CSS custom properties on the container: colors, grid, `--cb-spacing`, `--cb-body`, `--cb-right-pad`, pane sizes and `--cb-mask`. The full list is in the header of `candle-backdrop.css`.
 
@@ -105,6 +113,17 @@ function onTick(bar) {                       // bar from your provider
 
 `hero-placement.css` matches its portrait fade to the current `.hero-portrait` size and mask. If the portrait changes, adjust the `radial-gradient(33% 61% at 66% 49%, …)` layer (and its mobile counterpart) to match.
 
+**If the desk photo is chosen instead,** also:
+
+- Copy `assets/haley-desk-cutout.webp` to `assets/` and append the rules from `desk-placement.css` to `css/site.css` after the `hero-placement.css` rules.
+- Replace the portrait image with:
+
+  ```html
+  <img class="hero-portrait hero-portrait--desk" src="assets/haley-desk-cutout.webp" alt="Portrait of Haley Maes at her desk" width="1152" height="941" fetchpriority="high" />
+  ```
+
+The desk rules make the hero about 50px taller on desktop, so its new height is part of the change.
+
 ## Acceptance checks
 
 With the server running:
@@ -113,17 +132,20 @@ With the server running:
 node chart-prototype/checks/acceptance.js
 ```
 
-The script writes screenshots and `results.json` to `chart-prototype/checks/output/`, which git ignores. At 1440 × 900 and 390 × 844 (2× pixel density) it checks:
+To check the desk page, pass its URL: `node chart-prototype/checks/acceptance.js http://localhost:8765/chart-prototype/desk.html`.
+
+The script writes screenshots and `results.json` to `chart-prototype/checks/output/`, which git ignores. It captures the hero in viewport-sized tiles by scrolling, not with a full-page capture: a full-page capture briefly resizes the page, which resizes and refits the chart. At 1440 × 900 and 390 × 844 (2× pixel density) it checks:
 
 - **Stillness:** the hero is pixel-identical at rest and 10 seconds later, and the chart box hasn't moved.
 - **Overflow:** there is no horizontal page overflow.
-- **Clarity:** how much the chart changes the headline, tagline, description, buttons, shortcuts and face, comparing the chart shown and hidden. The limit is a mean change of 3/255 over text and 0.5/255 over the face.
+- **Clarity:** how much the chart changes the headline, tagline, description, buttons, shortcuts and face, comparing the chart shown and hidden. The limit is a mean change of 3/255 over text and 0.5/255 over the face. The face box comes from the portrait's `data-face` attribute.
+- **Chart beside the silhouette** (desk page only): the boxes in the portrait's `data-beside` attribute, beside each shoulder, must show the chart, with a mean change of at least 2/255.
 - **Clicks:** both hero buttons receive clicks.
 - **Keyboard:** the chart is inert, hidden from assistive tech, has `pointer-events: none`, and focus never enters it over 25 Tab presses.
 - **Updates:** each demo test update changes only the newest candle's column, in both the price and volume panes. The price scale holds and the history layer stays byte-identical.
 - **Clipping:** an update far outside the locked range stays clipped inside that column.
 
-Last run: 32/32 passed.
+Last run: headshot page 32/32 passed, desk page 36/36 passed.
 
 ## Design notes
 
@@ -134,3 +156,25 @@ Last run: 32/32 passed.
   - An ellipse that recedes behind the portrait's soft edges.
   - A bottom-left fade so the volume bars stay quiet under the shortcuts.
 - **Mobile:** the chart shows mainly at the sides of the portrait and as volume below it. The headshot's opaque backdrop covers the middle of the chart.
+
+## Desk photo variant
+
+`desk.html` swaps the masked headshot for the wider desk photo, cut out along the hair, shoulders and jacket so the chart shows around the silhouette.
+
+- **Scale:** the whole photo is scaled so the eyes are 84px apart on a 1440px-wide screen, against 126px for the current headshot. That makes the face about a third smaller.
+- **Framing:** the photo is anchored to the bottom right, so the desk and laptop show along the bottom of the hero. On desktop the hero grows by about 50px (`min-height: clamp(660px, 54vw, 860px)`) to fit them; it still fits a 1440 × 900 screen.
+- **Chart band:** the chart ends just above the laptop. The newest candles and their volume bars sit beside the left shoulder, and the rally sits beside the hair. The ellipse that dimmed the chart behind the headshot is no longer needed.
+- **Caption:** "Chart: illustrative data" moves to the bottom left, because the laptop fills the bottom-right corner.
+- **Mobile:** the photo band runs full-bleed under the buttons. The desk fades out at the bottom of the photo instead of ending in a hard line.
+
+**How the cutout was made** (`tools/make-cutout.py`):
+
+1. **Person matte:** from the BiRefNet "general" matting model, run locally with ONNX Runtime using the build the rembg project publishes. It kept more hair detail than the portrait model.
+2. **Chair:** the model treats the wicker chair as background, so it is removed and the chart shows beside the shoulders.
+3. **Laptop:** traced as a polygon, because the model drops it.
+4. **Desk:** kept below the wall line, fading out toward the copy.
+5. **Edges:** the beige wall is removed from semi-transparent hair and jacket edges, and the matte is feathered slightly. Fully opaque pixels, including the face, keep their original colours.
+
+The original photo and the model aren't in the repository, so the script takes them as arguments.
+
+**Limitation:** the source photo is 1672px wide. At this size it displays near its native resolution on standard screens, but on 2× (retina) screens it is upscaled about 1.8×, so it looks slightly softer than the headshot. A higher-resolution original would fix that with no other changes.

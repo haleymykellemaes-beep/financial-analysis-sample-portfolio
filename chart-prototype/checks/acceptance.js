@@ -14,7 +14,9 @@
  *      later (must be pixel-identical);
  *   2. checks for horizontal overflow;
  *   3. measures how much the chart changes the pixels of the headline, tagline,
- *      description, buttons, shortcuts and face (chart shown vs hidden);
+ *      description, buttons, shortcuts and face (chart shown vs hidden); the
+ *      face box comes from the portrait's data-face attribute, and any
+ *      data-beside boxes must show the chart (minimum change);
  *   4. checks the hero buttons receive clicks and the chart is out of the tab order;
  *   5. applies each demo test update and checks that only the newest candle's
  *      column (candle + volume bar) changed and that the price scale held,
@@ -33,7 +35,8 @@ const VIEWPORTS = [
 const DPR = 2;
 
 // Region limits: mean absolute RGB change (0-255) the chart may add.
-const LIMITS = { text: 3, face: 0.5 };
+// visible: minimum mean change where a page asks for the chart to show (data-beside).
+const LIMITS = { text: 3, face: 0.5, visible: 2 };
 
 fs.mkdirSync(OUT, { recursive: true });
 const results = [];
@@ -59,6 +62,18 @@ async function makeLab(browser) {
       img.onerror = reject;
       img.src = "data:image/png;base64," + b64;
     });
+
+    // Stack viewport tiles into one image: rows [from, to) of each tile go to top + from.
+    window.stitch = async (parts, w, h) => {
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      const ctx = c.getContext("2d");
+      for (const p of parts) {
+        const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = "data:image/png;base64," + p.b64; });
+        ctx.drawImage(img, 0, p.from, w, p.to - p.from, 0, p.top + p.from, w, p.to - p.from);
+      }
+      return c.toDataURL("image/png").split(",")[1];
+    };
 
     // Pixels that differ between a and b, with their bounding box.
     window.diff = async (a, b) => {
@@ -159,6 +174,9 @@ async function run() {
         hero: r(q(".home-scene")),
         chart: r(q("#hero-candles")),
         portrait: r(q(".hero-portrait")),
+        // Optional boxes on the portrait, as fractions of its box: "x y w h".
+        faceBox: q(".hero-portrait").dataset.face || "0.3 0.18 0.4 0.5",
+        beside: JSON.parse(q(".hero-portrait").dataset.beside || "{}"),
         regions: {
           headline: r(q("#hero-title")),
           tagline: r(q(".hero-tagline")),
@@ -170,11 +188,28 @@ async function run() {
         column: window.heroChart.getLatestColumn(),
       };
     });
-    const heroClip = { x: 0, y: geo.hero.y, width: vp.width, height: Math.ceil(geo.hero.h) };
+    const heroClip = { x: 0, y: geo.hero.y }; // the hero starts at the top of the page
+    // Capture the hero as viewport-sized tiles (scrolling between them) and
+    // stitch them. A fullPage capture would temporarily resize the viewport,
+    // which re-lays out the page and resizes (and so refits) the chart.
     const shoot = async (file) => {
-      const buf = await page.screenshot({ clip: heroClip, fullPage: true });
-      if (file) fs.writeFileSync(path.join(OUT, file), buf);
-      return buf.toString("base64");
+      const heroH = Math.ceil(geo.hero.h);
+      const tops = [];
+      for (let t = 0; t < heroH; t += vp.height) tops.push(Math.min(t, Math.max(0, heroH - vp.height)));
+      const parts = [];
+      let covered = 0;
+      for (const top of [...new Set(tops)]) {
+        await page.evaluate((y) => window.scrollTo({ top: y, behavior: "instant" }), top);
+        await page.waitForTimeout(60);
+        const buf = await page.screenshot();
+        const to = Math.min(vp.height, heroH - top);
+        parts.push({ b64: buf.toString("base64"), top: top * DPR, from: (covered - top) * DPR, to: to * DPR });
+        covered = top + to;
+      }
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+      const b64 = await lab.evaluate(([p, w, h]) => window.stitch(p, w, h), [parts, vp.width * DPR, heroH * DPR]);
+      if (file) fs.writeFileSync(path.join(OUT, file), Buffer.from(b64, "base64"));
+      return b64;
     };
     const dev = (r) => ({ // page rect -> device px rect relative to the hero clip
       x0: Math.floor(r.x * DPR), y0: Math.floor((r.y - heroClip.y) * DPR),
@@ -211,7 +246,8 @@ async function run() {
     await page.evaluate(() => document.querySelectorAll("style").forEach((s) => s.textContent.includes("#hero-candles{visibility") && s.remove()));
     await page.waitForTimeout(100);
     const p = geo.portrait;
-    const face = { x: p.x + p.w * 0.3, y: p.y + p.h * 0.18, w: p.w * 0.4, h: p.h * 0.5 };
+    const onPortrait = ([fx, fy, fw, fh]) => ({ x: p.x + p.w * fx, y: p.y + p.h * fy, w: p.w * fw, h: p.h * fh });
+    const face = onPortrait(geo.faceBox.split(/\s+/).map(Number));
     const names = [...Object.keys(geo.regions), "face"];
     const rects = [...Object.values(geo.regions), face].map(dev);
     const deltas = await lab.evaluate(([a, b, r]) => window.regionDelta(a, b, r), [rest, noChart, rects]);
@@ -220,6 +256,14 @@ async function run() {
       record(vp.name, `Chart stays subdued over ${names[i]}`, d.mean <= limit,
         `mean change ${d.mean.toFixed(2)} / 255 (limit ${limit}), max ${d.max.toFixed(0)}`);
     });
+    // Where the page asks for it, the chart must be visible beside the silhouette.
+    const besideNames = Object.keys(geo.beside);
+    if (besideNames.length) {
+      const bRects = besideNames.map((n) => dev(onPortrait(geo.beside[n])));
+      const bDeltas = await lab.evaluate(([a, b, r]) => window.regionDelta(a, b, r), [rest, noChart, bRects]);
+      bDeltas.forEach((d, i) => record(vp.name, `Chart visible ${besideNames[i]}`, d.mean >= LIMITS.visible,
+        `mean change ${d.mean.toFixed(2)} / 255 (minimum ${LIMITS.visible}), max ${d.max.toFixed(0)}`));
+    }
 
     // 4. Buttons stay clickable; chart is outside the tab order.
     const hits = await page.evaluate(() => [...document.querySelectorAll(".hero-actions a")].map((a) => {

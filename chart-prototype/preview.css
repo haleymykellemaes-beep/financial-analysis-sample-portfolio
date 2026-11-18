@@ -94,3 +94,11 @@
 @media (max-width: 920px) {
   .proto-panel-inner { grid-template-columns: minmax(0, 1fr); }
 }
+
+.proto-switch {
+  margin-bottom: 6px;
+  font-size: .86rem;
+  color: #5b4a3e;
+}
+
+.proto-switch a { color: #73533d; text-underline-offset: 3px; }

@@ -72,12 +72,18 @@
     container.inert = true;
     if (getComputedStyle(container).position === "static") container.style.position = "relative";
 
-    // Two layers: everything that never moves, and the newest candle on its own.
+    // Two canvases: everything that never moves, and the newest candle on its own.
+    // They sit in a stage that carries the fade mask. (A mask on the container
+    // itself makes Chrome resample the canvases when the container sits at a
+    // fractional position, which softens every edge.)
+    const stage = document.createElement("div");
+    stage.className = "candle-backdrop__stage";
     const base = document.createElement("canvas");
     const live = document.createElement("canvas");
     base.className = "candle-backdrop__layer candle-backdrop__layer--base";
     live.className = "candle-backdrop__layer candle-backdrop__layer--latest";
-    container.append(base, live);
+    stage.append(base, live);
+    container.append(stage);
     const bctx = base.getContext("2d");
     const lctx = live.getContext("2d");
 
@@ -112,6 +118,7 @@
     }
 
     function layout() {
+      // Whole CSS pixels: a half-pixel canvas box gets resampled at 2x density.
       const w = container.clientWidth;
       const h = container.clientHeight;
       if (!w || !h || !data.length) return;
@@ -119,11 +126,14 @@
       size = `${w}x${h}@${dpr}`;
       const W = Math.round(w * dpr);
       const H = Math.round(h * dpr);
-      for (const cv of [base, live]) {
-        cv.width = W; cv.height = H;
-        cv.style.width = `${W / dpr}px`;   // exactly one canvas pixel per device pixel
-        cv.style.height = `${H / dpr}px`;
+      // Exactly one canvas pixel per device pixel. The browser already places
+      // the canvas box on whole device pixels; any scaling or sub-pixel
+      // transform here would make it resample the drawing and soften edges.
+      for (const el of [stage, base, live]) {
+        el.style.width = `${W / dpr}px`;
+        el.style.height = `${H / dpr}px`;
       }
+      for (const cv of [base, live]) { cv.width = W; cv.height = H; }
 
       const st = readStyle(w, h);
       const S = Math.max(2, Math.round(st.spacing * dpr));          // column pitch
@@ -154,21 +164,8 @@
         max: hi + range * opts.headroom,
         vmax: (vmax || 1) * (1 + opts.volumeHeadroom),
       };
-      snap();
       drawBase();
       drawLatest();
-    }
-
-    // Shift the canvases by the container's sub-pixel offset so canvas pixels land
-    // on device pixels; otherwise the browser resamples them and edges go soft.
-    function snap() {
-      if (!L) return;
-      const r = container.getBoundingClientRect();
-      const dx = (Math.round(r.left * L.dpr) - r.left * L.dpr) / L.dpr;
-      const dy = (Math.round(r.top * L.dpr) - r.top * L.dpr) / L.dpr;
-      const t = dx || dy ? `translate(${dx}px, ${dy}px)` : "";
-      base.style.transform = t;
-      live.style.transform = t;
     }
 
     const xOf = (i) => L.lastX - (data.length - 1 - i) * L.S;
@@ -234,16 +231,13 @@
       ctx.restore();
     }
 
-    const ro = new ResizeObserver(() => {
+    // Redraw only when the container's size or the pixel density changes.
+    const onResize = () => {
       const dpr = Math.min(3, Math.max(1, global.devicePixelRatio || 1));
       if (`${container.clientWidth}x${container.clientHeight}@${dpr}` !== size) layout();
-      else snap();
-    });
-    // The container can move without resizing (e.g. when web fonts reflow the page).
-    const resnap = () => snap();
-    global.addEventListener("resize", resnap);
-    global.addEventListener("load", resnap);
-    if (document.fonts) document.fonts.ready.then(resnap);
+    };
+    const ro = new ResizeObserver(onResize);
+    global.addEventListener("resize", onResize); // pixel density changes (zoom, another screen)
 
     const api = {
       setData(next) {
@@ -294,10 +288,8 @@
 
       destroy() {
         ro.disconnect();
-        global.removeEventListener("resize", resnap);
-        global.removeEventListener("load", resnap);
-        base.remove();
-        live.remove();
+        global.removeEventListener("resize", onResize);
+        stage.remove();
         container.classList.remove("candle-backdrop");
       },
     };

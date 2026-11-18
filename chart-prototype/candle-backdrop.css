@@ -39,13 +39,20 @@
   overflow: hidden;
   pointer-events: none;
   user-select: none;
+}
+
+/* Width and height are set inline by the script (one canvas pixel per device
+   pixel). The mask goes here rather than on the container: see the script. */
+.candle-backdrop > .candle-backdrop__stage {
+  position: absolute;
+  top: 0;
+  left: 0;
   -webkit-mask-image: var(--cb-mask);
   mask-image: var(--cb-mask);
   mask-composite: var(--cb-mask-composite);
 }
 
-/* Width, height and a sub-pixel transform are set inline by the script. */
-.candle-backdrop > .candle-backdrop__layer {
+.candle-backdrop__stage > .candle-backdrop__layer {
   position: absolute;
   top: 0;
   left: 0;

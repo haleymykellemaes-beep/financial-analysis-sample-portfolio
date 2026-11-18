@@ -5,79 +5,100 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Haley Maes | Financial &amp; Data Analytics</title>
   <meta name="description" content="Haley Maes — financial and data analysis, forecasting, risk, and operational intelligence. Finding value in the variables." />
-  <meta name="theme-color" content="#1c1c1b" />
+  <meta name="theme-color" content="#382a23" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <!-- Fonts are loaded in site.css for consistent typography across project pages. -->
   <link rel="stylesheet" href="css/site.css" />
 </head>
-<body>
+<body class="home">
   <a class="skip" href="#work">Skip to work</a>
   <header class="nav">
     <div class="nav-inner">
-      <a class="brand" href="#top">HM<span class="brand-dot">.</span><span class="brand-sub">HALEY MAES / FINANCIAL INTELLIGENCE</span></a>
+      <a class="brand" href="#top" aria-label="Haley Maes home">
+        <span class="brand-mark" aria-hidden="true">HM<span class="brand-dot">.</span></span>
+        <span class="brand-sub">Haley Maes <span>Financial Intelligence</span></span>
+      </a>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
       <nav class="nav-links" id="nav-links" aria-label="Primary">
+        <a href="#top" aria-current="page">Home</a>
         <a href="#work">Work</a>
         <a href="#capabilities">Capabilities</a>
         <a href="#about">About</a>
-        <a href="#contact">Contact</a>
+        <a class="nav-contact-mobile" href="#contact">Contact</a>
       </nav>
-    </div>
-  </header>
-
-
-  <header class="hero" id="top">
-    <canvas id="ribbon" aria-hidden="true"></canvas>
-    <div class="hero-veil" aria-hidden="true"></div>
-    <div class="hero-grid" aria-hidden="true"></div>
-
-    <div class="wrap hero-stage">
-      <div class="hero-copy">
-        <p class="hero-overline"><span class="pulse-dot" aria-hidden="true"></span> DATA ANALYST <span class="overline-slash">/</span> FINANCIAL INTELLIGENCE</p>
-        <h1>Haley<br />Maes<span class="hero-period">.</span></h1>
-        <p class="tagline">Finding value in <em>the variables.</em></p>
-        <p class="hero-description">I turn complex financial and operational data into clear insights, smarter systems, and decisions you can stand behind.</p>
-        <div class="hero-actions">
-          <a class="pill" href="#work">Explore the work <span aria-hidden="true">↗</span></a>
-          <a class="quiet-link" href="#about">More about me <span aria-hidden="true">↗</span></a>
-        </div>
-      </div>
-
-      <div class="hero-visual">
-        <div class="portrait-halo" aria-hidden="true"></div>
-        <div class="portrait-frame">
-          <img src="https://haleymykellemaes-beep.github.io/img/haley.png" alt="Portrait of Haley Maes" fetchpriority="high" decoding="async" />
-        </div>
-        <div class="portrait-label" aria-hidden="true"><span>HM</span><span>FINANCIAL / DATA ANALYTICS</span></div>
-
-        <div class="signal-widget" aria-label="Illustrative market-style chart, not live financial data">
-          <div class="signal-widget-top">
-            <span>01 / MARKET SIGNAL</span>
-            <span class="signal-widget-status"><i aria-hidden="true"></i> SIMULATED</span>
-          </div>
-          <svg viewBox="0 0 370 100" aria-hidden="true" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="signalFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dbc49e" stop-opacity=".18"/><stop offset="1" stop-color="#dbc49e" stop-opacity="0"/></linearGradient>
-            </defs>
-            <g stroke="#d9c9aa" stroke-opacity=".1" stroke-width=".8"><path d="M0 24H370M0 50H370M0 76H370M70 0V100M140 0V100M210 0V100M280 0V100M350 0V100"/></g>
-            <path d="M0 82 L24 73 L46 78 L72 56 L91 61 L115 48 L132 59 L151 41 L176 44 L193 31 L215 43 L235 24 L251 33 L273 19 L294 29 L314 14 L337 20 L356 6 L370 11 L370 100 L0 100 Z" fill="url(#signalFill)"/>
-            <path class="signal-spark" d="M0 82 L24 73 L46 78 L72 56 L91 61 L115 48 L132 59 L151 41 L176 44 L193 31 L215 43 L235 24 L251 33 L273 19 L294 29 L314 14 L337 20 L356 6 L370 11" fill="none" stroke="#e7d2ad" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="356" cy="6" r="3" fill="#f1dfbc" />
-          </svg>
-          <div class="signal-widget-bottom"><span>ANALYSIS IN MOTION</span><span>DATA → DECISIONS</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="wrap hero-foot">
-      <span>SCROLL TO EXPLORE <span aria-hidden="true">↓</span></span>
-      <span>SQL <b>·</b> PYTHON <b>·</b> EXCEL <b>·</b> FINANCIAL ANALYSIS</span>
+      <a class="nav-contact home-button" href="#contact">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
+        Contact
+      </a>
     </div>
   </header>
 
   <main>
+    <section class="home-scene" id="top" aria-labelledby="hero-title">
+      <div class="hero-stage">
+        <div class="hero-copy">
+          <p class="hero-overline">Data Analyst <span aria-hidden="true">/</span> Financial Intelligence</p>
+          <h1 id="hero-title">Haley Maes<span class="hero-period">.</span></h1>
+          <p class="hero-tagline"><em>Finding value in the variables.</em></p>
+          <p class="hero-description">I turn complex financial and operational data into clear insights, smarter systems, and decisions you can stand behind.</p>
+          <div class="hero-actions">
+            <a class="home-button home-button-primary" href="#work">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 6-6 4 4 7-8m-5 0h5v5"/></svg>
+              Explore the work
+            </a>
+            <a class="home-button" href="#about">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20v-1.5a6.5 6.5 0 0 1 13 0V20"/></svg>
+              My story
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-chart" aria-hidden="true" inert>
+            <div class="hero-chart-sample">
+              <img src="assets/hero-candles.svg" alt="" width="1000" height="560" />
+            </div>
+            <div class="tradingview-widget-container hero-chart-live" id="hero-chart-live" hidden>
+              <div class="tradingview-widget-container__widget"></div>
+            </div>
+          </div>
+          <img class="hero-portrait" src="assets/haley.png" alt="Portrait of Haley Maes" width="800" height="800" fetchpriority="high" />
+        </div>
+
+        <div class="hero-chart-controls">
+          <button class="hero-chart-toggle" type="button" aria-controls="hero-chart-live" aria-pressed="false" hidden>Live overlay</button>
+          <div class="tradingview-widget-copyright">
+            <a href="https://www.tradingview.com/chart/?symbol=BITSTAMP%3ABTCUSD" target="_blank" rel="noopener noreferrer nofollow">
+              View BTC/USD on TradingView
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4m-6 0h6v6"/></svg>
+            </a>
+          </div>
+          <span class="hero-chart-status" role="status"></span>
+        </div>
+
+        <nav class="hero-shortcuts" aria-label="Explore projects">
+          <a href="projects/revenue-intelligence/index.html">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 27h24M7 27V17h4v10m3 0V12h4v15m3 0V6h4v21M5 12l8-5 5 1 6-5"/></svg>
+            <span>Revenue Forecasting</span>
+          </a>
+          <a href="projects/sports-market/index.html">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 26h22M6 26c4 0 5-3 7-10s4-12 7-5 2 15 7 15M16 6v20" stroke-linecap="round"/></svg>
+            <span>Expected Value</span>
+          </a>
+          <a href="projects/working-capital/index.html">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="m16 4 12 6-12 6-12-6 12-6Zm12 12-12 6-12-6m24 6-12 6-12-6"/></svg>
+            <span>Working Capital</span>
+          </a>
+          <a href="projects/portfolio-risk/index.html">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M13.5 5.3A11 11 0 1 0 26.7 18H13.5V5.3Z"/><path d="M17.5 4v10.5H28A11 11 0 0 0 17.5 4Z"/></svg>
+            <span>Portfolio Risk</span>
+          </a>
+        </nav>
+      </div>
+    </section>
+
     <section class="intro" id="intro">
       <div class="wrap intro-grid">
         <div>
@@ -274,6 +295,6 @@
   </footer>
 
   <script src="js/nav.js"></script>
-  <script src="js/ribbon.js"></script>
+  <script src="js/hero-chart.js"></script>
 </body>
 </html>

@@ -3,15 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hero Chart Prototype | Haley Maes</title>
+  <title>Hero Candles Prototype | Haley Maes</title>
   <meta name="robots" content="noindex" />
   <meta name="theme-color" content="#382a23" />
   <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <!-- Shared styles are read-only for this prototype; all changes live in hero-chart-proto.css. -->
+  <!-- Homepage styles, used read-only. -->
   <link rel="stylesheet" href="../css/site.css" />
-  <link rel="stylesheet" href="hero-chart-proto.css" />
+  <!-- Component, hero placement, and review-panel styles from this folder. -->
+  <link rel="stylesheet" href="candle-backdrop.css" />
+  <link rel="stylesheet" href="hero-placement.css" />
+  <link rel="stylesheet" href="preview.css" />
 </head>
 <body class="home">
   <header class="nav">
@@ -57,24 +60,13 @@
 
         <div class="hero-visual">
           <div class="hero-chart" aria-hidden="true" inert>
-            <!-- Prototype: self-hosted canvas chart -->
-            <div class="hero-chart-proto" data-hero-chart data-style="candles" data-seed="20261118">
-              <canvas></canvas>
-            </div>
-            <!-- Comparison only: the current static chart from the live homepage -->
-            <div class="hero-chart-sample hero-chart-current">
-              <img src="../assets/hero-candles.svg" alt="" width="1000" height="560" />
-            </div>
+            <div class="candle-backdrop" id="hero-candles"></div>
           </div>
           <img class="hero-portrait" src="../assets/haley.png" alt="Portrait of Haley Maes" width="800" height="800" fetchpriority="high" />
         </div>
 
         <div class="hero-chart-controls">
-          <p class="hero-chart-readout" data-hero-chart-readout>
-            <span class="label">Illustrative index</span>
-            <span data-price aria-hidden="true">--</span>
-            <span data-change aria-hidden="true"></span>
-          </p>
+          <p class="hero-chart-note">Chart: illustrative data</p>
         </div>
 
         <nav class="hero-shortcuts" aria-label="Explore projects">
@@ -97,39 +89,80 @@
         </nav>
       </div>
     </section>
+
+    <!-- Prototype-only review panel; not part of the component or the homepage. -->
+    <section class="proto-panel" aria-labelledby="proto-title">
+      <div class="proto-panel-inner">
+        <div>
+          <p class="proto-kicker">Prototype review</p>
+          <h2 id="proto-title">Hero candlestick background</h2>
+          <p class="proto-fixture" id="proto-fixture"></p>
+        </div>
+        <dl class="proto-latest" aria-label="Newest candle">
+          <div><dt>Date</dt><dd data-f="t">-</dd></div>
+          <div><dt>Open</dt><dd data-f="o">-</dd></div>
+          <div><dt>High</dt><dd data-f="h">-</dd></div>
+          <div><dt>Low</dt><dd data-f="l">-</dd></div>
+          <div><dt>Close</dt><dd data-f="c">-</dd></div>
+          <div><dt>Volume</dt><dd data-f="v">-</dd></div>
+        </dl>
+        <div class="proto-actions">
+          <button type="button" id="proto-update">Apply test update</button>
+          <button type="button" id="proto-reset">Reset to fixture</button>
+          <p class="proto-status" id="proto-status" role="status"></p>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <!-- Prototype-only review controls; not part of the component. -->
-  <div class="proto-toolbar" role="toolbar" aria-label="Prototype review controls">
-    <strong>Prototype</strong>
-    <button type="button" data-proto="style" data-value="candles" aria-pressed="true">Candles</button>
-    <button type="button" data-proto="style" data-value="line" aria-pressed="false">Line</button>
-    <button type="button" data-proto="pause" aria-pressed="false">Pause</button>
-    <button type="button" data-proto="compare" aria-pressed="false">Show current</button>
-  </div>
-
   <script src="../js/nav.js"></script>
-  <script src="hero-chart-proto.js"></script>
+  <script src="ohlcv-fixture.js"></script>
+  <script src="candle-backdrop.js"></script>
   <script>
-    (function () {
-      const mount = document.querySelector("[data-hero-chart]");
-      const buttons = document.querySelectorAll("[data-proto]");
-      buttons.forEach((btn) => btn.addEventListener("click", () => {
-        const kind = btn.dataset.proto;
-        if (kind === "style") {
-          mount.dataset.style = btn.dataset.value;
-          document.querySelectorAll('[data-proto="style"]').forEach((b) =>
-            b.setAttribute("aria-pressed", String(b === btn)));
-        } else if (kind === "pause") {
-          const paused = mount.dataset.paused !== "true";
-          mount.dataset.paused = String(paused);
-          btn.setAttribute("aria-pressed", String(paused));
-        } else if (kind === "compare") {
-          const on = document.body.classList.toggle("show-current");
-          btn.setAttribute("aria-pressed", String(on));
-        }
-      }));
-    })();
+    // Mount the chart with the fixture.
+    const fixture = window.OHLCV_FIXTURE;
+    const chart = CandleBackdrop.mount(document.getElementById("hero-candles"), fixture.candles);
+    window.heroChart = chart; // exposed for the acceptance checks
+
+    // ----- Review panel (prototype only) -----
+    const fmt = { o: 2, h: 2, l: 2, c: 2 };
+    const original = chart.getLatest();
+    // Deterministic test updates applied to the newest candle, in order.
+    const testUpdates = [
+      { c: +(original.c * 1.018).toFixed(2), h: +(original.h * 1.022).toFixed(2), v: Math.round(original.v * 1.3) },
+      { c: +(original.o * 0.988).toFixed(2), l: +(original.o * 0.982).toFixed(2), v: Math.round(original.v * 1.45) },
+      { c: +(original.c * 1.006).toFixed(2), v: Math.round(original.v * 1.6) },
+    ];
+    let step = 0;
+
+    document.getElementById("proto-fixture").textContent =
+      `${fixture.meta.label}. ${fixture.candles.length} daily candles, symbol ${fixture.meta.symbol}.`;
+
+    function showLatest() {
+      const d = chart.getLatest();
+      document.querySelectorAll("[data-f]").forEach((el) => {
+        const k = el.dataset.f;
+        el.textContent = k === "t" ? d.t : k === "v" ? d.v.toLocaleString("en-US") : d[k].toFixed(fmt[k]);
+      });
+    }
+
+    document.getElementById("proto-update").addEventListener("click", () => {
+      const update = testUpdates[step % testUpdates.length];
+      chart.updateLatest(update);
+      step++;
+      document.getElementById("proto-status").textContent =
+        `Test update ${((step - 1) % testUpdates.length) + 1} of ${testUpdates.length} applied to the newest candle.`;
+      showLatest();
+    });
+
+    document.getElementById("proto-reset").addEventListener("click", () => {
+      chart.updateLatest(original);
+      step = 0;
+      document.getElementById("proto-status").textContent = "Newest candle reset to the fixture values.";
+      showLatest();
+    });
+
+    showLatest();
   </script>
 </body>
 </html>

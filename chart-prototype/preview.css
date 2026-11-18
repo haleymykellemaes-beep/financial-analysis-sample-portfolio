@@ -1,0 +1,96 @@
+/* Review panel for the standalone preview only. Not part of the component or the homepage. */
+.proto-panel {
+  padding: 32px var(--home-gutter, 24px) 48px;
+  background: #f4efe6;
+  color: #33271f;
+}
+
+.proto-panel-inner {
+  width: min(1480px, 100%);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 20px 40px;
+  align-items: start;
+}
+
+.proto-kicker {
+  margin: 0 0 6px;
+  color: #73533d;
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.proto-panel h2 {
+  margin: 0 0 8px;
+  font-size: 1.7rem;
+}
+
+.proto-fixture {
+  font-size: .86rem;
+  color: #5b4a3e;
+}
+
+.proto-latest {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 18px;
+  margin: 0;
+}
+
+.proto-latest div { min-width: 0; }
+
+.proto-latest dt {
+  font-size: .64rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #7a6656;
+}
+
+.proto-latest dd {
+  margin: 0;
+  font: 500 .9rem/1.4 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.proto-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.proto-actions button {
+  min-height: 44px;
+  padding: 8px 18px;
+  border: 1px solid #a07c60;
+  border-radius: 999px;
+  background: transparent;
+  color: #33271f;
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  cursor: pointer;
+}
+
+.proto-actions button:first-child {
+  background: #4a372d;
+  border-color: #4a372d;
+  color: #fff0de;
+}
+
+.proto-actions button:hover { border-color: #33271f; }
+.proto-actions button:first-child:hover { background: #33271f; }
+
+.proto-status {
+  width: 100%;
+  min-height: 1.4em;
+  font-size: .82rem;
+  color: #5b4a3e;
+}
+
+@media (max-width: 920px) {
+  .proto-panel-inner { grid-template-columns: minmax(0, 1fr); }
+}

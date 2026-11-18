@@ -506,3 +506,125 @@ h2 {text-wrap:balance;}
 @media(prefers-reduced-motion:reduce) {
  .signal-spark {animation:none;stroke-dashoffset:0;}
 }
+
+
+/* SPORTSBOOK-INSPIRED PROJECT PREVIEWS — simulated UI, not a live feed */
+.market-preview { --preview-accent:#d9c29f; }
+.market-preview[data-preview="revenue"] {--preview-accent:#d4b781;}
+.market-preview[data-preview="odds"] {--preview-accent:#93d8c2;}
+.market-preview[data-preview="receivables"] {--preview-accent:#9dbbc8;}
+.market-preview[data-preview="risk"] {--preview-accent:#d6b78f;}
+.market-preview[data-preview="anomalies"] {--preview-accent:#e3a19b;}
+.market-preview[data-preview="scenarios"] {--preview-accent:#b8abc9;}
+.market-preview .preview-surface {position:relative;isolation:isolate;overflow:hidden;}
+.market-preview .preview-surface::before {
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse at 95% 5%,color-mix(in srgb,var(--preview-accent) 10%,transparent),transparent 55%);
+}
+.market-preview .console {padding:24px;border-color:rgba(212,194,162,.20);}
+.market-preview .console-link:hover .console,.market-preview .console-link:focus-visible .console {
+  border-color:color-mix(in srgb,var(--preview-accent) 65%,transparent);
+  box-shadow:0 28px 65px rgba(0,0,0,.37),inset 0 1px rgba(255,255,255,.06);
+}
+.market-preview.tile {border-color:rgba(212,194,162,.22);}
+.market-preview.tile:hover,.market-preview.tile:focus-visible {border-color:var(--preview-accent);box-shadow:0 22px 64px rgba(0,0,0,.16);}
+.market-preview .metric strong {font-family:var(--display);font-size:clamp(1.45rem,2.2vw,2.05rem);font-variant-numeric:tabular-nums;}
+.market-preview .metric span {font-family:var(--mono);font-size:.59rem;letter-spacing:.05em;line-height:1.5;}
+.market-preview .preview-chip {display:inline-flex;align-items:center;gap:6px;border-color:rgba(212,194,162,.34);background:rgba(255,255,255,.025);color:#e0caa7;font-size:.55rem;}
+.market-preview .preview-chip::before {content:"";height:5px;width:5px;background:var(--preview-accent);border-radius:50%;box-shadow:0 0 9px var(--preview-accent);}
+.market-preview .preview-status {
+  margin-top:23px;padding-top:15px;border-top:1px solid rgba(216,202,177,.13);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  color:#b6b0a5;font:400 .56rem/1.5 var(--mono);letter-spacing:.08em;
+}
+.market-preview .preview-status > span:first-child {display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.market-preview .preview-dot {width:5px;height:5px;display:inline-block;border-radius:50%;background:var(--preview-accent);box-shadow:0 0 9px color-mix(in srgb,var(--preview-accent) 70%,transparent);}
+.market-preview .preview-counter {color:#8a8984;}
+.market-preview .preview-view {white-space:nowrap;color:#e1cba9;transition:transform .25s;}
+.market-preview:hover .preview-view,.market-preview:focus-visible .preview-view {transform:translateX(4px);}
+.market-preview .preview-surface:after {
+ content:"";position:absolute;bottom:0;left:0;width:100%;height:2px;
+ background:linear-gradient(90deg,transparent,var(--preview-accent),transparent);
+ opacity:0;transform:translateX(-55%);pointer-events:none;
+}
+.market-preview.preview-refresh .preview-surface:after {animation:previewScan 1.15s ease-out both;}
+@keyframes previewScan {0%{opacity:0;transform:translateX(-70%)}25%{opacity:.35}100%{opacity:0;transform:translateX(80%)}}
+@keyframes previewFlash {0%{color:#fff;text-shadow:0 0 10px var(--preview-accent)}100%{color:var(--cream);text-shadow:none}}
+.market-preview .preview-tick {animation:previewFlash .9s ease-out both;}
+.market-preview[data-preview="revenue"] .chart {overflow:visible;margin:4px 0;}
+.market-preview[data-preview="revenue"] .chart polyline {stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(132,222,230,.15));}
+.market-preview[data-preview="revenue"] .chart [data-revenue-band] {transition:fill .25s;}
+.market-preview[data-preview="receivables"] .aging {gap:17px;margin:27px 0 10px;}
+.market-preview[data-preview="receivables"] .aging-row i {transition:width 900ms cubic-bezier(.2,.72,.24,1);height:10px;background:linear-gradient(90deg,#6f9baa,#a6d4cf);box-shadow:0 0 12px rgba(124,191,195,.12);}
+.market-preview[data-preview="receivables"] .aging-row:nth-child(2) i {background:#779dc1;}
+.market-preview[data-preview="receivables"] .aging-row:nth-child(3) i {background:#b7a6be;}
+.market-preview[data-preview="receivables"] .aging-row:nth-child(4) i {background:#d19d8a;}
+.market-preview[data-preview="receivables"] .aging-row {color:#c6c4ba;}
+/* Two-outcome sportsbook-inspired illustrative price board. */
+.odds-preview-board {
+ display:grid;gap:7px;margin-top:8px;
+ font-family:var(--mono);font-variant-numeric:tabular-nums;
+}
+.odds-board-heading {display:flex;justify-content:space-between;gap:10px;color:#969b93;font-size:.55rem;letter-spacing:.07em;margin-bottom:2px;}
+.odds-board-row {
+ display:grid;grid-template-columns:minmax(0,1fr) 82px minmax(105px,1.2fr);
+ align-items:stretch;gap:8px;min-height:74px;
+}
+.odds-outcome,.odds-price,.odds-model {
+ display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+ border:1px solid rgba(215,202,175,.12);background:rgba(255,255,255,.024);border-radius:5px;padding:11px 12px;
+}
+.odds-outcome b {font-size:.73rem;font-weight:500;color:#eee9dc;letter-spacing:.04em;}
+.odds-outcome small,.odds-model small {font-size:.52rem;color:#a5aba2;margin-top:3px;}
+.odds-price {
+ align-items:center;background:linear-gradient(145deg,rgba(97,143,134,.20),rgba(97,143,134,.075));
+ color:#b6e6d0;font-size:1.1rem;font-weight:500;
+ border-color:rgba(147,216,194,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+.odds-model strong {font-size:.68rem;font-weight:500;color:#f2e9d9;}
+.odds-model small {line-height:1.45;}
+.market-preview[data-preview="odds"] .metric-row {margin-bottom:22px;}
+.market-preview[data-preview="odds"] .fine {margin-top:17px;}
+/* Mini terminals at the bottom of smaller projects. */
+.market-preview.tile {padding:22px;min-height:407px;}
+.market-preview.tile .tile-viz {width:100%;}
+.market-preview.tile .preview-status {margin-top:16px;flex-shrink:0;}
+.market-preview.tile .tile-top {gap:6px;}
+.market-preview.tile .tile-kicker {font-size:.61rem;}
+.market-preview.tile .tile-viz {min-height:120px;}
+.market-preview[data-preview="risk"] .tile-viz {display:flex;align-items:center;gap:16px;padding-bottom:8px;}
+.market-preview[data-preview="risk"] .donut {width:125px;height:125px;flex:0 0 125px;transform:rotate(-8deg);}
+.market-preview[data-preview="risk"] .donut circle {transition:stroke-dasharray 1s ease,stroke-dashoffset 1s ease;}
+.risk-caption {display:flex;flex-direction:column;gap:3px;}
+.risk-caption strong {color:#f3e6cf;font:600 2.2rem/.99 var(--display);letter-spacing:-.065em;}
+.risk-caption span {color:#aca699;font:400 .53rem/1.5 var(--mono);letter-spacing:.05em;}
+.market-preview[data-preview="anomalies"] .scatter {min-height:105px;height:105px;overflow:visible;}
+.market-preview[data-preview="anomalies"] .scatter circle {transition:cx .8s ease,cy .8s ease;}
+.market-preview[data-preview="anomalies"] .scatter circle:last-child {filter:drop-shadow(0 0 7px rgba(239,144,143,.8));animation:exceptionGlow 2.2s ease-in-out infinite;}
+@keyframes exceptionGlow {0%,100%{opacity:1}50%{opacity:.55}}
+.anomaly-caption {display:flex;align-items:center;justify-content:space-between;gap:10px;color:#c8b9b0;font:.56rem var(--mono);letter-spacing:.07em;}
+.anomaly-caption strong {color:#e7ada5;font:600 1.25rem var(--display);}
+.anomaly-caption small {font:400 .52rem var(--mono);}
+.market-preview[data-preview="scenarios"] .tornado {gap:11px;}
+.market-preview[data-preview="scenarios"] .tornado i {transition:width .85s cubic-bezier(.2,.72,.2,1);height:9px;}
+.scenario-mode {display:flex;align-items:center;justify-content:space-between;color:#a9a5a2;margin:14px 0 13px;font:.55rem var(--mono);letter-spacing:.05em;}
+.scenario-mode b {color:#e4d0b1;font-weight:500;}
+@media(max-width:980px) {
+ .market-preview[data-preview="risk"] .tile-viz {gap:10px;}
+ .market-preview[data-preview="risk"] .donut {width:105px;height:105px;flex-basis:105px;}
+}
+@media(max-width:760px) {
+ .market-preview .console {padding:18px;}
+ .market-preview .metric span {font-size:.55rem;}
+ .market-preview .metric strong {font-size:1.55rem;}
+ .odds-board-row {grid-template-columns:minmax(0,1fr) 75px minmax(100px,1.1fr);gap:6px;min-height:67px;}
+ .odds-outcome,.odds-price,.odds-model {padding:9px 7px;}
+ .odds-outcome b,.odds-model strong {font-size:.61rem;}
+ .odds-model small {font-size:.45rem;}
+ .odds-board-heading {font-size:.48rem;}
+ .market-preview.tile {min-height:365px;}
+}
+@media(prefers-reduced-motion:reduce) {
+ .market-preview .preview-tick,.market-preview.preview-refresh .preview-surface:after,.market-preview[data-preview="anomalies"] .scatter circle:last-child {animation:none!important;}
+ .market-preview .aging-row i,.market-preview .tornado i,.market-preview .donut circle,.market-preview .scatter circle {transition:none!important;}
+}

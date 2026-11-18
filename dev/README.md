@@ -1,6 +1,6 @@
-# Homepage hero: developer notes
+# Homepage and themes: developer notes
 
-The homepage hero shows the desk-photo cutout over a decorative candlestick and volume chart. It uses plain HTML, CSS and JavaScript, with no dependencies and no network requests. This folder holds the acceptance checks and the scripts that rebuild the hero's assets; nothing in it is loaded by the site.
+The homepage hero shows the desk-photo cutout over a decorative candlestick and volume chart, in six switchable themes. It uses plain HTML, CSS and JavaScript, with no dependencies; the only network requests are web fonts and, on request, the TradingView overlay. This folder holds the acceptance checks and the scripts that rebuild the hero's assets; nothing in it is loaded by the site.
 
 The approved prototype this was built from is on the `design/hero-chart-prototype` branch (`chart-prototype/desk.html`).
 
@@ -9,24 +9,27 @@ The approved prototype this was built from is on the `design/hero-chart-prototyp
 | File | Purpose |
 |---|---|
 | `index.html` | Homepage markup. The hero chart is `<div class="candle-backdrop" id="hero-candles">` inside `.hero-chart`. |
-| `css/site.css` | Shared styles for every page (base, nav, sections, project pages). No homepage-only rules. |
-| `css/themes/classic-espresso.css` | The active theme: every homepage hero colour as a `--theme-*` token. |
+| `css/site.css` | Shared styles for every page (base, nav, sections, project pages). No homepage-only rules, and unchanged by the themes. |
+| `css/themes.css` | The six themes: every colour, gradient, shadow, chart colour and decorative effect as tokens, the mapping of those tokens onto the shared components, and the theme picker's styles. Loaded by every page. |
 | `css/candle-backdrop.css` | Chart component styles, all scoped to `.candle-backdrop`. |
-| `css/home.css` | Homepage layout, type, portrait, and the chart's placement and fades. Uses only theme tokens for colour. |
+| `css/home.css` | Homepage layout, type, portrait, the chart's placement and fades, the decor layer's positions and animations, and the project-card animations. Uses only theme tokens for colour. |
+| `js/theme.js` | Theme manager, loaded in every page's `<head>`: applies the saved theme before the page paints, builds the picker, saves the choice, crossfades between themes. |
 | `js/ohlcv-fixture.js` | Fixed, labeled OHLCV fixture: 240 synthetic daily candles, not market data. |
 | `js/candle-backdrop.js` | The chart component (`window.CandleBackdrop`). |
 | `js/home-hero.js` | Mounts the chart and exposes it as `window.heroChart`. |
 | `js/hero-chart.js` | The "Live overlay" toggle: loads TradingView's BTC/USD chart over the candles on request. |
+| `js/thumbnails.js` | Live-dashboard details on the homepage project cards (draw-in lines, pinging dots, breathing bars). |
 | `assets/haley-desk-cutout.webp` | The desk photo as a soft cutout with transparency (1152 × 941). |
 | `dev/checks/acceptance.js` | Screenshot and pixel checks (below). |
 | `dev/tools/make-cutout.py` | Rebuilds the cutout from the original photo and a person matte. |
 | `dev/tools/make-fixture.py` | Regenerates `js/ohlcv-fixture.js`. Values are written out literally. |
+| `dev/tools/make-decor.py` | Generates the hero's decorative SVG (ribbons, mountains, hills, clouds, sparkles) into `index.html`. |
 
-Only `index.html` loads `home.css`, the theme and the chart files. Project pages load `css/site.css` alone, so work on them can't move the hero, and hero changes can't affect them.
+Only `index.html` loads `home.css` and the chart files. Project pages load `css/site.css`, `css/themes.css` and `js/theme.js`, so they follow the chosen theme, but work on them can't move the hero, and hero changes can't affect them.
 
 ## Adding a project page
 
-1. Create `projects/<name>/index.html` and link `../../css/site.css`, like the existing project pages.
+1. Create `projects/<name>/index.html` like the existing project pages: `<script src="../../js/theme.js"></script>` in the `<head>`, then `../../css/site.css` and `../../css/themes.css`. The theme picker adds itself to the page's `.nav-inner`.
 2. Link to it from the homepage: a card in the work or lab section, or a hero shortcut in `.hero-shortcuts` (each shortcut is an `<a>` with an inline SVG icon and a `<span>` label).
 3. Run the acceptance checks. "Page links resolve" confirms the new link loads.
 
@@ -34,20 +37,41 @@ Don't add project styles to `css/home.css`, or homepage styles to `css/site.css`
 
 ## Themes
 
-Classic Espresso is the only theme. Its tokens are on `:root` in `css/themes/classic-espresso.css`, and `css/home.css` takes every hero, navigation and intro colour from them, chart colours included (`--theme-chart-*` feed the component's `--cb-*` properties).
+Six themes, all defined in `css/themes.css`:
 
-To add a theme later:
+| id | Name | Look |
+|---|---|---|
+| `classic` | Classic | Warm espresso and mocha, champagne type, teal and terracotta candles (the original design) |
+| `haleys-choice` | Haley's Choice | Pastel blue, lavender and blush, bright pink accents, silk strands (default for new visitors) |
+| `mile-high` | Mile High | Crisp white, royal blue and bright orange ribbons, snow-capped mountains |
+| `liquidity` | Liquidity | Sky blue, cobalt and gold, sun, clouds, glassy water ribbons |
+| `flow` | Flow | Sage and mint, emerald glass ribbons, rolling hills, clouds |
+| `surge` | Surge | White with electric blue, purple, fuchsia and orange ribbons |
 
-1. Copy the file to `css/themes/<name>.css`.
-2. Scope its block to `:root[data-theme="<name>"]`.
-3. Load it after `classic-espresso.css`.
-4. Set `data-theme` on `<html>`.
+How it works:
 
-Layout stays in `home.css`. Three things aren't tokenized yet:
+- **Choosing:** `js/theme.js` sets `data-theme` on `<html>` before the page paints (from `localStorage` key `hm-theme`, default `haleys-choice`), and keeps it in sync across pages and open tabs. Without JavaScript the page falls back to Haley's Choice.
+- **Tokens:** each theme's block in `css/themes.css` defines `--theme-*` tokens for the homepage (nav, headline, tagline, buttons, shortcuts, scene background, chart, intro band, picker), overrides the shared palette in `css/site.css` (`--ink`, `--ivory`, `--cream` ... `--red`) and sets mapping tokens (`--console-bg`, `--tile-bg`, `--nav-bg` ...) for the lower sections and project pages. Classic leaves the mapping tokens unset, so everything falls back to the original values and Classic renders exactly as before.
+- **Chart:** `--theme-chart-*` tokens feed the component's `--cb-*` properties. A colour can blend left to right with an `-end` partner (Surge does). On a theme change, `js/home-hero.js` calls `heroChart.refresh()`, which redraws in the new colours without moving the price scale.
+- **Decor:** the hero's backgrounds are inline SVG in `index.html` (between `<!-- decor:start -->` and `<!-- decor:end -->`), generated by `dev/tools/make-decor.py`. Each piece belongs to a slot (`decor-top`, `decor-side`, `decor-bottom`, `decor-land--mountains`, `decor-land--hills`, clouds, sun, sparkles) and to a theme group (`.dz-<theme>`). Which slots each theme shows is set under "Hero decor per theme" in `css/themes.css`; their colours are `--decor-*` tokens in each theme's block. To change the art, edit the generator and run `python3 dev/tools/make-decor.py`; don't edit the block by hand.
+- **Motion:** decor slots sway, clouds drift, the sun glows and sparkles twinkle, all with CSS transform and opacity only. The newest candle ticks gently every few seconds. The project cards animate when they come into view. Visitors who prefer reduced motion get none of it.
+- **Switching:** the picker crossfades the page with the View Transitions API where the browser supports it, and switches instantly elsewhere.
 
-- `<meta name="theme-color">` in `index.html`.
-- The TradingView widget's own colours (a light chart that `home.css` inverts into the scene), set in `js/hero-chart.js`.
-- The sections below the intro, which use the shared palette in `css/site.css` (`--charcoal`, `--cream` and others) because project pages share those rules. A theme can override those variables on `.home` when it needs to.
+To adjust a theme, change its block in `css/themes.css` (and, for the art, the generator). To add a seventh theme: add a block scoped to `[data-theme="<id>"]` with every token the other themes define, add its decor rules, and add `{ id, name, meta }` to the `THEMES` list in `js/theme.js`.
+
+### Contrast
+
+`dev/checks/acceptance.js` measures each theme's hero text against the pixels actually behind it. A few places follow the references rather than WCAG AA and are reported as known exceptions:
+
+| Theme | Text | Contrast | Why |
+|---|---|---|---|
+| Haley's Choice | Nav links | about 1.8:1 | White on pastel blue, as in the reference |
+| Haley's Choice | Primary button | about 3.0:1 | White on bright pink, as in the reference |
+| Mile High | Primary button | about 2.5:1 | White on bright orange, as in the reference |
+| Surge | Primary button | about 2.7:1 | White on the orange-to-fuchsia gradient, as in the reference |
+| Classic | Chart caption on phones | about 3.8:1 | Unchanged from the approved design |
+
+Reaching 4.5:1 with white text would need much deeper fills (hot magenta, burnt orange). The alternative that keeps the fills is dark text on the bright buttons and the Haley's Choice nav: change `--theme-button-primary-text` and `--theme-nav-text` in those themes' blocks.
 
 ## Chart component API
 
@@ -121,7 +145,7 @@ node dev/checks/acceptance.js
 
 It needs Playwright with Chromium. To check another URL or output folder: `node dev/checks/acceptance.js <url> <outDir>`. Screenshots and `results.json` go to `dev/checks/output/`, which git ignores. The hero is captured in viewport-sized tiles by scrolling, because a full-page capture briefly resizes the page, which would refit the chart.
 
-At 1440 × 900 and 390 × 844, at 2× pixel density, it checks:
+It runs every check below for each theme (`--themes=classic,flow` to pick some), at 1440 × 900 and 390 × 844, at 2× pixel density, with reduced motion so the hero holds still for pixel comparisons:
 
 - **Loading:**
   - The chart mounts, every request succeeds and every image decodes.
@@ -149,11 +173,20 @@ At 1440 × 900 and 390 × 844, at 2× pixel density, it checks:
   - Three test updates to the newest candle each change only its column, in both the price and volume panes.
   - The price scale holds and the history layer stays byte-identical.
 - **Clipping:** an update far outside the locked range stays clipped inside that column.
-- **Live overlay:**
+- **Theme:** the theme applied, the chart drew in its candle colours, and the hero text meets WCAG AA against what is behind it (known exceptions above are reported as WARN).
+- **Live overlay** (first theme only, as are the link checks):
   - Nothing loads from TradingView until the toggle is pressed.
   - The toggle can be clicked and focused, and works from the keyboard.
   - Online, the live chart appears with the candles dimmed, the history layer untouched and the controls row the same size. Pressing again restores the candles and caption.
   - Offline, it falls back with its message, so the check passes either way.
+
+Then, once, the theme system:
+
+- New visitors get Haley's Choice.
+- The picker lists the six themes with palette previews, and works by keyboard (Enter, arrows, Escape) and pointer, closing on an outside click.
+- The choice survives a reload, reaches a project page, and syncs to another open tab.
+- With motion allowed, the decor animates using only transform and opacity, the newest candle ticks while the history layer stays byte-identical, and there are no long main-thread tasks.
+- With reduced motion, nothing animates and the newest candle holds still.
 
 `data-face` and `data-beside` on the portrait are fractions of the photo (`x y w h`). If the photo changes, update them.
 

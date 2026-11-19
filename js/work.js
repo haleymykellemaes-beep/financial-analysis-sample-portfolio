@@ -27,7 +27,7 @@
         entry.target.classList.add("is-drawn");
         observer.unobserve(entry.target);
       });
-    }, { threshold: 0.3 });
+    }, { rootMargin: "0px 0px -22% 0px" });
     cards.forEach((card) => observer.observe(card));
   }
 

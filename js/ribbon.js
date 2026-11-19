@@ -1,218 +1,147 @@
-/* Layered market traces. Prefers python/generate_market.py output, and falls back to a local walk. */
+/* Illustrative candle history in a single, slowly advancing background. */
 (() => {
   const canvas = document.getElementById("ribbon");
   if (!canvas) return;
   const ctx = canvas.getContext("2d", { alpha: true });
   if (!ctx) return;
 
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const colors = [
-    "rgba(232,214,186,0.28)",
-    "rgba(244,228,204,0.62)",
-    "rgba(214,190,156,0.22)",
-    "rgba(236,220,196,0.4)"
-  ];
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let history;
+  let priceLow;
+  let priceHigh;
   let width = 0;
   let height = 0;
-  let raf = 0;
-  let running = false;
-  let last = 0;
+  let spacing = 1;
   let offset = 0;
-  let pointerX = 0;
-  let pointerY = 0;
-  let tapes = [];
-  let candles = [];
+  let frame = 0;
+  let previousTime = 0;
+  let inView = true;
 
-  function localTape(seed, count, drift) {
-    let state = seed >>> 0;
-    const unit = () => {
-      state = (Math.imul(1664525, state) + 1013904223) >>> 0;
-      return state / 4294967296;
-    };
-    const values = [];
-    let noise = 0;
-    for (let i = 0; i < count; i += 1) {
-      const trend = 1 + drift * (i / (count - 1));
-      noise = noise * 0.86 + (unit() - 0.5) * 0.02;
-      values.push(trend * (1 + noise));
-    }
-    return values;
+  function samplePrices() {
+    let seed = 1204;
+    let price = 100;
+    return Array.from({ length: 240 }, () => {
+      seed = (Math.imul(1664525, seed) + 1013904223) >>> 0;
+      price += (seed / 4294967296 - 0.47) * 1.2;
+      return price;
+    });
   }
 
-  function usePayload(data) {
-    if (data && Array.isArray(data.tapes)) {
-      tapes = data.tapes.map((tape) => ({ speed: tape.speed || 0.2, values: tape.values }));
-      candles = Array.isArray(data.candles) ? data.candles : [];
-      return;
+  function prepareHistory(payload) {
+    const primary = payload?.tapes?.[0]?.values;
+    const prices = Array.isArray(primary) && primary.length >= 120 && primary.every(Number.isFinite)
+      ? primary
+      : samplePrices();
+    const candles = [];
+    for (let end = 3; end < prices.length; end += 3) {
+      const open = prices[end - 3];
+      const close = prices[end];
+      const high = Math.max(open, prices[end - 2], prices[end - 1], close);
+      const low = Math.min(open, prices[end - 2], prices[end - 1], close);
+      candles.push({ open, close, high, low });
     }
-    tapes = [
-      { speed: 0.22, values: localTape(1204, 180, 0.08) },
-      { speed: 0.16, values: localTape(3371, 180, 0.03) },
-      { speed: 0.28, values: localTape(7740, 180, -0.04) },
-      { speed: 0.12, values: localTape(5519, 180, 0.02) }
-    ];
-    candles = [];
+
+    // Return along the historical series so the decorative loop joins at the same price.
+    const returnPath = candles.slice().reverse().map(({ open, close, high, low }) => ({
+      open: close, close: open, high, low
+    }));
+    history = candles.concat(returnPath);
+    priceLow = Math.min(...candles.map((candle) => candle.low));
+    priceHigh = Math.max(...candles.map((candle) => candle.high));
+  }
+
+  function draw() {
+    if (!history || !width || !height) return;
+    ctx.clearRect(0, 0, width, height);
+    const phone = width <= 760;
+    const plotTop = height * (phone ? 0.14 : 0.25);
+    const plotHeight = height * (phone ? 0.52 : 0.48);
+    const range = priceHigh - priceLow || 1;
+    const y = (price) => plotTop + (priceHigh - price) / range * plotHeight;
+    const first = Math.floor(offset / spacing);
+    const partial = offset % spacing;
+    const columns = Math.ceil(width / spacing) + 2;
+    const bodyWidth = Math.min(7, spacing * 0.38);
+    const points = [];
+
+    for (let i = 0; i < columns; i += 1) {
+      const candle = history[(first + i) % history.length];
+      const x = (i - 0.5) * spacing - partial;
+      const openY = y(candle.open);
+      const closeY = y(candle.close);
+      const color = candle.close >= candle.open ? "rgba(169, 199, 158, .62)" : "rgba(220, 158, 130, .6)";
+
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, y(candle.high));
+      ctx.lineTo(x, y(candle.low));
+      ctx.stroke();
+      ctx.fillRect(x - bodyWidth / 2, Math.min(openY, closeY), bodyWidth, Math.max(1.5, Math.abs(openY - closeY)));
+      points.push([x, closeY]);
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(points[0][0], points[0][1]);
+    for (const [x, closeY] of points.slice(1)) ctx.lineTo(x, closeY);
+    ctx.strokeStyle = "rgba(255, 227, 194, .73)";
+    ctx.lineWidth = 1.15;
+    ctx.lineJoin = "round";
+    ctx.stroke();
   }
 
   function resize() {
     const rect = canvas.getBoundingClientRect();
-    width = Math.max(rect.width, 1);
-    height = Math.max(rect.height, 1);
-    const dpr = Math.min(window.devicePixelRatio || 1, width < 760 ? 1.25 : 1.5);
-    canvas.width = Math.round(width * dpr);
-    canvas.height = Math.round(height * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+    const progress = offset / spacing;
+    width = rect.width;
+    height = rect.height;
+    spacing = Math.min(25, Math.max(12, width / 64));
+    offset = progress * spacing;
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     draw();
   }
 
-  function sample(values, at) {
-    const span = values.length - 1;
-    const wrapped = ((at % span) + span) % span;
-    const index = Math.floor(wrapped);
-    const next = (index + 1) % values.length;
-    const fraction = wrapped - index;
-    return values[index] + (values[next] - values[index]) * fraction;
-  }
-
-  function bounds(values) {
-    let min = values[0];
-    let max = values[0];
-    for (let i = 1; i < values.length; i += 1) {
-      min = Math.min(min, values[i]);
-      max = Math.max(max, values[i]);
-    }
-    return { min, max: max === min ? min + 1 : max };
-  }
-
-  function barsFrom(values, start, count, span) {
-    const bars = [];
-    const length = values.length;
-    const origin = Math.floor(start);
-    for (let i = 0; i < count; i += 1) {
-      const at = (origin + i * span) % (length - span);
-      let high = -Infinity;
-      let low = Infinity;
-      for (let k = 0; k < span; k += 1) {
-        const price = values[at + k];
-        high = Math.max(high, price);
-        low = Math.min(low, price);
-      }
-      bars.push({ o: values[at], c: values[at + span - 1], h: high, l: low });
-    }
-    return bars;
-  }
-
-  function sideShift() {
-    const span = width * (width < 900 ? 0.06 : 0.09);
-    const phase = (offset * 22) % (span * 2);
-    return phase < span ? phase : span * 2 - phase;
-  }
-
-  function paintChart(values, box, count) {
-    if (!values || values.length < 12) return;
-    const start = offset * 18;
-    const series = barsFrom(values, start, count, 3);
-    let min = series[0].c;
-    let max = series[0].c;
-    series.forEach((bar) => {
-      min = Math.min(min, bar.o, bar.c);
-      max = Math.max(max, bar.o, bar.c);
-    });
-    const pad = (max - min) * 0.45 || 1;
-    min -= pad;
-    max += pad;
-    const span = max - min || 1;
-    const step = box.w / series.length;
-    const yOf = (value) => box.y + (1 - (value - min) / span) * box.h;
-    const shift = pointerX * 8;
-    series.forEach((bar, index) => {
-      const x = box.x + index * step + step * 0.5 + shift;
-      const up = bar.c >= bar.o;
-      const bodyW = Math.min(7, step * 0.55);
-      ctx.strokeStyle = up ? "#f8edd9" : "#e7c2b0";
-      ctx.lineWidth = 1.6;
-      ctx.beginPath();
-      ctx.moveTo(x, yOf(bar.h));
-      ctx.lineTo(x, yOf(bar.l));
-      ctx.stroke();
-      const top = Math.min(yOf(bar.o), yOf(bar.c));
-      const body = Math.max(3, Math.abs(yOf(bar.o) - yOf(bar.c)));
-      ctx.fillStyle = up ? "#f3ddb8" : "#d7a08a";
-      ctx.fillRect(x - bodyW / 2, top, bodyW, body);
-    });
-    ctx.beginPath();
-    series.forEach((bar, index) => {
-      const x = box.x + index * step + step * 0.5 + shift;
-      const y = yOf(bar.c);
-      if (index === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.strokeStyle = "rgba(255,236,210,0.9)";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    const last = series[series.length - 1];
-    const lx = box.x + (series.length - 0.5) * step + shift;
-    ctx.beginPath();
-    ctx.arc(lx, yOf(last.c), 3, 0, Math.PI * 2);
-    ctx.fillStyle = "#f8edd9";
-    ctx.fill();
-  }
-
-  function draw() {
-    if (!width || !height) return;
-    ctx.clearRect(0, 0, width, height);
-    const primary = (tapes[0] && tapes[0].values) || [];
-    const slide = sideShift();
-    if (width < 900) {
-      paintChart(primary, { x: width * 0.46 - slide * 0.35, y: height * 0.1, w: width * 0.48, h: height * 0.22 }, 12);
-      return;
-    }
-    paintChart(primary, { x: width * 0.58 - slide, y: height * 0.12, w: width * 0.36, h: height * 0.52 }, 16);
-  }
-
-  function frame(time) {
-    if (!running) return;
-    const dt = Math.min(0.05, (time - last) / 1000 || 0.016);
-    last = time;
-    if (!reduce.matches) offset += dt;
+  function step(time) {
+    const seconds = Math.min(0.05, Math.max(0, (time - previousTime) / 1000));
+    const speed = width <= 760 ? 2 : 3.5;
+    offset = (offset + seconds * speed) % (spacing * history.length);
+    previousTime = time;
     draw();
-    if (!reduce.matches) raf = window.requestAnimationFrame(frame);
+    frame = window.requestAnimationFrame(step);
   }
 
-  function start() {
-    if (running) return;
-    running = true;
-    last = performance.now();
-    raf = window.requestAnimationFrame(frame);
+  function syncMotion() {
+    const shouldAnimate = history && inView && !document.hidden && !reducedMotion.matches;
+    if (shouldAnimate && !frame) {
+      previousTime = performance.now();
+      frame = window.requestAnimationFrame(step);
+    } else if (!shouldAnimate && frame) {
+      window.cancelAnimationFrame(frame);
+      frame = 0;
+    }
   }
 
-  function stop() {
-    running = false;
-    cancelAnimationFrame(raf);
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      syncMotion();
+    }).observe(canvas);
   }
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(resize).observe(canvas);
+  } else {
+    window.addEventListener("resize", resize, { passive: true });
+  }
+  reducedMotion.addEventListener("change", syncMotion);
+  document.addEventListener("visibilitychange", syncMotion);
 
-  canvas.parentElement.addEventListener("pointermove", (event) => {
-    if (reduce.matches || width < 760) return;
-    const bounds = canvas.getBoundingClientRect();
-    pointerX = (event.clientX - bounds.left) / bounds.width - 0.5;
-    pointerY = (event.clientY - bounds.top) / bounds.height - 0.5;
-  }, { passive: true });
-
-  const observer = new IntersectionObserver((entries) => {
-    if (entries.some((entry) => entry.isIntersecting) && !document.hidden) start();
-    else stop();
-  }, { threshold: 0.02 });
-  observer.observe(canvas.parentElement);
-  window.addEventListener("resize", resize, { passive: true });
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) stop();
-    else start();
-  });
-
-  const ready = window.MarketData || Promise.resolve(null);
-  ready.then((data) => {
-    usePayload(data);
+  Promise.resolve(window.MarketData).then((payload) => {
+    prepareHistory(payload);
     resize();
-    if (!document.hidden) start();
+    syncMotion();
   });
 })();

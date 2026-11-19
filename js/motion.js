@@ -6,13 +6,16 @@
   const gsap = window.gsap;
   gsap.registerPlugin(window.ScrollTrigger);
 
-  gsap.from(".hero-copy > *", {
-    y: 18,
-    duration: 1.05,
-    stagger: 0.07,
-    ease: "power3.out",
-    clearProps: "transform"
-  });
+  // Behind the welcome curtain the hero is already in place when the panels open.
+  if (!document.documentElement.classList.contains("welcome-open")) {
+    gsap.from(".hero-copy > *", {
+      y: 18,
+      duration: 1.05,
+      stagger: 0.07,
+      ease: "power3.out",
+      clearProps: "transform"
+    });
+  }
 
   const sections = gsap.utils.toArray(".intro-grid, .section-head, .feature, .cap, .tile, .about-grid");
   sections.forEach((section) => {

@@ -209,7 +209,8 @@
   }
 
   function syncMotion() {
-    const shouldAnimate = history && inView && !document.hidden && !reducedMotion.matches;
+    const covered = document.documentElement.classList.contains("welcome-open");
+    const shouldAnimate = history && inView && !covered && !document.hidden && !reducedMotion.matches;
     if (shouldAnimate && !frame) {
       previousTime = performance.now();
       frame = window.requestAnimationFrame(step);
@@ -233,6 +234,7 @@
   }
   reducedMotion.addEventListener("change", syncMotion);
   document.addEventListener("visibilitychange", syncMotion);
+  document.addEventListener("welcomeclose", syncMotion);
   document.addEventListener("themechange", () => {
     readPalette();
     if (prices && palette.detail !== detail) prepareHistory();

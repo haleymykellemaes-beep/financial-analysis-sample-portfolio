@@ -13,7 +13,8 @@
  * - Fires a "themechange" event on document (detail: { theme }) so canvases
  *   such as the hero chart can redraw in the new colours.
  *
- * API: window.HMTheme = { themes, get(), set(id) }.
+ * API: window.HMTheme = { themes, get(), set(id, options) }.
+ *   set(id, { transition: false }) applies at once, without the crossfade.
  */
 (function () {
   "use strict";
@@ -61,11 +62,13 @@
     document.dispatchEvent(event);
   }
 
-  function set(id) {
-    if (!find(id) || id === current()) { save(id); return; }
+  function set(id, options) {
+    if (!find(id)) return;
     save(id);
+    if (id === current()) return;
+    var animate = !(options && options.transition === false);
     var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (document.startViewTransition && !reduce) {
+    if (animate && document.startViewTransition && !reduce) {
       document.startViewTransition(function () { apply(id); });
     } else {
       apply(id);

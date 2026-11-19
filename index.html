@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <script src="js/theme.js"></script>
+  <script src="js/theme.js?v=welcome"></script>
+  <script src="js/welcome.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Haley Maes | Financial &amp; Data Analytics</title>
   <meta name="description" content="Haley Maes — financial and data analysis, forecasting, risk, and operational intelligence. Numbers tell stories. I translate them." />
@@ -15,8 +16,32 @@
   <!-- Fonts are loaded in site.css for consistent typography across project pages. -->
   <link rel="stylesheet" href="css/site.css?v=hero-type" />
   <link rel="stylesheet" href="css/themes.css" />
+  <link rel="stylesheet" href="css/welcome.css" />
 </head>
 <body>
+  <div class="welcome" id="welcome" role="dialog" aria-modal="true" aria-labelledby="welcome-title" aria-describedby="welcome-lede" tabindex="-1">
+    <div class="welcome-panel welcome-panel--left" aria-hidden="true"></div>
+    <div class="welcome-panel welcome-panel--right" aria-hidden="true"></div>
+    <div class="welcome-content">
+      <div class="welcome-inner">
+        <img class="welcome-logo" src="assets/brand/hm-logo.webp" width="60" height="60" alt="" />
+        <p class="welcome-label">Financial Intelligence</p>
+        <h2 class="welcome-title" id="welcome-title">Welcome to <em>Haley Maes’ portfolio</em></h2>
+        <p class="welcome-lede" id="welcome-lede">Choose a theme to personalize your visit.</p>
+        <fieldset class="welcome-themes">
+          <legend class="welcome-legend">Theme</legend>
+          <div class="welcome-preview" data-welcome-preview aria-hidden="true"></div>
+          <div class="welcome-tiles" data-welcome-tiles></div>
+        </fieldset>
+        <div class="welcome-actions">
+          <button class="welcome-enter" type="button" data-welcome-enter>Enter portfolio</button>
+          <button class="welcome-skip" type="button" data-welcome-skip>Skip intro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>window.HMWelcome && window.HMWelcome.mount();</script>
+
   <a class="skip" href="#work">Skip to work</a>
   <header class="nav">
     <div class="nav-inner">
@@ -274,8 +299,8 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js"></script>
   <script src="js/market-data.js"></script>
   <script src="js/nav.js"></script>
-  <script src="js/ribbon.js?v=dense-candles"></script>
+  <script src="js/ribbon.js?v=welcome"></script>
   <script src="js/previews.js"></script>
-  <script src="js/motion.js?v=market-flow"></script>
+  <script src="js/motion.js?v=welcome"></script>
 </body>
 </html>

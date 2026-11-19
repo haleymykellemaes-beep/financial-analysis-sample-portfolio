@@ -30,6 +30,9 @@
   ];
   var DEFAULT = "classic";
   var KEY = "haley-financial-portfolio-theme";
+  // Alternate themes are on hold: every page shows Classic and no picker is built.
+  // Saved choices stay in storage; set PAUSED to false to bring the picker back.
+  var PAUSED = true;
   var root = document.documentElement;
 
   function find(id) {
@@ -76,10 +79,11 @@
   }
 
   // Before first paint: apply the saved theme, or the default.
-  root.setAttribute("data-theme", find(stored()) ? stored() : DEFAULT);
+  root.setAttribute("data-theme", !PAUSED && find(stored()) ? stored() : DEFAULT);
 
   // Another tab changed the theme.
   window.addEventListener("storage", function (e) {
+    if (PAUSED) return;
     if (e.key === KEY && find(e.newValue) && e.newValue !== current()) apply(e.newValue);
   });
 
@@ -220,6 +224,7 @@
 
   function init() {
     setMeta(find(current()));
+    if (PAUSED) return;
     var hosts = document.querySelectorAll("[data-theme-picker]");
     if (!hosts.length) {
       var nav = document.querySelector(".nav-inner");
@@ -240,5 +245,6 @@
     themes: THEMES.map(function (t) { return { id: t.id, name: t.name }; }),
     get: current,
     set: set,
+    paused: PAUSED,
   };
 })();

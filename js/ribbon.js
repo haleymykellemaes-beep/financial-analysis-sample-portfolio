@@ -33,11 +33,11 @@
       ? primary
       : samplePrices();
     const candles = [];
-    for (let end = 3; end < prices.length; end += 3) {
-      const open = prices[end - 3];
+    for (let end = 2; end < prices.length; end += 2) {
+      const open = prices[end - 2];
       const close = prices[end];
-      const high = Math.max(open, prices[end - 2], prices[end - 1], close);
-      const low = Math.min(open, prices[end - 2], prices[end - 1], close);
+      const high = Math.max(open, prices[end - 1], close);
+      const low = Math.min(open, prices[end - 1], close);
       candles.push({ open, close, high, low });
     }
 
@@ -61,15 +61,14 @@
     const first = Math.floor(offset / spacing);
     const partial = offset % spacing;
     const columns = Math.ceil(width / spacing) + 2;
-    const bodyWidth = Math.min(7, spacing * 0.38);
-    const points = [];
+    const bodyWidth = spacing * 0.64;
 
     for (let i = 0; i < columns; i += 1) {
       const candle = history[(first + i) % history.length];
       const x = (i - 0.5) * spacing - partial;
       const openY = y(candle.open);
       const closeY = y(candle.close);
-      const color = candle.close >= candle.open ? "rgba(169, 199, 158, .62)" : "rgba(220, 158, 130, .6)";
+      const color = candle.close >= candle.open ? "rgba(125, 187, 158, .7)" : "rgba(218, 138, 119, .66)";
 
       ctx.strokeStyle = color;
       ctx.fillStyle = color;
@@ -79,16 +78,7 @@
       ctx.lineTo(x, y(candle.low));
       ctx.stroke();
       ctx.fillRect(x - bodyWidth / 2, Math.min(openY, closeY), bodyWidth, Math.max(1.5, Math.abs(openY - closeY)));
-      points.push([x, closeY]);
     }
-
-    ctx.beginPath();
-    ctx.moveTo(points[0][0], points[0][1]);
-    for (const [x, closeY] of points.slice(1)) ctx.lineTo(x, closeY);
-    ctx.strokeStyle = "rgba(255, 227, 194, .73)";
-    ctx.lineWidth = 1.15;
-    ctx.lineJoin = "round";
-    ctx.stroke();
   }
 
   function resize() {
@@ -97,7 +87,7 @@
     const progress = offset / spacing;
     width = rect.width;
     height = rect.height;
-    spacing = Math.min(25, Math.max(12, width / 64));
+    spacing = Math.min(16, Math.max(8, width / 120));
     offset = progress * spacing;
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);

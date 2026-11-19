@@ -669,10 +669,12 @@ h2 {text-wrap:balance;}
 .scene-hero .hero-stage {
   position: relative;
   z-index: 4;
+  flex: 1 0 auto;
   grid-template-columns: minmax(0, 536px);
   justify-content: start;
-  align-items: center;
+  align-items: start;
   min-height: min(640px, calc(100svh - 180px));
+  padding-top: clamp(12px, 7svh, 88px);
 }
 .scene-hero .hero-copy { max-width: 540px; padding: 24px 0 12px; }
 .scene-hero h1 {
@@ -726,7 +728,7 @@ h2 {text-wrap:balance;}
   .scene-hero .hero-veil {
     background: linear-gradient(180deg, rgba(42,32,28,.44), rgba(42,32,28,.28) 32%, transparent 64%);
   }
-  .scene-hero .hero-stage { order: 1; min-height: 0; }
+  .scene-hero .hero-stage { order: 1; flex: none; min-height: 0; padding-top: 0; align-items: center; }
   .scene-hero .hero-copy { padding: 0; }
   .scene-hero h1 { font-size: clamp(3.55rem, 11.5vw, 5.2rem); }
   .scene-hero .hero-actions { flex-wrap: wrap; gap: 10px 14px; }

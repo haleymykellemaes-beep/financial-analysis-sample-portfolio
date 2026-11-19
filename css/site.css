@@ -668,7 +668,7 @@ h2 {text-wrap:balance;}
 .scene-hero .hero-stage {
   position: relative;
   z-index: 4;
-  grid-template-columns: minmax(0, 520px);
+  grid-template-columns: minmax(0, 536px);
   justify-content: start;
   align-items: center;
   min-height: min(640px, calc(100svh - 180px));
@@ -677,9 +677,10 @@ h2 {text-wrap:balance;}
 .scene-hero h1 {
   font-family: var(--serif);
   font-weight: 400;
-  font-size: clamp(4.4rem, 7vw, 7.1rem);
+  font-size: clamp(4.4rem, 7vw, 6.6rem);
   line-height: 0.9;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.015em;
+  word-spacing: 0.075em;
   color: #f7f1e8;
   margin: 0 0 8px;
 }
@@ -691,9 +692,9 @@ h2 {text-wrap:balance;}
   line-height: 1.15;
   letter-spacing: -0.03em;
   color: #f3e6d4;
-  max-width: 16ch;
+  max-width: none;
 }
-.scene-hero .tagline em { font-style: italic; color: #f0d7b4; }
+.scene-hero .tagline em { display: block; font: inherit; color: #f0d7b4; white-space: normal; }
 .scene-hero .hero-description { color: #e6d9cb; max-width: 38ch; }
 .scene-hero .hero-actions { align-items: center; }
 .scene-hero .pill { border-radius: 999px; background: #edd9bf; color: #2b241f; padding: 14px 22px; }

@@ -920,7 +920,7 @@ th, td { border-bottom-color: var(--data-grid, rgba(237, 233, 220, .1)); }
 @media (max-width: 760px) {
   .nav-links { background: var(--nav-bg-solid, rgba(28, 28, 27, .96)); }
 }
-:root:not([data-theme]), [data-theme]:not([data-theme="classic"]) {
+:where(:root:not([data-theme]), [data-theme]:not([data-theme="classic"])) {
   --theme-nav-button-bg: color-mix(in srgb, var(--ivory) 72%, transparent);
   --theme-controls-bg: color-mix(in srgb, var(--ivory) 66%, transparent);
   --theme-controls-blur: blur(8px);

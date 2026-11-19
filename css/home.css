@@ -757,12 +757,27 @@
   .hero-shortcuts span { max-width: none; }
 }
 
-@media (max-width: 390px) {
-  .home { --home-gutter: 20px; }
+/* Between the desktop nav's breakpoint and 1100px, the picker shows just its colours. */
+@media (min-width: 921px) and (max-width: 1100px) {
+  .home .theme-picker__label { display: none; }
+  .home .theme-picker__button { padding: 6px 10px 6px 9px; gap: 7px; }
+}
+
+/* Phones: a compact brand, with the descriptor wrapping under the name, so
+   the theme picker and the menu button fit beside it. */
+@media (max-width: 520px) {
   .home .nav-inner, .home .brand { gap: 10px; }
   .home .brand-mark { font-size: 2.35rem; }
   .home .brand-sub { padding-left: 10px; font-size: .72rem; letter-spacing: .18em; }
-  .home .brand-sub span { font-size: .51rem; letter-spacing: .1em; }
+  .home .brand-sub span { font-size: .51rem; letter-spacing: .1em; white-space: normal; max-width: 13em; line-height: 1.3; }
+}
+
+@media (max-width: 340px) {
+  .home .brand-sub { display: none; }
+}
+
+@media (max-width: 390px) {
+  .home { --home-gutter: 20px; }
   .hero-stage { padding-top: 35px; }
   .hero-overline { font-size: .61rem; letter-spacing: .105em; }
   .home-button { min-height: 48px; padding-inline: 13px; font-size: .73rem; }

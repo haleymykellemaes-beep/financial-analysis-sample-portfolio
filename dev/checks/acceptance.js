@@ -776,6 +776,27 @@ async function run() {
     record(tag, "No page errors while switching themes", errs.length === 0, errs.join("; "));
     await ctx.close();
 
+    // No horizontal overflow at in-between widths, on the homepage and a project page.
+    const widths = [320, 360, 375, 414, 600, 768, 820, 921, 1024, 1100, 1280];
+    const over = [];
+    for (const t of ["haleys-choice", "classic"]) {
+      ctx = await browser.newContext({ viewport: { width: 1024, height: 800 }, reducedMotion: "reduce" });
+      await ctx.addInitScript((id) => localStorage.setItem("hm-theme", id), t);
+      p = await ctx.newPage();
+      for (const w of widths) {
+        await p.setViewportSize({ width: w, height: 800 });
+        for (const page of ["", "projects/sports-market/index.html"]) {
+          await p.goto(new globalThis.URL(page, URL).href, { waitUntil: "networkidle" });
+          await p.evaluate(() => document.fonts.ready);
+          const o = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+          if (o > 0) over.push(`${t} ${w}px ${page || "home"}: ${o}px`);
+        }
+      }
+      await ctx.close();
+    }
+    record(tag, "No horizontal overflow from 320 to 1280px wide", over.length === 0,
+      over.length ? over.join("; ") : `homepage and a project page, ${widths.join("/")}px, Haley's Choice and Classic`);
+
     ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
     await ctx.addInitScript(() => localStorage.setItem("hm-theme", "liquidity"));
     p = await ctx.newPage();

@@ -2,50 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <script src="js/theme.js?v=classic-silk"></script>
-  <script src="js/welcome.js"></script>
+  <script src="js/theme.js?v=home-layers"></script>
+  <script>
+    (function () {
+      var root = document.documentElement;
+      root.classList.add("js");
+      try {
+        var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var seen = window.sessionStorage.getItem("hm-intro") === "played";
+        if (still || seen || window.location.hash.length > 1) return;
+        root.classList.add("intro-pending");
+        window.__introFallback = window.setTimeout(function () { root.classList.remove("intro-pending"); }, 4200);
+      } catch (e) { /* storage blocked: skip the intro */ }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Haley Maes | Financial &amp; Data Analytics</title>
   <meta name="description" content="Haley Maes — financial and data analysis, forecasting, risk, and operational intelligence. Numbers tell stories. I translate them." />
-  <meta name="theme-color" content="#f3e9dc" />
+  <meta name="theme-color" content="#f3e2d4" />
   <link rel="icon" href="assets/brand/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="icon" href="assets/brand/icon-192.png" sizes="192x192" type="image/png" />
   <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="image" href="assets/home/haley-portrait.webp" fetchpriority="high" />
   <!-- Fonts are loaded in site.css for consistent typography across project pages. -->
-  <link rel="stylesheet" href="css/site.css?v=hero-type" />
-  <link rel="stylesheet" href="css/themes.css?v=classic-silk" />
-  <link rel="stylesheet" href="css/welcome.css" />
+  <link rel="stylesheet" href="css/site.css?v=home-layers" />
+  <link rel="stylesheet" href="css/themes.css?v=home-layers" />
+  <link rel="stylesheet" href="css/home.css?v=home-layers" />
 </head>
-<body>
-  <div class="welcome" id="welcome" role="dialog" aria-modal="true" aria-labelledby="welcome-title" aria-describedby="welcome-lede" tabindex="-1">
-    <div class="welcome-panel welcome-panel--left" aria-hidden="true"></div>
-    <div class="welcome-panel welcome-panel--right" aria-hidden="true"></div>
-    <div class="welcome-content">
-      <div class="welcome-inner">
-        <img class="welcome-logo" src="assets/brand/hm-logo.webp" width="60" height="60" alt="" />
-        <p class="welcome-label">Financial Intelligence</p>
-        <h2 class="welcome-title" id="welcome-title">Welcome to <em>Haley Maes’ portfolio</em></h2>
-        <p class="welcome-lede" id="welcome-lede">Choose a theme to personalize your visit.</p>
-        <fieldset class="welcome-themes">
-          <legend class="welcome-legend">Theme</legend>
-          <div class="welcome-preview" data-welcome-preview aria-hidden="true"></div>
-          <div class="welcome-tiles" data-welcome-tiles></div>
-        </fieldset>
-        <div class="welcome-actions">
-          <button class="welcome-enter" type="button" data-welcome-enter>Enter portfolio</button>
-          <button class="welcome-skip" type="button" data-welcome-skip>Skip intro</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <script>window.HMWelcome && window.HMWelcome.mount();</script>
-
+<body class="home">
   <a class="skip" href="#work">Skip to work</a>
-  <header class="nav">
+  <header class="nav" data-intro-nav>
     <div class="nav-inner">
-      <a class="brand" href="#top" aria-label="Haley Maes, Financial Intelligence"><img class="brand-logo" src="assets/brand/hm-logo.webp" width="40" height="40" alt="" /><span class="brand-sub">HALEY MAES / FINANCIAL INTELLIGENCE</span></a>
+      <a class="brand" href="#top" aria-label="Haley Maes, home"><img class="brand-logo" src="assets/brand/hm-logo.webp" width="40" height="40" alt="" /><span class="brand-sub">HALEY MAES</span></a>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
       <nav class="nav-links" id="nav-links" aria-label="Primary">
         <a href="#work">Work</a>
@@ -56,41 +46,282 @@
     </div>
   </header>
 
-
-  <header class="hero scene-hero" id="top">
-    <div class="hero-backdrop" aria-hidden="true"></div>
-    <div class="hero-art">
-      <canvas id="ribbon" aria-hidden="true"></canvas>
-      <img class="hero-portrait" src="assets/haley-desk-cutout.webp" alt="Haley Maes at her desk" width="1152" height="941" fetchpriority="high" />
+  <!-- Hero layers, back to front: environment, rear silk, chart, portrait, live copy, signal points.
+       The foreground ribbon is .silk-seam, just after the hero, so it can cross into the work below. -->
+  <header class="home-hero" id="top" data-hero>
+    <div class="hero-env" aria-hidden="true">
+      <div class="hero-env__depth" data-layer="depth"></div>
+      <div class="hero-env__desk" data-layer="desk"></div>
     </div>
-    <div class="hero-veil" aria-hidden="true"></div>
-    <div class="hero-grid" aria-hidden="true"></div>
 
-    <div class="wrap hero-stage">
+    <div class="hero-silk" aria-hidden="true">
+      <div class="silk silk--low" data-silk="low"><img class="silk__img" src="assets/home/silk-low.webp" alt="" width="1448" height="783" decoding="async" /></div>
+      <div class="silk silk--top" data-silk="top"><img class="silk__img" src="assets/home/silk-top.webp" alt="" width="887" height="602" decoding="async" /></div>
+      <div class="silk silk--right" data-silk="right"><img class="silk__img" src="assets/home/silk-right.webp" alt="" width="373" height="682" decoding="async" /></div>
+    </div>
+
+    <div class="hero-chart" data-signal aria-hidden="true"></div>
+
+    <figure class="hero-figure" data-figure>
+      <img class="hero-figure__img" src="assets/home/haley-portrait.webp" alt="Haley Maes smiling at her desk beside a laptop" width="819" height="937" fetchpriority="high" decoding="async" />
+    </figure>
+
+    <div class="wrap hero-content" data-hero-content>
       <div class="hero-copy">
-        <p class="hero-overline"><span class="pulse-dot" aria-hidden="true"></span> DATA ANALYST <span class="overline-slash">/</span> FINANCIAL INTELLIGENCE</p>
-        <h1>Haley Maes<span class="hero-period">.</span></h1>
-        <p class="tagline">Numbers tell stories. <em>I translate them.</em></p>
-        <p class="hero-description">I turn complex financial and operational data into clear insights, smarter systems, and decisions you can stand behind.</p>
-        <div class="hero-actions">
-          <a class="pill" href="#work">Explore the Work <span aria-hidden="true">↗</span></a>
-          <a class="hero-secondary" href="#about">More About Me</a>
+        <p class="hero-eyebrow" data-reveal>Data Analyst <span aria-hidden="true">/</span> Financial Intelligence</p>
+        <h1 class="hero-name"><span class="reveal-line"><span data-reveal-line>Haley Maes<span class="hero-period">.</span></span></span></h1>
+        <p class="hero-sub">
+          <span class="reveal-line"><span data-reveal-line>Numbers tell stories.</span></span>
+          <span class="reveal-line"><span data-reveal-line>I translate them.</span></span>
+        </p>
+        <p class="hero-description" data-reveal>I turn complex financial and operational data into clear insights, smarter systems, and decisions you can stand behind.</p>
+        <div class="hero-actions" data-reveal>
+          <a class="btn btn--primary" href="#work">Explore the Work <span aria-hidden="true">↗</span></a>
+          <a class="btn btn--ghost" href="#about">About Me</a>
         </div>
       </div>
-
     </div>
 
-    <div class="wrap hero-foot">
-      <ul class="hero-services">
-        <li><span>01</span> Forecasting</li>
-        <li><span>02</span> Probability</li>
-        <li><span>03</span> Risk</li>
-        <li><span>04</span> Operations</li>
-      </ul>
-    </div>
+    <nav class="signal" aria-label="Follow the signal" data-signal-nav>
+      <p class="signal__label" aria-hidden="true">Follow the signal</p>
+      <ol class="signal__points">
+        <li><a class="signal-point" href="#project-revenue" data-point>
+          <span class="signal-point__dot" aria-hidden="true"></span>
+          <span class="signal-point__tip"><span class="signal-point__field">Forecasting</span><span class="signal-point__title">Revenue Intelligence</span><span class="signal-point__cta">Explore project <span aria-hidden="true">↗</span></span></span>
+        </a></li>
+        <li><a class="signal-point" href="#project-odds" data-point>
+          <span class="signal-point__dot" aria-hidden="true"></span>
+          <span class="signal-point__tip"><span class="signal-point__field">Probability</span><span class="signal-point__title">Expected Value Simulator</span><span class="signal-point__cta">Explore project <span aria-hidden="true">↗</span></span></span>
+        </a></li>
+        <li><a class="signal-point" href="#project-receivables" data-point>
+          <span class="signal-point__dot" aria-hidden="true"></span>
+          <span class="signal-point__tip"><span class="signal-point__field">Operations</span><span class="signal-point__title">Working Capital</span><span class="signal-point__cta">Explore project <span aria-hidden="true">↗</span></span></span>
+        </a></li>
+        <li><a class="signal-point" href="#project-risk" data-point>
+          <span class="signal-point__dot" aria-hidden="true"></span>
+          <span class="signal-point__tip"><span class="signal-point__field">Risk</span><span class="signal-point__title">Portfolio Allocation</span><span class="signal-point__cta">Explore project <span aria-hidden="true">↗</span></span></span>
+        </a></li>
+      </ol>
+    </nav>
   </header>
 
+  <div class="silk-seam" aria-hidden="true">
+    <div class="silk-seam__ribbon" data-seam><img src="assets/home/silk-seam.webp" alt="" width="1376" height="348" decoding="async" /></div>
+  </div>
+
   <main>
+    <section class="work" id="work" aria-labelledby="work-title">
+      <div class="work-bloom" aria-hidden="true" data-bloom><img src="assets/home/silk-bloom.webp" alt="" width="480" height="720" loading="lazy" decoding="async" /></div>
+      <svg class="work-thread" viewBox="0 0 1440 520" preserveAspectRatio="none" aria-hidden="true" data-thread>
+        <path d="M-20 70 C 220 40, 420 150, 640 120 S 1040 20, 1180 140 S 1320 420, 1460 470" />
+      </svg>
+
+      <div class="wrap">
+        <header class="work-head">
+          <p class="work-eyebrow" data-head-reveal>01 <span aria-hidden="true">/</span> Selected Work</p>
+          <h2 class="work-title" id="work-title"><span class="reveal-line"><span data-head-line>From Data to Decisions.</span></span></h2>
+          <p class="work-intro" data-head-reveal>An exploration of financial intelligence, predictive modeling, operational insights, and the stories hidden within data.</p>
+          <p class="work-note" data-head-reveal>Every chart in this section is illustrative layout data. Nothing here is a published result.</p>
+        </header>
+
+        <div class="work-grid">
+          <article class="work-card work-card--feature" id="project-revenue">
+            <a class="work-card__link" href="projects/revenue-intelligence/index.html">
+              <div class="work-card__viz viz-revenue">
+                <svg viewBox="0 0 640 500" aria-hidden="true">
+                  <g class="viz-grid"><path d="M24 60H624M24 110H624M24 160H624M24 210H624M24 262H624" /></g>
+                  <g class="viz-bars">
+                    <rect class="rev-bar" x="40" y="203.5" width="34" height="58.5" rx="2" />
+                    <rect class="rev-bar" x="89" y="199.5" width="34" height="62.5" rx="2" />
+                    <rect class="rev-bar" x="138" y="193" width="34" height="69" rx="2" />
+                    <rect class="rev-bar" x="187" y="168.6" width="34" height="93.4" rx="2" />
+                    <rect class="rev-bar" x="236" y="178" width="34" height="84" rx="2" />
+                    <rect class="rev-bar" x="285" y="153.9" width="34" height="108.1" rx="2" />
+                    <rect class="rev-bar" x="334" y="148.5" width="34" height="113.5" rx="2" />
+                    <rect class="rev-bar" x="383" y="155.6" width="34" height="106.4" rx="2" />
+                    <rect class="rev-bar rev-bar--ahead" x="432" y="142.9" width="34" height="119.1" rx="2" />
+                    <rect class="rev-bar rev-bar--ahead" x="481" y="133.5" width="34" height="128.5" rx="2" />
+                    <rect class="rev-bar rev-bar--ahead" x="530" y="115" width="34" height="147" rx="2" />
+                    <rect class="rev-bar rev-bar--ahead" x="579" y="105.2" width="34" height="156.8" rx="2" />
+                  </g>
+                  <path class="rev-band" d="M400 113.6 L449 93.9 L498 77.5 L547 52 L596 35.2 L596 107.2 L547 110 L498 121.5 L449 123.9 L400 129.6 Z" />
+                  <path class="viz-line" data-draw d="M57 169.5 C65.2 168.9 89.7 167.3 106 165.5 C122.3 163.8 138.7 164.2 155 159 C171.3 153.8 187.7 137.1 204 134.6 C220.3 132.1 236.7 146.5 253 144 C269.3 141.6 285.7 124.8 302 119.9 C318.3 115 334.7 114.2 351 114.5 C367.3 114.8 391.8 120.4 400 121.6" />
+                  <path class="viz-line viz-line--ahead" data-draw d="M400 121.6 C408.2 119.5 432.7 112.6 449 108.9 C465.3 105.2 481.7 104.2 498 99.5 C514.3 94.9 530.7 85.7 547 81 C563.3 76.3 587.8 72.9 596 71.2" />
+                  <path class="viz-divider" d="M400 34V262" />
+                  <circle class="viz-glint" cx="400" cy="121.6" r="4.5" />
+                  <g class="viz-labels">
+                    <text x="40" y="286">JAN</text><text x="236" y="286">MAY</text><text x="383" y="286">AUG</text><text x="579" y="286">DEC</text>
+                    <text x="40" y="38">BOOKED</text><text x="412" y="30">FORWARD RANGE</text>
+                  </g>
+                  <g class="viz-table">
+                    <path class="viz-table__rule" d="M24 334H624" />
+                    <text x="40" y="324">MONTH</text><text x="200" y="324">BOOKED</text><text x="420" y="324">FORWARD RANGE</text>
+                    <text x="40" y="366">SEP</text><rect class="viz-table__cell" x="200" y="356" width="150" height="10" rx="2" /><rect class="viz-table__cell viz-table__cell--ahead" x="420" y="356" width="40" height="10" rx="2" />
+                    <path class="viz-table__rule viz-table__rule--soft" d="M24 380H624" />
+                    <text x="40" y="402">OCT</text><rect class="viz-table__cell" x="200" y="392" width="132" height="10" rx="2" /><rect class="viz-table__cell viz-table__cell--ahead" x="420" y="392" width="58" height="10" rx="2" />
+                    <path class="viz-table__rule viz-table__rule--soft" d="M24 416H624" />
+                    <text x="40" y="438">NOV</text><rect class="viz-table__cell" x="200" y="428" width="118" height="10" rx="2" /><rect class="viz-table__cell viz-table__cell--ahead" x="420" y="428" width="84" height="10" rx="2" />
+                    <path class="viz-table__rule viz-table__rule--soft" d="M24 452H624" />
+                    <text x="40" y="474">DEC</text><rect class="viz-table__cell" x="200" y="464" width="104" height="10" rx="2" /><rect class="viz-table__cell viz-table__cell--ahead" x="420" y="464" width="108" height="10" rx="2" />
+                    <path class="viz-table__rule viz-table__rule--soft" d="M24 488H624" />
+                  </g>
+                </svg>
+              </div>
+              <div class="work-card__body">
+                <p class="work-card__meta"><span class="work-card__index">01</span><span class="work-card__status">Prototype · In development</span></p>
+                <h3 class="work-card__title">Revenue Intelligence &amp; Forecasting</h3>
+                <p class="work-card__text">A console for reading booked revenue beside a forward range, and the assumptions that hold the range together.</p>
+                <ul class="work-card__tags"><li>Forecasting</li><li>Forward range</li><li>SVG chart</li><li>Data table</li></ul>
+                <span class="work-card__cta">View Project <span aria-hidden="true">↗</span></span>
+              </div>
+            </a>
+          </article>
+
+          <article class="work-card" id="project-odds">
+            <a class="work-card__link" href="projects/sports-market/index.html">
+              <div class="work-card__viz viz-odds">
+                <svg viewBox="0 0 400 220" aria-hidden="true">
+                  <g class="viz-grid"><path d="M20 60H380M20 118H380M20 176H380" /></g>
+                  <path class="odds-area odds-area--implied" d="M20 175.8 L26 175.6 L32 175.4 L38 175.1 L44 174.7 L50 174.1 L56 173.3 L62 172.1 L68 170.6 L74 168.7 L80 166.2 L86 163.1 L92 159.3 L98 154.8 L104 149.4 L110 143.3 L116 136.5 L122 129 L128 121.1 L134 112.9 L140 104.7 L146 96.9 L152 89.6 L158 83.2 L164 78.1 L170 74.4 L176 72.4 L182 72.1 L188 73.6 L194 76.7 L200 81.4 L206 87.4 L212 94.4 L218 102.1 L224 110.2 L230 118.4 L236 126.4 L242 134.1 L248 141.1 L254 147.5 L260 153.1 L266 157.9 L272 161.9 L278 165.2 L284 167.9 L290 170 L296 171.7 L302 172.9 L308 173.8 L314 174.5 L320 175 L326 175.3 L332 175.6 L338 175.7 L344 175.8 L350 175.9 L356 175.9 L362 176 L368 176 L374 176 L380 176 Z" />
+                  <path class="viz-line viz-line--soft" data-draw d="M20 175.8 L26 175.6 L32 175.4 L38 175.1 L44 174.7 L50 174.1 L56 173.3 L62 172.1 L68 170.6 L74 168.7 L80 166.2 L86 163.1 L92 159.3 L98 154.8 L104 149.4 L110 143.3 L116 136.5 L122 129 L128 121.1 L134 112.9 L140 104.7 L146 96.9 L152 89.6 L158 83.2 L164 78.1 L170 74.4 L176 72.4 L182 72.1 L188 73.6 L194 76.7 L200 81.4 L206 87.4 L212 94.4 L218 102.1 L224 110.2 L230 118.4 L236 126.4 L242 134.1 L248 141.1 L254 147.5 L260 153.1 L266 157.9 L272 161.9 L278 165.2 L284 167.9 L290 170 L296 171.7 L302 172.9 L308 173.8 L314 174.5 L320 175 L326 175.3 L332 175.6 L338 175.7 L344 175.8 L350 175.9 L356 175.9 L362 176 L368 176 L374 176 L380 176" />
+                  <path class="viz-line" data-draw d="M20 176 L26 176 L32 176 L38 176 L44 175.9 L50 175.9 L56 175.8 L62 175.7 L68 175.5 L74 175.3 L80 174.9 L86 174.4 L92 173.6 L98 172.5 L104 171.1 L110 169.1 L116 166.6 L122 163.4 L128 159.4 L134 154.6 L140 148.8 L146 142.1 L152 134.5 L158 126.2 L164 117.3 L170 108.1 L176 98.9 L182 90 L188 81.9 L194 75 L200 69.5 L206 65.8 L212 64.1 L218 64.5 L224 66.9 L230 71.2 L236 77.2 L242 84.5 L248 92.9 L254 101.9 L260 111.2 L266 120.3 L272 129 L278 137.1 L284 144.4 L290 150.8 L296 156.3 L302 160.8 L308 164.6 L314 167.5 L320 169.8 L326 171.6 L332 172.9 L338 173.9 L344 174.6 L350 175.1 L356 175.4 L362 175.6 L368 175.8 L374 175.8 L380 175.9" />
+                  <path class="viz-divider" d="M182 54V176M212 46V176" />
+                  <path class="odds-edge" d="M184 38H210" />
+                  <circle class="viz-glint" cx="212" cy="64.1" r="4" />
+                  <g class="viz-labels">
+                    <text x="128" y="200">IMPLIED</text><text x="222" y="200">ESTIMATE</text><text x="182" y="28">EDGE</text>
+                  </g>
+                </svg>
+              </div>
+              <div class="work-card__body">
+                <p class="work-card__meta"><span class="work-card__index">02</span><span class="work-card__status work-card__status--live">Simulator is live</span></p>
+                <h3 class="work-card__title">Sports Market Pricing &amp; Expected Value</h3>
+                <p class="work-card__text">A price is a probability. Compare implied odds with your own estimate and compute expected value from those inputs.</p>
+                <ul class="work-card__tags"><li>Probability</li><li>Expected value</li><li>JavaScript calculator</li></ul>
+                <span class="work-card__cta">Open the Simulator <span aria-hidden="true">↗</span></span>
+              </div>
+            </a>
+          </article>
+
+          <article class="work-card" id="project-receivables">
+            <a class="work-card__link" href="projects/working-capital/index.html">
+              <div class="work-card__viz viz-aging">
+                <svg viewBox="0 0 400 220" aria-hidden="true">
+                  <g class="viz-grid"><path d="M112 30V190M200 30V190M288 30V190M376 30V190" /></g>
+                  <g class="viz-labels viz-labels--left">
+                    <text x="20" y="58">CURRENT</text><text x="20" y="98">1–30</text><text x="20" y="138">31–60</text><text x="20" y="178">90+</text>
+                  </g>
+                  <g class="viz-bars viz-bars--h">
+                    <rect class="aging-bar" x="112" y="44" width="236" height="20" rx="2" />
+                    <rect class="aging-bar aging-bar--mid" x="112" y="84" width="104" height="20" rx="2" />
+                    <rect class="aging-bar aging-bar--late" x="112" y="124" width="58" height="20" rx="2" />
+                    <rect class="aging-bar aging-bar--late" x="112" y="164" width="38" height="20" rx="2" />
+                  </g>
+                  <path class="viz-line viz-line--soft" data-draw d="M348 54 L216 94 L170 134 L150 174" />
+                  <g class="aging-nodes"><circle cx="348" cy="54" r="2.5" /><circle cx="216" cy="94" r="2.5" /><circle cx="170" cy="134" r="2.5" /></g>
+                  <circle class="viz-glint" cx="150" cy="174" r="4" />
+                </svg>
+              </div>
+              <div class="work-card__body">
+                <p class="work-card__meta"><span class="work-card__index">03</span><span class="work-card__status">Prototype · In development</span></p>
+                <h3 class="work-card__title">Working Capital &amp; Receivables Intelligence</h3>
+                <p class="work-card__text">An aging view for where cash sits: current, slowing, and late enough to change a collection priority.</p>
+                <ul class="work-card__tags"><li>Operations</li><li>Receivables aging</li><li>HTML bars</li></ul>
+                <span class="work-card__cta">View Project <span aria-hidden="true">↗</span></span>
+              </div>
+            </a>
+          </article>
+
+          <article class="work-card work-card--small" id="project-risk">
+            <a class="work-card__link" href="projects/portfolio-risk/index.html">
+              <div class="work-card__viz viz-risk">
+                <svg viewBox="0 0 400 220" aria-hidden="true">
+                  <circle class="donut-track" cx="132" cy="110" r="66" />
+                  <circle class="donut-seg donut-seg--1" data-draw cx="132" cy="110" r="66" pathLength="100" style="--seg:42;--start:0" />
+                  <circle class="donut-seg donut-seg--2" data-draw cx="132" cy="110" r="66" pathLength="100" style="--seg:28;--start:42" />
+                  <circle class="donut-seg donut-seg--3" data-draw cx="132" cy="110" r="66" pathLength="100" style="--seg:18;--start:70" />
+                  <circle class="donut-seg donut-seg--4" data-draw cx="132" cy="110" r="66" pathLength="100" style="--seg:12;--start:88" />
+                  <g class="viz-legend">
+                    <rect class="legend-swatch donut-seg--1" x="246" y="62" width="10" height="10" rx="2" /><text x="266" y="71">CORE</text>
+                    <rect class="legend-swatch donut-seg--2" x="246" y="94" width="10" height="10" rx="2" /><text x="266" y="103">SPREAD</text>
+                    <rect class="legend-swatch donut-seg--3" x="246" y="126" width="10" height="10" rx="2" /><text x="266" y="135">SATELLITE</text>
+                    <rect class="legend-swatch donut-seg--4" x="246" y="158" width="10" height="10" rx="2" /><text x="266" y="167">CASH</text>
+                  </g>
+                </svg>
+              </div>
+              <div class="work-card__body">
+                <p class="work-card__meta"><span class="work-card__index">04</span><span class="work-card__status">Prototype · In development</span></p>
+                <h3 class="work-card__title">Portfolio Risk &amp; Allocation</h3>
+                <p class="work-card__text">A weight map for concentration. Not an investment recommendation.</p>
+                <ul class="work-card__tags"><li>Risk</li><li>Concentration</li><li>SVG donut</li></ul>
+                <span class="work-card__cta">View Project <span aria-hidden="true">↗</span></span>
+              </div>
+            </a>
+          </article>
+
+          <article class="work-card work-card--small" id="project-anomalies">
+            <a class="work-card__link" href="projects/anomaly-detection/index.html">
+              <div class="work-card__viz viz-scatter">
+                <svg viewBox="0 0 400 220" aria-hidden="true">
+                  <g class="viz-grid"><path d="M20 60H380M20 118H380M20 176H380" /></g>
+                  <g class="scatter-dots">
+                    <circle cx="111.8" cy="123.8" r="3.1" /><circle cx="195" cy="128.1" r="2.5" /><circle cx="200.1" cy="104.4" r="3.3" /><circle cx="25.8" cy="160" r="2.9" />
+                    <circle cx="298.6" cy="86.3" r="3.1" /><circle cx="157.3" cy="126" r="3" /><circle cx="147.8" cy="146.5" r="3.4" /><circle cx="314.2" cy="76.1" r="3.4" />
+                    <circle cx="41.2" cy="137.4" r="2.4" /><circle cx="247.4" cy="123.5" r="3.3" /><circle cx="218.2" cy="135.6" r="3.1" /><circle cx="46.8" cy="149.8" r="3.3" />
+                    <circle cx="210.7" cy="114.9" r="2.5" /><circle cx="303.4" cy="105.3" r="3.1" /><circle cx="249.5" cy="117" r="3.1" /><circle cx="55.6" cy="151.5" r="3.1" />
+                    <circle cx="99.9" cy="148.8" r="3.7" /><circle cx="144.8" cy="140.8" r="3.2" /><circle cx="50.4" cy="135.3" r="3.4" /><circle cx="338" cy="96.3" r="2.5" />
+                    <circle cx="348" cy="107.9" r="2.4" /><circle cx="161.6" cy="123.7" r="3.7" /><circle cx="103.2" cy="133.9" r="3.5" /><circle cx="283" cy="113.7" r="3.1" />
+                    <circle cx="172.2" cy="124.6" r="3.6" /><circle cx="192.6" cy="131.7" r="2.4" /><circle cx="190.6" cy="127.7" r="3.1" /><circle cx="216" cy="97.9" r="3.6" />
+                    <circle cx="38.3" cy="129.6" r="3.4" /><circle cx="130.7" cy="147.8" r="3.2" /><circle cx="188.9" cy="111" r="3.8" /><circle cx="316.6" cy="96.3" r="3.7" />
+                    <circle cx="194.6" cy="111.8" r="3.5" /><circle cx="168" cy="122.6" r="3.2" /><circle cx="95.3" cy="118.6" r="3.1" /><circle cx="307.2" cy="113.5" r="3.5" />
+                    <circle cx="97.5" cy="156.5" r="3.1" /><circle cx="324.5" cy="90.9" r="3.3" /><circle cx="66.9" cy="149.1" r="3.3" /><circle cx="94" cy="139.7" r="3.1" />
+                    <circle cx="207.1" cy="96.1" r="3.3" /><circle cx="306.7" cy="118.8" r="2.4" /><circle cx="342.8" cy="106.4" r="3" /><circle cx="301.6" cy="81.6" r="2.3" />
+                    <circle cx="127" cy="147" r="2.6" /><circle cx="166.4" cy="106.8" r="2.8" />
+                  </g>
+                  <circle class="scatter-ring" cx="272" cy="34" r="13" />
+                  <circle class="scatter-outlier" cx="272" cy="34" r="5" />
+                  <g class="viz-labels"><text x="292" y="38">EXCEPTION</text></g>
+                </svg>
+              </div>
+              <div class="work-card__body">
+                <p class="work-card__meta"><span class="work-card__index">05</span><span class="work-card__status">Prototype · In development</span></p>
+                <h3 class="work-card__title">Transaction Anomaly Detection</h3>
+                <p class="work-card__text">A field of ordinary amounts, and the point that does not belong.</p>
+                <ul class="work-card__tags"><li>Exceptions</li><li>Scatter field</li><li>SVG</li></ul>
+                <span class="work-card__cta">View Project <span aria-hidden="true">↗</span></span>
+              </div>
+            </a>
+          </article>
+
+          <article class="work-card work-card--small" id="project-scenarios">
+            <a class="work-card__link" href="projects/scenario-analysis/index.html">
+              <div class="work-card__viz viz-tornado">
+                <svg viewBox="0 0 400 220" aria-hidden="true">
+                  <path class="viz-divider" d="M232 28V196" />
+                  <g class="viz-labels viz-labels--left">
+                    <text x="20" y="56">PRICE</text><text x="20" y="96">VOLUME</text><text x="20" y="136">COLLECTION LAG</text><text x="20" y="176">DISCOUNT</text>
+                  </g>
+                  <g class="viz-bars viz-bars--h">
+                    <rect class="tornado-bar tornado-bar--down" x="172" y="42" width="60" height="20" rx="2" /><rect class="tornado-bar" x="232" y="42" width="128" height="20" rx="2" />
+                    <rect class="tornado-bar tornado-bar--down" x="182" y="82" width="50" height="20" rx="2" /><rect class="tornado-bar" x="232" y="82" width="90" height="20" rx="2" />
+                    <rect class="tornado-bar tornado-bar--down" x="156" y="122" width="76" height="20" rx="2" /><rect class="tornado-bar" x="232" y="122" width="44" height="20" rx="2" />
+                    <rect class="tornado-bar tornado-bar--down" x="196" y="162" width="36" height="20" rx="2" /><rect class="tornado-bar" x="232" y="162" width="62" height="20" rx="2" />
+                  </g>
+                </svg>
+              </div>
+              <div class="work-card__body">
+                <p class="work-card__meta"><span class="work-card__index">06</span><span class="work-card__status">Prototype · In development</span></p>
+                <h3 class="work-card__title">Scenario &amp; Sensitivity</h3>
+                <p class="work-card__text">Which driver bends the result, in either direction.</p>
+                <ul class="work-card__tags"><li>Sensitivity</li><li>Tornado chart</li><li>Sample drivers</li></ul>
+                <span class="work-card__cta">View Project <span aria-hidden="true">↗</span></span>
+              </div>
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <section class="intro" id="intro">
       <div class="wrap intro-grid">
         <div>
@@ -100,105 +331,8 @@
         <div class="prose">
           <p class="lede">I am a data analyst interested in financial modeling, probability, risk, revenue intelligence, and the systems that make those questions easier to see.</p>
           <p>The work starts with the decision, then the record behind it: what was booked, what is still open, what a price implies, and which assumption would change the answer. Excel, SQL, and Python are the tools. Clarity is the standard.</p>
-          <p>This site is a visual prototype for that practice. It is separate from my data analytics portfolio, and the interfaces below are proposed systems, not completed studies.</p>
+          <p>This site is a visual prototype for that practice. It is separate from my data analytics portfolio, and the interfaces above are proposed systems, not completed studies.</p>
         </div>
-      </div>
-    </section>
-
-    <section class="band-dark" id="work">
-      <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow">Selected systems</p>
-          <h2>Analytical surfaces for money, odds, and time.</h2>
-          <p class="section-note">Dashboard figures on this page are illustrative layout data. Nothing here is a published result.</p>
-        </div>
-
-        <article class="feature">
-          <div class="feature-copy">
-            <p class="feature-index">01</p>
-            <h3>Revenue Intelligence &amp; Forecasting</h3>
-            <p>A console for trailing revenue, a forward range, and the assumptions that hold the range together.</p>
-            <a class="quiet-link" href="projects/revenue-intelligence/index.html">View prototype</a>
-          </div>
-          <a class="console-link market-preview" data-preview="revenue" href="projects/revenue-intelligence/index.html" aria-label="Open the revenue intelligence prototype">
-            <div class="console">
-              <div class="console-top"><span>REV-01 · Forecast</span><span class="chip">Illustrative</span></div>
-              <div class="metric-row">
-                <div class="metric"><span>Booked</span><strong>$4.8M</strong></div>
-                <div class="metric"><span>Range</span><strong>±6%</strong></div>
-                <div class="metric"><span>Horizon</span><strong>4 mo</strong></div>
-              </div>
-              <svg class="chart" viewBox="0 0 640 220" role="img" aria-label="Illustrative revenue path with a forward band">
-                <g stroke="rgba(237,233,220,0.08)" stroke-width="1">
-                  <path d="M0 40H640M0 100H640M0 160H640" />
-                </g>
-                <path data-revenue-band d="M400 92 L470 48 L540 70 L630 36 L630 112 L540 108 L470 100 L400 92Z" fill="rgba(122,167,255,0.16)" />
-                <polyline data-revenue-history points="20,150 90,138 160,146 230,112 300,120 370,86 400,92" fill="none" stroke="#7ddee6" stroke-width="2.4" />
-                <polyline data-revenue-projection points="400,92 470,74 540,82 630,58" fill="none" stroke="#7aa7ff" stroke-width="2" stroke-dasharray="5 6" />
-              </svg>
-              <p class="fine">Sample path for the layout. Not a forecast of a real business.</p>
-            </div>
-          </a>
-        </article>
-
-        <article class="feature reverse">
-          <div class="feature-copy">
-            <p class="feature-index">02</p>
-            <h3>Sports Market Pricing &amp; Expected Value</h3>
-            <p>A price is a probability. This prototype compares implied odds with an estimate and computes expected value from those inputs.</p>
-            <a class="quiet-link" href="projects/sports-market/index.html">Open the simulator</a>
-          </div>
-          <a class="console-link market-preview" data-preview="odds" href="projects/sports-market/index.html" aria-label="Open the expected value simulator">
-            <div class="console">
-              <div class="console-top"><span>EV-01 · Price vs. estimate</span><span class="chip chip-live">Demo feed</span></div>
-              <div class="metric-row">
-                <div class="metric"><span>Demo market price</span><strong data-odds-main>−110</strong></div>
-                <div class="metric"><span>Implied probability</span><strong data-odds-implied>52.4%</strong></div>
-                <div class="metric"><span>Model estimate</span><strong data-odds-model>55.5%</strong></div>
-              </div>
-              <div class="odds-preview-board" aria-hidden="true">
-                <div class="odds-board-heading"><span>ILLUSTRATIVE MARKET BOARD</span><span>MODEL VS. PRICE</span></div>
-                <div class="odds-board-row">
-                  <div class="odds-outcome"><b>OUTCOME A</b><small>Implied / model</small></div>
-                  <div class="odds-price" data-odds-price-a>−110</div>
-                  <div class="odds-model"><strong data-odds-prob-a>52.4% / 55.5%</strong><small>+3.1 percentage pts</small></div>
-                </div>
-                <div class="odds-board-row">
-                  <div class="odds-outcome"><b>OUTCOME B</b><small>Implied / model</small></div>
-                  <div class="odds-price" data-odds-price-b>+105</div>
-                  <div class="odds-model"><strong data-odds-prob-b>48.8% / 46.0%</strong><small>−2.8 percentage pts</small></div>
-                </div>
-              </div>
-              <p class="fine">Simulated odds movements, not an actual sportsbook feed. Open the calculator to test your own inputs.</p>
-            </div>
-          </a>
-        </article>
-
-        <article class="feature">
-          <div class="feature-copy">
-            <p class="feature-index">03</p>
-            <h3>Working Capital &amp; Receivables Intelligence</h3>
-            <p>An aging view for where cash sits: current, slowing, and late enough to change a collection priority.</p>
-            <a class="quiet-link" href="projects/working-capital/index.html">View prototype</a>
-          </div>
-          <a class="console-link market-preview" data-preview="receivables" href="projects/working-capital/index.html" aria-label="Open the working capital prototype">
-            <div class="console">
-              <div class="console-top"><span>AR-01 · Aging mix</span><span class="chip">Illustrative</span></div>
-              <div class="metric-row">
-                <div class="metric"><span>Open</span><strong>$1.2M</strong></div>
-                <div class="metric"><span>Current</span><strong>58%</strong></div>
-                <div class="metric"><span>90+</span><strong>8%</strong></div>
-              </div>
-              <div class="aging" aria-hidden="true">
-                <div class="aging-row"><span>Current</span><i style="--w:58%"></i><b>58</b></div>
-                <div class="aging-row"><span>1–30</span><i style="--w:22%"></i><b>22</b></div>
-                <div class="aging-row"><span>31–60</span><i style="--w:12%"></i><b>12</b></div>
-                <div class="aging-row"><span>90+</span><i style="--w:8%"></i><b>8</b></div>
-              </div>
-              <p class="fine">Sample mix for the interface. Not a client ledger.</p>
-            </div>
-          </a>
-        </article>
       </div>
     </section>
 
@@ -211,54 +345,6 @@
           <article class="cap"><p>02</p><h3>Risk</h3><p>Concentration, exposure, and what would have to move before the answer changes.</p></article>
           <article class="cap"><p>03</p><h3>Probability</h3><p>Implied price versus an estimated likelihood, and the expected value in between.</p></article>
           <article class="cap"><p>04</p><h3>Operations</h3><p>Receivables, timing, and the cash story sitting inside a ledger.</p></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="gallery-section" id="gallery">
-      <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow">Also in the lab</p>
-          <h2>Smaller studies, still in sketch form.</h2>
-        </div>
-        <div class="gallery">
-          <a class="tile market-preview" data-preview="risk" href="projects/portfolio-risk/index.html">
-            <div class="tile-top"><span class="tile-kicker">04 · Allocation</span><span class="chip">Illustrative</span></div>
-            <h3>Portfolio Risk &amp; Allocation</h3>
-            <p>A weight map for concentration. Not an investment recommendation.</p>
-            <div class="tile-viz">
-              <svg class="donut" viewBox="0 0 120 120" aria-hidden="true">
-                <circle cx="60" cy="60" r="42" fill="none" stroke="#2a3140" stroke-width="12" />
-                <circle cx="60" cy="60" r="42" fill="none" stroke="#7aa7ff" stroke-width="12" stroke-dasharray="110 154" transform="rotate(-90 60 60)" />
-                <circle cx="60" cy="60" r="42" fill="none" stroke="#7ddee6" stroke-width="12" stroke-dasharray="74 190" stroke-dashoffset="-110" transform="rotate(-90 60 60)" />
-                <circle cx="60" cy="60" r="42" fill="none" stroke="#c9a0c4" stroke-width="12" stroke-dasharray="48 216" stroke-dashoffset="-184" transform="rotate(-90 60 60)" />
-              </svg>
-            </div>
-          </a>
-          <a class="tile market-preview" data-preview="anomalies" href="projects/anomaly-detection/index.html">
-            <div class="tile-top"><span class="tile-kicker">05 · Exceptions</span><span class="chip">Illustrative</span></div>
-            <h3>Transaction Anomaly Detection</h3>
-            <p>A field of ordinary amounts, and the point that does not belong.</p>
-            <svg class="scatter tile-viz" viewBox="0 0 320 140" aria-hidden="true">
-              <g fill="#7aa7ff">
-                <circle cx="40" cy="92" r="4" /><circle cx="70" cy="80" r="4" /><circle cx="96" cy="88" r="3" />
-                <circle cx="120" cy="74" r="4" /><circle cx="148" cy="84" r="3" /><circle cx="176" cy="70" r="4" />
-                <circle cx="204" cy="78" r="3" /><circle cx="232" cy="66" r="4" /><circle cx="260" cy="76" r="3" />
-              </g>
-              <circle class="outlier" cx="286" cy="28" r="6" fill="#e39b96" />
-            </svg>
-          </a>
-          <a class="tile market-preview" data-preview="scenarios" href="projects/scenario-analysis/index.html">
-            <div class="tile-top"><span class="tile-kicker">06 · Sensitivity</span><span class="chip">Illustrative</span></div>
-            <h3>Scenario &amp; Sensitivity</h3>
-            <p>Which driver bends the result, in either direction.</p>
-            <div class="tornado tile-viz" aria-hidden="true">
-              <div class="tornado-row"><span>Price</span><div class="tornado-track"><i class="down" style="--w:46%"></i><i class="up" style="--w:62%"></i></div></div>
-              <div class="tornado-row"><span>Volume</span><div class="tornado-track"><i class="down" style="--w:38%"></i><i class="up" style="--w:44%"></i></div></div>
-              <div class="tornado-row"><span>Lag</span><div class="tornado-track"><i class="down" style="--w:58%"></i><i class="up" style="--w:22%"></i></div></div>
-              <div class="tornado-row"><span>Discount</span><div class="tornado-track"><i class="down" style="--w:28%"></i><i class="up" style="--w:30%"></i></div></div>
-            </div>
-          </a>
         </div>
       </div>
     </section>
@@ -300,8 +386,8 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js"></script>
   <script src="js/market-data.js"></script>
   <script src="js/nav.js"></script>
-  <script src="js/ribbon.js?v=classic-silk"></script>
-  <script src="js/previews.js"></script>
-  <script src="js/motion.js?v=welcome"></script>
+  <script src="js/signal.js?v=home-layers"></script>
+  <script src="js/work.js?v=home-layers"></script>
+  <script src="js/home.js?v=home-layers"></script>
 </body>
 </html>

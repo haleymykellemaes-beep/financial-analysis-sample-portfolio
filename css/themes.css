@@ -12,44 +12,74 @@
   --hero-art-top-mobile: calc(100% - var(--hero-art-h-mobile) + var(--hero-art-drop-mobile));
 }
 
+/* Classic: champagne and ivory silk with sheer onyx organza. The page stays cream; the ribbons carry the drama. */
 :root:not([data-theme]),
 [data-theme="classic"] {
-  color-scheme: dark;
-  --swatch-1: #352923; --swatch-2: #8a6248; --swatch-3: #edd9bf; --swatch-4: #7dbb9e;
+  color-scheme: light;
+  --swatch-1: #f3e9dc; --swatch-2: #b4a291; --swatch-3: #302a29; --swatch-4: #0d0b0c;
   --theme-scene-bg:
-    radial-gradient(ellipse at 81% 33%, #b29882 0%, #907460 35%, transparent 74%),
-    linear-gradient(105deg, #352923 5%, #594538 58%, #826553 100%);
-  --theme-scene-bg-mobile:
-    radial-gradient(ellipse at 84% 69%, #a88c76 0%, transparent 58%),
-    linear-gradient(142deg, #352923, #574237 75%);
-  --theme-text: #f6efe6;
-  --theme-heading: #f7f1e8;
-  --theme-tagline: #f0d7b4;
-  --theme-description: #e6d9cb;
-  --theme-nav-text: #ede9dc;
-  --nav-bg: rgba(28, 24, 22, .82);
-  --nav-border: rgba(212, 194, 162, .28);
-  --theme-button-primary-bg: #edd9bf;
-  --theme-button-primary-text: #2b241f;
-  --theme-button-text: #f6efe6;
-  --theme-button-border: rgba(237, 217, 191, .55);
-  --theme-shortcut-text: #f3e7da;
-  --ink: #1c1c1b;
-  --ivory: #f4f1ea;
-  --cream: #ede9dc;
-  --champagne: #d4c2a2;
-  --gold: #dec69b;
-  --gold-ink: #6e5840;
-  --charcoal: #1c1c1b;
-  --console: #121418;
-  --theme-chart-up: rgba(125, 187, 158, .78);
-  --theme-chart-down: rgba(218, 138, 119, .72);
+    radial-gradient(ellipse 60% 70% at 24% 40%, #f7efe4 0%, rgba(247, 239, 228, 0) 72%),
+    linear-gradient(118deg, #f3e9dc 0%, #ede1d2 52%, #e8d9c7 100%);
+  --theme-hero-art: url("../assets/themes/classic-hero.webp");
+  --theme-hero-art-mobile: url("../assets/themes/classic-hero-mobile.webp");
+  --theme-hero-art-position: 58% center;
+  --theme-veil:
+    radial-gradient(ellipse 30% 34% at 19% 40%, rgba(246, 239, 229, .5), rgba(246, 239, 229, .26) 55%, rgba(246, 239, 229, 0) 100%),
+    radial-gradient(ellipse 40% 9% at 26% 96%, rgba(246, 239, 229, .9), rgba(246, 239, 229, .66) 55%, rgba(246, 239, 229, 0) 100%);
+  --theme-hero-art-size-mobile: 100% auto;
+  --theme-hero-art-position-mobile: center bottom;
+  --theme-hero-art-fade-mobile: linear-gradient(180deg, #f5ece1 0, #f0e5d7 calc(100% - 130vw + 30px), rgba(240, 229, 215, 0) calc(100% - 130vw + 140px));
+  --theme-scene-bg-mobile: #f0e5d7;
+  --theme-veil-mobile: linear-gradient(0deg, rgba(246, 239, 229, .9), rgba(246, 239, 229, .84) 10%, rgba(246, 239, 229, 0) 16%);
+  --theme-chart-opacity-mobile: 1;
+  --theme-hero-grid-opacity: 0;
+  --theme-accent: #9c8878;
+  --theme-rule: rgba(48, 42, 41, .16);
+  --theme-text: #0d0b0c;
+  --theme-heading: #0d0b0c;
+  --theme-tagline: #302a29;
+  --theme-description: #3d3533;
+  --theme-shortcut-number: #7d6c5f;
+  --theme-nav-text: #0d0b0c;
+  --nav-bg: rgba(246, 239, 229, .8);
+  --nav-border: rgba(48, 42, 41, .12);
+  --theme-button-primary-bg: #0d0b0c;
+  --theme-button-primary-text: #f3e9dc;
+  --theme-button-text: #0d0b0c;
+  --theme-button-border: rgba(13, 11, 12, .62);
+  --theme-shortcut-text: #0d0b0c;
+  --ink: #0d0b0c;
+  --ivory: #f3e9dc;
+  --cream: #e8d9c7;
+  --champagne: #b4a291;
+  --gold: #cbb8a5;
+  --gold-ink: #6b5a4e;
+  --charcoal: #302a29;
+  --console: #141112;
+  --taupe: #b4a291;
+  --theme-chart-up: rgba(13, 11, 12, .82);
+  --theme-chart-up-soft: rgba(48, 42, 41, .6);
+  --theme-chart-down: rgba(156, 136, 120, .82);
   --theme-chart-hollow: 0;
+  --theme-chart-density: .55;
+  --theme-chart-body: .56;
+  --theme-chart-detail: .5;
+  --theme-chart-scale: .62;
+  --theme-chart-grid: rgba(48, 42, 41, .07);
+  --theme-chart-volume: rgba(48, 42, 41, .16);
+  --theme-chart-volume-down: rgba(180, 162, 145, .3);
+  --theme-chart-opacity: 1;
+  --theme-chart-mask: none;
+  --theme-chart-mask-mobile: none;
+  --theme-chart-silk: 1;
+  --theme-chart-silk-ink: 13, 11, 12;
+  --theme-chart-line: rgba(13, 11, 12, .88);
+  --theme-chart-line-halo: rgba(246, 239, 229, .42);
   --theme-portrait-filter: none;
-  --theme-picker-bg: rgba(42, 34, 29, .96);
-  --theme-picker-text: #f6efe6;
-  --theme-picker-border: rgba(224, 179, 140, .45);
-  --theme-picker-hover: rgba(237, 217, 191, .12);
+  --theme-picker-bg: #f8f2ea;
+  --theme-picker-text: #0d0b0c;
+  --theme-picker-border: rgba(48, 42, 41, .22);
+  --theme-picker-hover: rgba(48, 42, 41, .07);
 }
 
 [data-theme="haleys-choice"] {
@@ -397,7 +427,7 @@
   .scene-hero {
     background:
       var(--theme-hero-art-fade-mobile, none),
-      var(--theme-hero-art, none) var(--theme-hero-art-position-mobile, center) / var(--theme-hero-art-size-mobile, cover) no-repeat,
+      var(--theme-hero-art-mobile, var(--theme-hero-art, none)) var(--theme-hero-art-position-mobile, center) / var(--theme-hero-art-size-mobile, cover) no-repeat,
       var(--theme-scene-bg-mobile, var(--theme-scene-bg));
   }
   .scene-hero .hero-veil {
@@ -430,6 +460,111 @@
 .hero-portrait { filter: var(--theme-portrait-filter, none); }
 .band-dark, .footer { background: var(--charcoal, #1c1c1b); color: var(--cream, #ede9dc); }
 .console { background: var(--console, #121418); }
+
+/* Classic on desktop paints its artwork on its own layer so js/ribbon.js can drift it with the silk. */
+.hero-backdrop { display: none; }
+@media (min-width: 761px) {
+  :root:not([data-theme]) .scene-hero,
+  :root[data-theme="classic"] .scene-hero { background: var(--theme-scene-bg); }
+  :root:not([data-theme]) .hero-backdrop,
+  :root[data-theme="classic"] .hero-backdrop {
+    display: block;
+    position: absolute;
+    inset: -24px;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--theme-hero-art) var(--theme-hero-art-position, center) / cover no-repeat;
+    will-change: transform;
+  }
+}
+/* Upright tablets would crop the landscape art down to the ribbons behind the copy; use the portrait composition. */
+@media (min-width: 761px) and (max-aspect-ratio: 9/10) {
+  :root:not([data-theme]),
+  :root[data-theme="classic"] {
+    --theme-veil: radial-gradient(ellipse 62% 11% at 22% 97%, rgba(246, 239, 229, .94), rgba(246, 239, 229, .84) 60%, rgba(246, 239, 229, 0) 100%);
+  }
+  :root:not([data-theme]) .hero-backdrop,
+  :root[data-theme="classic"] .hero-backdrop {
+    background:
+      linear-gradient(180deg, #f5ece1 0, #f0e5d7 52%, rgba(240, 229, 215, 0) 64%),
+      var(--theme-hero-art-mobile) center bottom / 100% auto no-repeat,
+      var(--theme-scene-bg);
+  }
+  :root:not([data-theme]) .hero-services,
+  :root[data-theme="classic"] .hero-services { display: grid; grid-template-columns: repeat(2, max-content); gap: 10px 28px; }
+}
+
+/* Classic keeps the page cream: the work band lightens and the dashboards stay dark like the organza. */
+:root:not([data-theme]) .band-dark,
+:root[data-theme="classic"] .band-dark {
+  background: linear-gradient(180deg, #e8d9c7 0%, #eee2d3 42%, #f3e9dc 100%);
+  color: #0d0b0c;
+}
+:root:not([data-theme]) .band-dark .eyebrow,
+:root[data-theme="classic"] .band-dark .eyebrow,
+:root:not([data-theme]) .feature-index,
+:root[data-theme="classic"] .feature-index { color: #6b5a4e; }
+:root:not([data-theme]) .section-note,
+:root[data-theme="classic"] .section-note { color: #5b4f49; }
+:root:not([data-theme]) .feature,
+:root[data-theme="classic"] .feature { border-top-color: rgba(48, 42, 41, .14); }
+:root:not([data-theme]) .feature-copy p,
+:root[data-theme="classic"] .feature-copy p { color: #3d3533; }
+:root:not([data-theme]) .band-dark .quiet-link,
+:root[data-theme="classic"] .band-dark .quiet-link { text-decoration-color: rgba(13, 11, 12, .45); }
+:root:not([data-theme]) .console,
+:root[data-theme="classic"] .console {
+  background: linear-gradient(145deg, #2c2726 0%, #161314 56%, #0d0b0c 100%);
+  border-color: rgba(180, 162, 145, .26);
+}
+:root:not([data-theme]) .tile,
+:root[data-theme="classic"] .tile { background: linear-gradient(160deg, #262120 0%, #0d0b0c 100%); }
+/* Homepage previews draw in the Classic palette: ivory and champagne lead, taupe trails. */
+:root:not([data-theme]) .market-preview,
+:root[data-theme="classic"] .market-preview {
+  --preview-accent: #cbb8a5;
+  --cyan: #f3e9dc;
+  --blue: #cbb8a5;
+  --magenta: #a08d7e;
+  --green: #e8d9c7;
+  --red: #8c7768;
+}
+:root:not([data-theme]) .market-preview [data-revenue-history],
+:root[data-theme="classic"] .market-preview [data-revenue-history] { stroke: #f3e9dc; }
+:root:not([data-theme]) .market-preview [data-revenue-projection],
+:root[data-theme="classic"] .market-preview [data-revenue-projection] { stroke: #b4a291; }
+:root:not([data-theme]) .market-preview [data-revenue-band],
+:root[data-theme="classic"] .market-preview [data-revenue-band] { fill: rgba(180, 162, 145, .2); }
+:root:not([data-theme]) .market-preview circle[stroke="#2a3140"],
+:root[data-theme="classic"] .market-preview circle[stroke="#2a3140"] { stroke: #2c2726; }
+:root:not([data-theme]) .market-preview circle[stroke="#7aa7ff"],
+:root[data-theme="classic"] .market-preview circle[stroke="#7aa7ff"] { stroke: #f3e9dc; }
+:root:not([data-theme]) .market-preview circle[stroke="#7ddee6"],
+:root[data-theme="classic"] .market-preview circle[stroke="#7ddee6"] { stroke: #b4a291; }
+:root:not([data-theme]) .market-preview circle[stroke="#c9a0c4"],
+:root[data-theme="classic"] .market-preview circle[stroke="#c9a0c4"] { stroke: #6b5a4e; }
+:root:not([data-theme]) .market-preview g[fill="#7aa7ff"],
+:root[data-theme="classic"] .market-preview g[fill="#7aa7ff"] { fill: #b4a291; }
+:root:not([data-theme]) .market-preview .outlier,
+:root[data-theme="classic"] .market-preview .outlier { fill: #f3e9dc; }
+:root:not([data-theme]) .footer,
+:root[data-theme="classic"] .footer { background: #141112; }
+:root:not([data-theme]) .nav-links a:hover,
+:root[data-theme="classic"] .nav-links a:hover { color: #6b5a4e; }
+:root:not([data-theme]) .footer-links a:hover,
+:root[data-theme="classic"] .footer-links a:hover { color: #f3e9dc; }
+:root:not([data-theme]) :focus-visible,
+:root[data-theme="classic"] :focus-visible { outline-color: #302a29; }
+:root:not([data-theme]) .footer :focus-visible,
+:root[data-theme="classic"] .footer :focus-visible,
+:root:not([data-theme]) .console :focus-visible,
+:root[data-theme="classic"] .console :focus-visible { outline-color: #e8d9c7; }
+:root:not([data-theme]) .welcome :focus-visible,
+:root[data-theme="classic"] .welcome :focus-visible { outline-color: #fff6e8; }
+@media (max-width: 760px) {
+  :root:not([data-theme]) .nav-links,
+  :root[data-theme="classic"] .nav-links { background: rgba(246, 239, 229, .97); }
+}
 
 .theme-picker { position: relative; margin-left: 12px; }
 .theme-picker__button {

@@ -20,7 +20,7 @@
   "use strict";
 
   var THEMES = [
-    { id: "classic", name: "Classic", meta: "#382a23" },
+    { id: "classic", name: "Classic", meta: "#f3e9dc" },
     { id: "haleys-choice", name: "Haley’s Choice", meta: "#a6bfe8" },
     { id: "mile-high", name: "Mile High", meta: "#fbfaff" },
     { id: "liquidity", name: "Liquidity", meta: "#c3e1fc" },

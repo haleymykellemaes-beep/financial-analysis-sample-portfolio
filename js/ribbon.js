@@ -50,6 +50,11 @@
     priceHigh = Math.max(...candles.map((candle) => candle.high));
   }
 
+  function token(name, fallback) {
+    const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return value || fallback;
+  }
+
   function draw() {
     if (!history || !width || !height) return;
     ctx.clearRect(0, 0, width, height);
@@ -68,7 +73,11 @@
       const x = (i - 0.5) * spacing - partial;
       const openY = y(candle.open);
       const closeY = y(candle.close);
-      const color = candle.close >= candle.open ? "rgba(125, 187, 158, .7)" : "rgba(218, 138, 119, .66)";
+      const rising = candle.close >= candle.open;
+      const color = token(rising ? "--theme-chart-up" : "--theme-chart-down", rising ? "rgba(125, 187, 158, .7)" : "rgba(218, 138, 119, .66)");
+      const hollow = token("--theme-chart-hollow", "0") === "1" && rising;
+      const top = Math.min(openY, closeY);
+      const bodyHeight = Math.max(1.5, Math.abs(openY - closeY));
 
       ctx.strokeStyle = color;
       ctx.fillStyle = color;
@@ -77,7 +86,8 @@
       ctx.moveTo(x, y(candle.high));
       ctx.lineTo(x, y(candle.low));
       ctx.stroke();
-      ctx.fillRect(x - bodyWidth / 2, Math.min(openY, closeY), bodyWidth, Math.max(1.5, Math.abs(openY - closeY)));
+      if (hollow) ctx.strokeRect(x - bodyWidth / 2, top, bodyWidth, bodyHeight);
+      else ctx.fillRect(x - bodyWidth / 2, top, bodyWidth, bodyHeight);
     }
   }
 
@@ -128,6 +138,7 @@
   }
   reducedMotion.addEventListener("change", syncMotion);
   document.addEventListener("visibilitychange", syncMotion);
+  document.addEventListener("themechange", draw);
 
   Promise.resolve(window.MarketData).then((payload) => {
     prepareHistory(payload);

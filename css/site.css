@@ -418,7 +418,8 @@ h2 {text-wrap:balance;}
 }
 .nav {background:rgba(14,16,15,.78);border-bottom:1px solid rgba(212,194,162,.14); }
 .brand {display:flex;align-items:center;gap:17px;font-family:var(--display);font-size:1.38rem;font-weight:800;letter-spacing:-.09em;white-space:nowrap;}
-.brand-dot,.hero-period {color:#e7c8a5}
+.brand-logo {display:block;flex:none;width:40px;height:40px;border-radius:27%;box-shadow:0 0 0 1px rgba(20,16,14,.08),0 3px 10px rgba(20,16,14,.16);}
+.hero-period {color:#e7c8a5}
 .brand-sub {padding-left:17px;border-left:1px solid rgba(230,216,191,.3);font:400 .57rem/1.5 var(--mono);letter-spacing:.12em;color:#b4ada1;}
 .nav-links a {font-family:var(--mono);font-size:.67rem;letter-spacing:.12em;}
 .nav-links a:hover,.footer-links a:hover {color:#ead2ad;}

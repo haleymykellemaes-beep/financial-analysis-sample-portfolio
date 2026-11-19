@@ -268,6 +268,7 @@
   --theme-chart-down: #8d8880;
   --theme-chart-hollow: 1;
   --theme-portrait-filter: grayscale(1) contrast(1.05);
+  --theme-logo-filter: grayscale(1);
   --theme-picker-bg: #1c1c1b;
   --theme-picker-text: #f4f1ea;
   --theme-picker-border: rgba(183, 178, 168, .4);
@@ -298,7 +299,8 @@
   mask-image: var(--theme-chart-mask, linear-gradient(90deg, #0004, #0008 30%, #000 54%, #000));
 }
 .scene-hero .hero-foot { border-top-color: var(--theme-rule, rgba(240,223,198,.2)); }
-.brand-dot, .hero-period { color: var(--theme-accent, #e7c8a5); }
+.hero-period { color: var(--theme-accent, #e7c8a5); }
+.brand-logo { filter: var(--theme-logo-filter, none); }
 @media (max-width: 760px) {
   .scene-hero {
     background:

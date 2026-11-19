@@ -31,10 +31,15 @@
  *   chart.getLatestColumn() -> { left, right, priceTop, priceBottom, volumeTop, volumeBottom }
  *       The newest candle's column in CSS px, relative to the container.
  *   chart.getScale() -> { min, max, volumeMax }
+ *   chart.refresh()
+ *       Re-reads the CSS custom properties (colours, spacing...) and redraws,
+ *       keeping the locked price and volume scales. Call it after a theme change.
  *   chart.destroy()
  *
  * Appearance is set with CSS custom properties on the container; see
- * candle-backdrop.css for the full list and defaults.
+ * candle-backdrop.css for the full list and defaults. Each colour can blend
+ * left to right across the chart with an optional "-end" partner
+ * (--cb-up-end, --cb-down-end, --cb-up-volume-end, --cb-down-volume-end).
  */
 (function (global) {
   "use strict";
@@ -99,11 +104,16 @@
         const n = parseFloat(s);
         return s.endsWith("%") ? (n / 100) * basis : n;
       };
+      const up = raw("--cb-up", "#58a593");
+      const down = raw("--cb-down", "#c9744f");
+      const upVolume = raw("--cb-up-volume", "rgba(88, 165, 147, 0.4)");
+      const downVolume = raw("--cb-down-volume", "rgba(201, 116, 79, 0.4)");
       return {
-        up: raw("--cb-up", "#58a593"),
-        down: raw("--cb-down", "#c9744f"),
-        upVolume: raw("--cb-up-volume", "rgba(88, 165, 147, 0.4)"),
-        downVolume: raw("--cb-down-volume", "rgba(201, 116, 79, 0.4)"),
+        up, down, upVolume, downVolume,
+        upEnd: raw("--cb-up-end", up),
+        downEnd: raw("--cb-down-end", down),
+        upVolumeEnd: raw("--cb-up-volume-end", upVolume),
+        downVolumeEnd: raw("--cb-down-volume-end", downVolume),
         grid: raw("--cb-grid", "rgba(255, 240, 222, 0.08)"),
         gridRows: Math.max(2, parseFloat(raw("--cb-grid-rows", "6"))),
         spacing: Math.max(2, len("--cb-spacing", "8px", w)),
@@ -117,7 +127,8 @@
       };
     }
 
-    function layout() {
+    // keepScale: redraw (new size or style) without refitting the price and volume scales.
+    function layout(keepScale) {
       // Whole CSS pixels: a half-pixel canvas box gets resampled at 2x density.
       const w = container.clientWidth;
       const h = container.clientHeight;
@@ -157,6 +168,7 @@
       }
       const range = hi - lo || Math.abs(hi) * 0.02 || 1;
 
+      const prev = L;
       L = {
         dpr, W, H, S, ww, bw, lastX, first, st,
         priceTop, priceBottom, volTop, volBottom,
@@ -164,6 +176,7 @@
         max: hi + range * opts.headroom,
         vmax: (vmax || 1) * (1 + opts.volumeHeadroom),
       };
+      if (keepScale && prev) { L.min = prev.min; L.max = prev.max; L.vmax = prev.vmax; }
       drawBase();
       drawLatest();
     }
@@ -177,11 +190,28 @@
       return { cx, wickX, bodyX: wickX - (L.bw - L.ww) / 2, left: cx - Math.floor(L.S / 2), right: cx - Math.floor(L.S / 2) + L.S };
     }
 
-    function drawCandle(ctx, d, i) {
+    // Fill styles for one canvas: a plain colour, or a left-to-right gradient
+    // across the whole chart when a colour has a different "-end" partner.
+    function paints(ctx) {
+      const pick = (a, b) => {
+        if (a === b) return a;
+        const g = ctx.createLinearGradient(0, 0, L.W, 0);
+        g.addColorStop(0, a);
+        g.addColorStop(1, b);
+        return g;
+      };
+      const st = L.st;
+      return {
+        up: pick(st.up, st.upEnd), down: pick(st.down, st.downEnd),
+        upVolume: pick(st.upVolume, st.upVolumeEnd), downVolume: pick(st.downVolume, st.downVolumeEnd),
+      };
+    }
+
+    function drawCandle(ctx, d, i, P) {
       const col = column(i);
       const up = d.c >= d.o;
       const minH = Math.max(1, Math.round(L.dpr));
-      ctx.fillStyle = up ? L.st.up : L.st.down;
+      ctx.fillStyle = up ? P.up : P.down;
       const yh = Math.round(yOf(d.h));
       const yl = Math.round(yOf(d.l));
       ctx.fillRect(col.wickX, yh, L.ww, Math.max(minH, yl - yh));
@@ -191,7 +221,7 @@
       ctx.fillRect(col.bodyX, top, L.bw, bottom - top);
 
       const vh = Math.max(minH, Math.round((d.v / L.vmax) * (L.volBottom - L.volTop)));
-      ctx.fillStyle = up ? L.st.upVolume : L.st.downVolume;
+      ctx.fillStyle = up ? P.upVolume : P.downVolume;
       ctx.fillRect(col.bodyX, L.volBottom - vh, L.bw, vh);
     }
 
@@ -214,7 +244,8 @@
           ctx.fillRect(xOf(i) - Math.floor(gw / 2), L.priceTop, gw, L.volBottom - L.priceTop);
         }
       }
-      for (let i = L.first; i < data.length - 1; i++) drawCandle(ctx, data[i], i);
+      const P = paints(ctx);
+      for (let i = L.first; i < data.length - 1; i++) drawCandle(ctx, data[i], i, P);
     }
 
     function drawLatest() {
@@ -227,7 +258,7 @@
       ctx.rect(col.left, L.priceTop, L.S, L.priceBottom - L.priceTop);
       ctx.rect(col.left, L.volTop, L.S, L.volBottom - L.volTop);
       ctx.clip();
-      drawCandle(ctx, data[i], i);
+      drawCandle(ctx, data[i], i, paints(ctx));
       ctx.restore();
     }
 
@@ -284,6 +315,10 @@
 
       getScale() {
         return L ? { min: L.min, max: L.max, volumeMax: L.vmax } : null;
+      },
+
+      refresh() {
+        if (data.length) layout(true);
       },
 
       destroy() {

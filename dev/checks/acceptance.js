@@ -4,12 +4,13 @@
  *
  * Usage (with a static server running at the repository root):
  *   python3 -m http.server 8765
- *   node dev/checks/acceptance.js [pageUrl] [outputDir]
+ *   node dev/checks/acceptance.js [pageUrl] [outputDir] [--themes=classic,flow]
  *
- * Defaults: http://localhost:8765/ and dev/checks/output/ (git-ignored).
- * Requires Playwright with Chromium. Exits non-zero if any check fails.
+ * Defaults: http://localhost:8765/, dev/checks/output/ (git-ignored) and all
+ * six themes. Requires Playwright with Chromium. Exits non-zero if any check fails.
  *
- * At 1440x900 and 390x844 (2x pixel density) it:
+ * For each theme, at 1440x900 and 390x844 (2x pixel density, reduced motion
+ * so the hero holds still for pixel comparisons) it:
  *   1. checks every request succeeds, every image decodes, the portrait and
  *      chart never shift while the page loads, and the total layout shift
  *      (web fonts swapping in) stays under 0.01;
@@ -33,7 +34,16 @@
  *      until it is pressed; pressing it either shows the live chart (candles
  *      dimmed, history layer untouched) or, offline, falls back with a
  *      message; the controls row keeps its size; pressing again restores
- *      the illustrative chart and caption.
+ *      the illustrative chart and caption (first theme only, as are links);
+ *   9. measures text contrast (WCAG 2.x) of the nav, headline, tagline,
+ *      description, buttons, shortcut labels and caption against the pixels
+ *      actually behind them, and checks the chart drew in the theme's colours.
+ * Then, once, the theme system: new visitors get Haley's Choice; the picker
+ * works by keyboard and pointer; the choice survives a reload, reaches a
+ * project page and another tab; with motion allowed the decor animates
+ * using only transform and opacity, the newest candle ticks while the
+ * history layer stays untouched, and there are no long main-thread tasks;
+ * with reduced motion nothing animates.
  *
  * The page must expose the chart as window.heroChart (js/home-hero.js does).
  */
@@ -41,8 +51,13 @@ const fs = require("fs");
 const path = require("path");
 const { chromium } = require("playwright");
 
-const URL = process.argv[2] || "http://localhost:8765/";
-const OUT = path.resolve(process.argv[3] || path.join(__dirname, "output"));
+const ARGS = process.argv.slice(2);
+const POS = ARGS.filter((a) => !a.startsWith("--"));
+const OPT = Object.fromEntries(ARGS.filter((a) => a.startsWith("--")).map((a) => a.slice(2).split("=")));
+const URL = POS[0] || "http://localhost:8765/";
+const OUT = path.resolve(POS[1] || path.join(__dirname, "output"));
+const ALL_THEMES = ["haleys-choice", "classic", "mile-high", "liquidity", "flow", "surge"];
+const THEMES = OPT.themes ? OPT.themes.split(",") : ALL_THEMES;
 const VIEWPORTS = [
   { name: "desktop", width: 1440, height: 900 },
   { name: "mobile", width: 390, height: 844 },
@@ -52,7 +67,20 @@ const DPR = 2;
 // Region limits: mean absolute RGB change (0-255) the chart may add.
 // visible: minimum mean change where a page asks for the chart to show (data-beside).
 // layoutShift: maximum total layout shift score while the page loads.
-const LIMITS = { text: 3, face: 0.5, visible: 2, layoutShift: 0.01 };
+// contrast / contrastLarge: WCAG 2.x minimums for normal and large text.
+const LIMITS = { text: 3, face: 0.5, visible: 2, layoutShift: 0.01, contrast: 4.5, contrastLarge: 3 };
+// Known, deliberate departures from WCAG AA (reported as WARN, not failures).
+// Each is a choice to match the theme's reference screenshot (or, for Classic,
+// the approved design that predates the themes); see dev/README.md, "Contrast".
+const CONTRAST_EXCEPTIONS = {
+  "haleys-choice": {
+    "nav links": "white nav text on pastel blue, as in the Haley's Choice reference",
+    "primary button": "white on bright pink, as in the reference",
+  },
+  "mile-high": { "primary button": "white on bright orange, as in the reference" },
+  "surge": { "primary button": "white on the orange-to-fuchsia gradient, as in the reference" },
+  "classic": { "chart caption": "small caption over the photo band on phones, unchanged from the approved Classic design" },
+};
 
 fs.mkdirSync(OUT, { recursive: true });
 const results = [];
@@ -203,6 +231,33 @@ async function makeLab(browser) {
       return { rows: rows.map(([s, e]) => e - s + 1), cols: cols.map(([s, e]) => e - s + 1), ...best };
     };
 
+    // WCAG contrast of each text colour against the background pixels inside
+    // each rect (text hidden): returns the 5th-percentile (worst-case) ratio.
+    window.contrast = async (bg, items) => {
+      const B = await load(bg);
+      const lum = (r, g, b) => {
+        const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+        return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+      };
+      return items.map(({ rect, colors }) => {
+        const ratios = [];
+        for (let y = Math.max(0, rect.y0); y < Math.min(B.height, rect.y1); y += 2) {
+          for (let x = Math.max(0, rect.x0); x < Math.min(B.width, rect.x1); x += 2) {
+            const i = (y * B.width + x) * 4;
+            const lb = lum(B.data[i], B.data[i + 1], B.data[i + 2]);
+            let worst = Infinity;
+            for (const c of colors) {
+              const lf = lum(c[0], c[1], c[2]);
+              worst = Math.min(worst, (Math.max(lf, lb) + 0.05) / (Math.min(lf, lb) + 0.05));
+            }
+            ratios.push(worst);
+          }
+        }
+        ratios.sort((a, b) => a - b);
+        return ratios.length ? ratios[Math.floor(ratios.length * 0.05)] : null;
+      });
+    };
+
     // Before | after | changed-pixel map, cropped around a rect and enlarged.
     window.triptych = async (a, b, rect, scale) => {
       const A = await load(a), B = await load(b);
@@ -241,8 +296,12 @@ async function run() {
   const browser = await chromium.launch();
   const lab = await makeLab(browser);
 
-  for (const vp of VIEWPORTS) {
-    const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: DPR });
+  for (const theme of THEMES) for (const vp of VIEWPORTS) {
+    const first = theme === THEMES[0];
+    const tag = `${theme}/${vp.name}`;
+    const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: DPR, reducedMotion: "reduce" });
+    await context.addInitScript((id) => { try { localStorage.setItem("hm-theme", id); } catch (e) {} }, theme);
+    const page = await context.newPage();
     const errors = [];
     const badRequests = [];
     page.on("pageerror", (e) => errors.push(e.message));
@@ -276,16 +335,16 @@ async function run() {
       chart: !!window.heroChart && !!document.querySelector("#hero-candles canvas"),
     }));
     // 1. Assets, images and layout shift while loading.
-    record(vp.name, "Chart mounted", load.chart, load.chart ? "window.heroChart and its canvases present" : "chart did not mount");
-    record(vp.name, "All requests succeed", badRequests.length === 0, badRequests.length ? badRequests.join("; ") : "no failed requests or HTTP errors");
+    record(tag, "Chart mounted", load.chart, load.chart ? "window.heroChart and its canvases present" : "chart did not mount");
+    record(tag, "All requests succeed", badRequests.length === 0, badRequests.length ? badRequests.join("; ") : "no failed requests or HTTP errors");
     const broken = load.images.filter((i) => !i.ok);
-    record(vp.name, "All images decode", broken.length === 0, broken.length ? broken.map((i) => i.src).join(", ") : `${load.images.length} images`);
+    record(tag, "All images decode", broken.length === 0, broken.length ? broken.map((i) => i.src).join(", ") : `${load.images.length} images`);
     // The portrait and chart must never shift. Elsewhere, web fonts swapping
     // in can nudge text slightly (the nav, the chart controls row); the total
     // must stay tiny (a tenth of the 0.1 that counts as "good" for Core Web Vitals).
     const cls = load.shifts.reduce((s, e) => s + e.value, 0);
     const heroShifts = load.shifts.filter((e) => e.hero);
-    record(vp.name, "No layout shift from the portrait or chart; total under 0.01",
+    record(tag, "No layout shift from the portrait or chart; total under 0.01",
       heroShifts.length === 0 && cls < LIMITS.layoutShift,
       `layout shift score ${cls.toFixed(4)}, ${heroShifts.length} shifts in the hero visual` +
       (load.shifts.length ? `; sources ${JSON.stringify(load.shifts.map((e) => [+e.value.toFixed(4), e.sources.join("|")]))}` : ""));
@@ -340,18 +399,18 @@ async function run() {
     });
 
     // 2. Screenshot at rest (viewport view for review, plus the whole hero for checks).
-    await page.screenshot({ path: path.join(OUT, `${vp.name}-${vp.width}x${vp.height}.png`) });
-    const rest = await shoot(`${vp.name}-hero-rest.png`);
-    record(vp.name, "No page errors", errors.length === 0, errors.join("; "));
+    await page.screenshot({ path: path.join(OUT, `${theme}-${vp.name}-${vp.width}x${vp.height}.png`) });
+    const rest = await shoot(`${theme}-${vp.name}-hero-rest.png`);
+    record(tag, "No page errors", errors.length === 0, errors.join("; "));
 
     // 2b. Still after 10 seconds, measured from the at-rest frame before any interaction.
     const t0 = rest;
     const box0 = await page.evaluate(() => JSON.stringify(document.getElementById("hero-candles").getBoundingClientRect()));
     await page.waitForTimeout(10000);
-    const t10 = await shoot(`${vp.name}-hero-after-10s.png`);
+    const t10 = await shoot(`${theme}-${vp.name}-hero-after-10s.png`);
     const box10 = await page.evaluate(() => JSON.stringify(document.getElementById("hero-candles").getBoundingClientRect()));
     const still = await lab.evaluate(([a, b]) => window.diff(a, b), [t0, t10]);
-    record(vp.name, "Hero identical at rest and 10 s later", still.changed === 0 && box0 === box10,
+    record(tag, "Hero identical at rest and 10 s later", still.changed === 0 && box0 === box10,
       `${still.changed} changed pixels, chart box ${box0 === box10 ? "unchanged" : "moved"}`);
 
 
@@ -360,12 +419,12 @@ async function run() {
       doc: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       body: document.body.scrollWidth - document.documentElement.clientWidth,
     }));
-    record(vp.name, "No horizontal overflow", overflow.doc <= 0 && overflow.body <= 0, `scrollWidth - clientWidth = ${overflow.doc}px`);
+    record(tag, "No horizontal overflow", overflow.doc <= 0 && overflow.body <= 0, `scrollWidth - clientWidth = ${overflow.doc}px`);
 
     // 4. Chart contribution over text and face (chart shown vs hidden).
     await page.addStyleTag({ content: "#hero-candles{visibility:hidden!important}" });
     await page.waitForTimeout(100);
-    const noChart = await shoot(`${vp.name}-hero-no-chart.png`);
+    const noChart = await shoot(`${theme}-${vp.name}-hero-no-chart.png`);
     await page.evaluate(() => document.querySelectorAll("style").forEach((s) => s.textContent.includes("#hero-candles{visibility") && s.remove()));
     await page.waitForTimeout(100);
     const p = geo.portrait;
@@ -376,7 +435,7 @@ async function run() {
     const deltas = await lab.evaluate(([a, b, r]) => window.regionDelta(a, b, r), [rest, noChart, rects]);
     deltas.forEach((d, i) => {
       const limit = names[i] === "face" ? LIMITS.face : LIMITS.text;
-      record(vp.name, `Chart stays subdued over ${names[i]}`, d.mean <= limit,
+      record(tag, `Chart stays subdued over ${names[i]}`, d.mean <= limit,
         `mean change ${d.mean.toFixed(2)} / 255 (limit ${limit}), max ${d.max.toFixed(0)}`);
     });
     // Where the page asks for it, the chart must be visible beside the silhouette.
@@ -384,7 +443,7 @@ async function run() {
     if (besideNames.length) {
       const bRects = besideNames.map((n) => dev(onPortrait(geo.beside[n])));
       const bDeltas = await lab.evaluate(([a, b, r]) => window.regionDelta(a, b, r), [rest, noChart, bRects]);
-      bDeltas.forEach((d, i) => record(vp.name, `Chart visible ${besideNames[i]}`, d.mean >= LIMITS.visible,
+      bDeltas.forEach((d, i) => record(tag, `Chart visible ${besideNames[i]}`, d.mean >= LIMITS.visible,
         `mean change ${d.mean.toFixed(2)} / 255 (minimum ${LIMITS.visible}), max ${d.max.toFixed(0)}`));
     }
 
@@ -396,11 +455,77 @@ async function run() {
     }));
     const sharp = await lab.evaluate(([a, b, c, o, k]) => window.crisp(a, b, c, o, k), [rest, noChart, layers, origin, above.map(dev)]);
     const widths = [...sharp.rows, ...sharp.cols];
-    record(vp.name, "Chart is crisp (grid lines 1 CSS px, no resampling)",
+    record(tag, "Chart is crisp (grid lines 1 CSS px, no resampling)",
       widths.length > 0 && widths.every((w) => w === DPR) && sharp.samples >= 300 && sharp.bleed === 0,
       `${sharp.rows.length} horizontal and ${sharp.cols.length} vertical grid lines, widths ${[...new Set(widths)].join("/")} device px; ` +
       `${sharp.samples} on-screen samples, ${sharp.bleed} with bleed into neighbouring pixels` +
       (sharp.bleed ? `; at (device px in hero) ${JSON.stringify(sharp.where)}` : ""));
+
+    // 9. Text contrast against the pixels behind it, and the chart's colours.
+    const applied = await page.evaluate(() => document.documentElement.dataset.theme);
+    record(tag, "Theme applied", applied === theme, `data-theme="${applied}"`);
+    const texts = await page.evaluate(() => {
+      const list = [
+        ["nav links", ".home .nav-links a:not([aria-current])", false],
+        ["overline", ".hero-overline", false],
+        ["headline", "#hero-title", true],
+        ["tagline", ".hero-tagline em", true],
+        ["description", ".hero-description", false],
+        ["primary button", ".hero-actions a:nth-child(1)", false],
+        ["secondary button", ".hero-actions a:nth-child(2)", false],
+        ["shortcut labels", ".hero-shortcuts a span", false],
+        ["chart caption", ".hero-chart-note", false],
+      ];
+      const rgb = (c) => c.match(/[\d.]+/g).slice(0, 3).map(Number);
+      return list.map(([name, sel, large]) => {
+        const el = document.querySelector(sel);
+        if (!el) return null;
+        // Measure only where the glyphs are: the boxes of the element's text.
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const boxes = [...range.getClientRects()].filter((b) => b.width > 1 && b.height > 1);
+        if (!boxes.length) return null;
+        const r = { x: Math.min(...boxes.map((b) => b.x)), y: Math.min(...boxes.map((b) => b.y)),
+          right: Math.max(...boxes.map((b) => b.right)), bottom: Math.max(...boxes.map((b) => b.bottom)) };
+        r.width = r.right - r.x; r.height = r.bottom - r.y;
+        const cs = getComputedStyle(el);
+        let colors = [cs.color];
+        if (/,\s*0\)$/.test(cs.color) && cs.backgroundImage.includes("gradient")) colors = cs.backgroundImage.match(/rgba?\([^)]+\)/g) || [];
+        const size = parseFloat(cs.fontSize);
+        return { name, rect: { x: r.x + scrollX, y: r.y + scrollY, w: r.width, h: r.height }, colors: colors.map(rgb),
+          large: large || size >= 24 || (parseInt(cs.fontWeight, 10) >= 700 && size >= 18.66) };
+      }).filter(Boolean);
+    });
+    await page.addStyleTag({ content: ".home .nav-links a, .hero-overline, #hero-title, .hero-tagline, .hero-description, .hero-actions a, .hero-shortcuts span, .hero-chart-note { color: transparent !important; -webkit-text-fill-color: transparent !important; text-shadow: none !important; } .hero-tagline em { background: none !important; }" });
+    await page.waitForTimeout(100);
+    const noText = await shoot(`${theme}-${vp.name}-hero-no-text.png`);
+    await page.evaluate(() => document.querySelectorAll("style").forEach((s) => s.textContent.includes("-webkit-text-fill-color: transparent") && s.remove()));
+    await page.waitForTimeout(100);
+    const ratios = await lab.evaluate(([b, items]) => window.contrast(b, items), [noText, texts.map((t) => ({ rect: dev(t.rect), colors: t.colors }))]);
+    const low = [], warned = [];
+    const detail = texts.map((t, i) => {
+      const need = t.large ? LIMITS.contrastLarge : LIMITS.contrast;
+      const known = (CONTRAST_EXCEPTIONS[theme] || {})[t.name];
+      if (ratios[i] < need) (known ? warned : low).push(known ? `${t.name}: ${known}` : t.name);
+      return `${t.name} ${ratios[i].toFixed(1)}:1${ratios[i] < need ? ` (needs ${need}${known ? ", known exception" : ""})` : ""}`;
+    }).join(", ");
+    record(tag, "Text contrast (WCAG AA) against what is behind it", low.length === 0, detail);
+    warned.forEach((w) => console.log(`WARN  [${tag}] contrast below AA by design - ${w}`));
+    const chartColours = await page.evaluate(() => {
+      const c = document.querySelector(".candle-backdrop__layer--base"), d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+      const seen = new Set();
+      for (let i = 0; i < d.length; i += 4 * 7) if (d[i + 3] === 255) seen.add(`${d[i]},${d[i + 1]},${d[i + 2]}`);
+      const want = ["--theme-chart-up", "--theme-chart-down"].map((v) => {
+        const probe = document.createElement("i"); probe.style.color = getComputedStyle(document.documentElement).getPropertyValue(v);
+        document.body.append(probe); const col = getComputedStyle(probe).color.match(/\d+/g).slice(0, 3).join(","); probe.remove(); return col;
+      });
+      // Nearest drawn colour to each wanted one (gradient themes blend along x).
+      const near = (w) => { const a = w.split(",").map(Number); let best = 999;
+        seen.forEach((k) => { const b = k.split(",").map(Number); best = Math.min(best, Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])); }); return Math.round(best); };
+      return { want, dist: want.map(near) };
+    });
+    record(tag, "Chart drawn in the theme's candle colours", chartColours.dist.every((d) => d <= 24),
+      `up rgb(${chartColours.want[0]}) nearest drawn colour ${chartColours.dist[0]} away, down rgb(${chartColours.want[1]}) ${chartColours.dist[1]} away (limit 24)`);
 
     // 6. Buttons stay clickable; chart is outside the tab order.
     const hits = await page.evaluate(() => [...document.querySelectorAll(".hero-actions a")].map((a) => {
@@ -410,7 +535,7 @@ async function run() {
       return el === a || a.contains(el);
     }));
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-    record(vp.name, "Hero buttons receive clicks", hits.every(Boolean), `${hits.filter(Boolean).length}/${hits.length}`);
+    record(tag, "Hero buttons receive clicks", hits.every(Boolean), `${hits.filter(Boolean).length}/${hits.length}`);
     const a11y = await page.evaluate(() => {
       const c = document.getElementById("hero-candles");
       const focusable = c.querySelectorAll("a,button,input,select,textarea,[tabindex],canvas[tabindex]").length;
@@ -424,10 +549,11 @@ async function run() {
     }
     await page.evaluate(() => { document.activeElement.blur(); window.scrollTo({ top: 0, behavior: "instant" }); });
     await page.waitForTimeout(300);
-    record(vp.name, "Chart is decorative and out of the tab order",
+    record(tag, "Chart is decorative and out of the tab order",
       a11y.inert && a11y.hidden === "true" && a11y.pointer === "none" && a11y.focusable === 0 && !tabbed.some(Boolean),
       `inert=${a11y.inert}, aria-hidden=${a11y.hidden}, pointer-events=${a11y.pointer}, focus never entered chart over 25 Tabs`);
 
+    if (first) {
     // Links: in-page anchors exist; same-site files load; external links listed.
     const links = await page.evaluate(() => [...document.querySelectorAll("a[href]")].map((a) => ({ href: a.getAttribute("href"), url: a.href })));
     const origin0 = new globalThis.URL(URL).origin;
@@ -448,9 +574,11 @@ async function run() {
         external++;
       }
     }
-    record(vp.name, "Page links resolve", linkProblems.length === 0,
+    record(tag, "Page links resolve", linkProblems.length === 0,
       `${anchors} in-page anchors, ${internal} same-site links, ${external} external links (not fetched)` +
       (linkProblems.length ? `; problems: ${linkProblems.join(", ")}` : ""));
+
+    }
 
     // 7. Test updates change only the newest candle's column.
     const col = geo.column;
@@ -472,12 +600,12 @@ async function run() {
       await page.evaluate((u) => window.heroChart.updateLatest(u), testUpdates[step - 1]); // no scrolling
       await page.waitForTimeout(150);
       const latest1 = await page.evaluate(() => window.heroChart.getLatest());
-      const after = await shoot(step === 1 ? `${vp.name}-hero-after-update.png` : undefined);
+      const after = await shoot(step === 1 ? `${theme}-${vp.name}-hero-after-update.png` : undefined);
       const split = await lab.evaluate(([a, b, r]) => window.diffIn(a, b, r), [before, after, [dev(pricePage), dev(volPage)]]);
       const scale1 = await page.evaluate(() => JSON.stringify(window.heroChart.getScale()));
       const base1 = await page.evaluate(() => document.querySelector(".candle-backdrop__layer--base").toDataURL());
       const ok = split.outside === 0 && split.inside[0] > 0 && split.inside[1] > 0 && scale0 === scale1 && base0 === base1;
-      record(vp.name, `Test update ${step} changes only the newest candle and its volume bar`, ok,
+      record(tag, `Test update ${step} changes only the newest candle and its volume bar`, ok,
         `candle ${split.inside[0]} px, volume ${split.inside[1]} px, elsewhere ${split.outside} px; ` +
         `scale ${scale0 === scale1 ? "held" : "changed"}; history layer ${base0 === base1 ? "untouched" : "redrawn"}; ` +
         `c ${latest0.c} -> ${latest1.c}, v ${latest0.v} -> ${latest1.v}` +
@@ -486,7 +614,7 @@ async function run() {
         const pad = 90;
         const crop = dev({ x: colPage.x - pad, y: colPage.y - 10, w: colPage.w + pad * 2, h: colPage.h + 20 });
         const img = await lab.evaluate(([a, b, r]) => window.triptych(a, b, r, 2), [before, after, crop]);
-        fs.writeFileSync(path.join(OUT, `${vp.name}-update-before-after-diff.png`), Buffer.from(img, "base64"));
+        fs.writeFileSync(path.join(OUT, `${theme}-${vp.name}-update-before-after-diff.png`), Buffer.from(img, "base64"));
       }
       before = after;
     }
@@ -500,14 +628,15 @@ async function run() {
     const clipped = await shoot();
     const cSplit = await lab.evaluate(([a, b, r]) => window.diffIn(a, b, r), [before, clipped, [dev(pricePage), dev(volPage)]]);
     const scaleX = await page.evaluate(() => JSON.stringify(window.heroChart.getScale()));
-    record(vp.name, "Out-of-range update is clipped to the newest column", extreme && cSplit.outside === 0 && scaleX === scale0,
+    record(tag, "Out-of-range update is clipped to the newest column", extreme && cSplit.outside === 0 && scaleX === scale0,
       `elsewhere ${cSplit.outside} px; scale ${scaleX === scale0 ? "held" : "changed"}`);
 
     await page.evaluate((o) => window.heroChart.updateLatest(o), original);
 
     // 8. Live overlay toggle (TradingView). Works online or offline.
+    if (first) {
     const tvBefore = requested.filter((u) => u.includes("tradingview")).length;
-    record(vp.name, "Nothing loads from TradingView until the overlay is turned on", tvBefore === 0,
+    record(tag, "Nothing loads from TradingView until the overlay is turned on", tvBefore === 0,
       `${tvBefore} TradingView requests before the toggle was pressed`);
     const overlay0 = await page.evaluate(() => {
       const t = document.querySelector(".hero-chart-toggle");
@@ -545,7 +674,7 @@ async function run() {
     const onOk = ov.live
       ? ov.pressed === "true" && +overlay1.candles < +overlay1.overlay && overlay1.iframeInert && overlay1.row === overlay0.row && baseLive === baseBefore
       : ov.pressed === "false" && ov.status.includes("unavailable");
-    record(vp.name, "Live overlay turns on (or falls back offline)", overlay0.hit && overlay0.focused && overlay0.pressed === "false" && onOk,
+    record(tag, "Live overlay turns on (or falls back offline)", overlay0.hit && overlay0.focused && overlay0.pressed === "false" && onOk,
       `toggle clickable=${overlay0.hit}, focusable=${overlay0.focused}; ` + (ov.live
         ? `live: aria-pressed=${ov.pressed}, candles opacity ${overlay1.candles} under overlay ${overlay1.overlay}, widget inside the inert chart=${overlay1.iframeInert}, ` +
           `controls row ${overlay0.row}px -> ${overlay1.row}px, history layer ${baseLive === baseBefore ? "untouched" : "redrawn"}, caption "${overlay1.note}"`
@@ -560,10 +689,107 @@ async function run() {
         candles: getComputedStyle(document.getElementById("hero-candles")).opacity,
         note: document.querySelector(".hero-chart-note").textContent,
       }));
-      record(vp.name, "Live overlay turns off again", !off.live && off.pressed === "false" && off.hidden && off.note === overlay0.note && off.candles === overlay0.candles,
+      record(tag, "Live overlay turns off again", !off.live && off.pressed === "false" && off.hidden && off.note === overlay0.note && off.candles === overlay0.candles,
         `aria-pressed=${off.pressed}, overlay hidden=${off.hidden}, candles opacity back to ${off.candles}, caption "${off.note}"`);
     }
-    await page.close();
+    }
+    await context.close();
+  }
+
+  // 10. The theme system, once.
+  {
+    const tag = "theme system";
+    let ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    let p = await ctx.newPage();
+    const errs = [];
+    p.on("pageerror", (e) => errs.push(e.message));
+    await p.goto(URL, { waitUntil: "networkidle" });
+    const def = await p.evaluate(() => ({ theme: document.documentElement.dataset.theme, stored: localStorage.getItem("hm-theme"),
+      meta: document.querySelector('meta[name="theme-color"]').getAttribute("content") }));
+    record(tag, "New visitors get Haley's Choice", def.theme === "haleys-choice" && def.stored === null,
+      `data-theme="${def.theme}", nothing saved yet, theme-color ${def.meta}`);
+
+    await p.focus(".theme-picker__button");
+    await p.keyboard.press("Enter");
+    const opened = await p.evaluate(() => ({
+      expanded: document.querySelector(".theme-picker__button").getAttribute("aria-expanded"),
+      focus: document.activeElement.getAttribute("data-value"),
+      names: [...document.querySelectorAll(".theme-picker__option")].map((o) => o.textContent.trim()),
+      swatches: [...document.querySelectorAll(".theme-picker__option .theme-swatch i")].length,
+    }));
+    await p.keyboard.press("ArrowDown");
+    await p.keyboard.press("Enter");
+    await p.waitForTimeout(700);
+    const chosen = await p.evaluate(() => ({ theme: document.documentElement.dataset.theme, stored: localStorage.getItem("hm-theme"),
+      back: document.activeElement.classList.contains("theme-picker__button"), expanded: document.querySelector(".theme-picker__button").getAttribute("aria-expanded") }));
+    const names = ["Classic", "Haley\u2019s Choice", "Mile High", "Liquidity", "Flow", "Surge"];
+    record(tag, "Picker lists the six themes with palette previews and works by keyboard",
+      opened.expanded === "true" && JSON.stringify(opened.names) === JSON.stringify(names) && opened.swatches === 24 && opened.focus === "haleys-choice" &&
+      chosen.theme === "mile-high" && chosen.stored === "mile-high" && chosen.back && chosen.expanded === "false",
+      `${opened.names.join(", ")}; Enter opened it on the current theme, ArrowDown + Enter chose ${chosen.theme} and returned focus to the button`);
+
+    await p.click(".theme-picker__button");
+    await p.click('.theme-picker__option[data-value="surge"]');
+    await p.waitForTimeout(700);
+    const clicked = await p.evaluate(() => document.documentElement.dataset.theme);
+    await p.click(".theme-picker__button");
+    await p.mouse.click(20, 600);
+    const closed = await p.evaluate(() => document.querySelector(".theme-picker__button").getAttribute("aria-expanded"));
+    record(tag, "Picker works by pointer and closes on an outside click", clicked === "surge" && closed === "false", `clicked Surge -> ${clicked}; outside click -> aria-expanded=${closed}`);
+
+    await p.reload({ waitUntil: "networkidle" });
+    const reloaded = await p.evaluate(() => document.documentElement.dataset.theme);
+    const p2 = await ctx.newPage();
+    await p2.goto(new globalThis.URL("projects/working-capital/index.html", URL).href, { waitUntil: "networkidle" });
+    const sub = await p2.evaluate(() => ({ theme: document.documentElement.dataset.theme, picker: !!document.querySelector(".nav .theme-picker__button") }));
+    await p.evaluate(() => window.HMTheme.set("flow"));
+    await p2.waitForTimeout(500);
+    const synced = await p2.evaluate(() => document.documentElement.dataset.theme);
+    record(tag, "The choice persists across reloads, project pages and open tabs",
+      reloaded === "surge" && sub.theme === "surge" && sub.picker && synced === "flow",
+      `reload -> ${reloaded}; project page -> ${sub.theme} (picker in its nav: ${sub.picker}); changed to Flow in one tab -> other tab ${synced}`);
+    await p2.close();
+
+    await p.evaluate(() => window.HMTheme.set("liquidity"));
+    await p.waitForTimeout(900);
+    const motion = await p.evaluate(() => {
+      const anims = document.getAnimations().filter((a) => a.effect && a.effect.target && a.effect.target.closest && a.effect.target.closest(".scene-decor"));
+      const props = new Set();
+      anims.forEach((a) => a.effect.getKeyframes().forEach((k) => Object.keys(k).forEach((q) => { if (!["offset", "easing", "composite", "computedOffset"].includes(q)) props.add(q); })));
+      return { count: anims.length, props: [...props] };
+    });
+    record(tag, "Decor animates with transform and opacity only", motion.count > 0 && motion.props.every((q) => ["transform", "opacity", "translate", "scale", "rotate"].includes(q)),
+      `${motion.count} running decor animations (Liquidity), animating ${motion.props.join(", ")}`);
+    await p.evaluate(() => {
+      window.__long = [];
+      new PerformanceObserver((l) => l.getEntries().forEach((e) => window.__long.push(Math.round(e.duration)))).observe({ type: "longtask" });
+      window.__base = document.querySelector(".candle-backdrop__layer--base").toDataURL();
+      window.__c0 = JSON.stringify(window.heroChart.getLatest());
+    });
+    await p.waitForTimeout(6000);
+    const tick = await p.evaluate(() => ({ ticked: JSON.stringify(window.heroChart.getLatest()) !== window.__c0,
+      baseSame: document.querySelector(".candle-backdrop__layer--base").toDataURL() === window.__base, long: window.__long }));
+    record(tag, "Newest candle ticks while the history layer stays untouched", tick.ticked && tick.baseSame,
+      `newest candle ${tick.ticked ? "changed" : "unchanged"} over 6 s; history layer ${tick.baseSame ? "byte-identical" : "redrawn"}`);
+    record(tag, "No long main-thread tasks while the hero animates", tick.long.length === 0,
+      tick.long.length ? `long tasks (ms): ${tick.long.join(", ")}` : "none over 6 s");
+    record(tag, "No page errors while switching themes", errs.length === 0, errs.join("; "));
+    await ctx.close();
+
+    ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
+    await ctx.addInitScript(() => localStorage.setItem("hm-theme", "liquidity"));
+    p = await ctx.newPage();
+    await p.goto(URL, { waitUntil: "networkidle" });
+    await p.waitForTimeout(1000);
+    const rm = await p.evaluate(async () => {
+      const running = document.getAnimations().filter((a) => a.playState === "running").length;
+      const c0 = JSON.stringify(window.heroChart.getLatest());
+      await new Promise((r) => setTimeout(r, 5200));
+      return { running, ticked: JSON.stringify(window.heroChart.getLatest()) !== c0 };
+    });
+    record(tag, "Reduced motion: nothing animates and the candle holds still", rm.running === 0 && !rm.ticked,
+      `${rm.running} running animations; newest candle ${rm.ticked ? "changed" : "unchanged"} over 5 s`);
+    await ctx.close();
   }
 
   await browser.close();

@@ -85,6 +85,7 @@
       return Number.isFinite(value) ? value : fallback;
     };
     const up = read("--theme-chart-up", "rgba(125, 187, 158, .7)");
+    const volume = read("--theme-chart-volume", "none");
     palette = {
       up,
       upSoft: read("--theme-chart-up-soft", up),
@@ -95,7 +96,8 @@
       scale: number("--theme-chart-scale", 1),
       body: number("--theme-chart-body", 0.64),
       grid: read("--theme-chart-grid", "none"),
-      volume: read("--theme-chart-volume", "none")
+      volume,
+      volumeDown: read("--theme-chart-volume-down", volume)
     };
   }
 
@@ -167,7 +169,7 @@
 
       if (showVolume) {
         const barHeight = candle.volume * volumeHeight;
-        ctx.fillStyle = palette.volume;
+        ctx.fillStyle = rising ? palette.volume : palette.volumeDown;
         ctx.fillRect(x - bodyWidth / 2, volumeBase - barHeight, bodyWidth, barHeight);
       }
 

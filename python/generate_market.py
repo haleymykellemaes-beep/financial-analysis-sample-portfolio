@@ -56,6 +56,30 @@ def change(values):
     return round((values[-1] / values[0] - 1) * 100, 2)
 
 
+def ema(values, span):
+    alpha = 2 / (span + 1)
+    smoothed = []
+    for value in values:
+        smoothed.append(value if not smoothed else smoothed[-1] + alpha * (value - smoothed[-1]))
+    return smoothed
+
+
+def hero_chart():
+    """Decorative series for the homepage hero: candles, volume, a smoothed signal, and its cycle."""
+    bars = candles(path(2611, 176, 0.18, 0.009), 4)
+    closes = [bar["c"] for bar in bars]
+    signal = ema(closes, 6)
+    cycle = ema([close - level for close, level in zip(closes, signal)], 3)
+    unit = rng(8150)
+    volume = [round(0.3 + 0.45 * index / (len(bars) - 1) + 0.25 * unit(), 3) for index in range(len(bars))]
+    return {
+        "candles": bars,
+        "volume": volume,
+        "signal": [round(value, 4) for value in signal],
+        "cycle": [round(value, 4) for value in cycle],
+    }
+
+
 def main():
     count = 240
     base = path(4102, count, 0.045, 0.012)
@@ -71,6 +95,7 @@ def main():
         ],
         "candles": candles(base, 5),
         "signal": path(6642, 80, 0.05, 0.012),
+        "hero": hero_chart(),
         "scenarios": {
             "base": {"label": "Base", "change": change(base), "values": base},
             "upside": {"label": "Upside", "change": change(upside), "values": upside},

@@ -11,6 +11,9 @@
   --theme-scene-bg:
     radial-gradient(ellipse at 81% 33%, #b29882 0%, #907460 35%, transparent 74%),
     linear-gradient(105deg, #352923 5%, #594538 58%, #826553 100%);
+  --theme-scene-bg-mobile:
+    radial-gradient(ellipse at 84% 69%, #a88c76 0%, transparent 58%),
+    linear-gradient(142deg, #352923, #574237 75%);
   --theme-text: #f6efe6;
   --theme-heading: #f7f1e8;
   --theme-tagline: #f0d7b4;
@@ -147,14 +150,31 @@
   color-scheme: light;
   --swatch-1: #e7f3ea; --swatch-2: #1f6b45; --swatch-3: #8fd0a8; --swatch-4: #163828;
   --theme-scene-bg: linear-gradient(180deg, #e7f6ea 0%, #c9e6d2 48%, #a9d4ba 100%);
+  --theme-hero-art: url("../assets/themes/flow-hero.webp");
+  --theme-hero-art-position: center;
+  --theme-veil: radial-gradient(ellipse 33% 44% at 19% 56%, rgba(242, 250, 244, .8), rgba(242, 250, 244, .5) 52%, rgba(242, 250, 244, 0) 100%);
+  /* Phones anchor the art to the hero's bottom so the hills sit at head height behind the portrait;
+     the mist above blends into the art's sky behind the copy. */
+  --theme-hero-art-size-mobile: auto clamp(463px, 154vw, 802px);
+  --theme-hero-art-position-mobile: 80% calc(100% + clamp(63px, 21vw, 110px));
+  --theme-hero-art-fade-mobile: linear-gradient(180deg,
+    #eaf6f0 0,
+    #c2e5dd calc(100% - clamp(463px, 154vw, 802px) + clamp(63px, 21vw, 110px)),
+    rgba(194, 229, 221, 0) calc(100% - clamp(463px, 154vw, 802px) + clamp(63px, 21vw, 110px) + 110px));
+  --theme-scene-bg-mobile: #c2e5dd;
+  --theme-veil-mobile: linear-gradient(0deg, rgba(234, 246, 240, .78), rgba(234, 246, 240, .6) 7%, rgba(234, 246, 240, 0) 11.5%);
+  --theme-chart-opacity-mobile: .88;
+  --theme-hero-grid-opacity: 0;
+  --theme-accent: #2c9a5c;
+  --theme-rule: rgba(22, 56, 40, .16);
   --theme-text: #163828;
   --theme-heading: #143526;
   --theme-tagline: #1f6b45;
   --theme-description: #24543a;
   --theme-nav-text: #163828;
-  --nav-bg: rgba(247, 252, 248, .92);
-  --nav-border: rgba(31, 107, 69, .2);
-  --theme-button-primary-bg: #1f6b45;
+  --nav-bg: rgba(242, 250, 245, .78);
+  --nav-border: rgba(31, 107, 69, .16);
+  --theme-button-primary-bg: linear-gradient(180deg, #1c7a4a, #0f5534);
   --theme-button-primary-text: #f4fff7;
   --theme-button-text: #163828;
   --theme-button-border: #1f6b45;
@@ -167,9 +187,18 @@
   --gold-ink: #1a5a38;
   --charcoal: #143024;
   --console: #163828;
-  --theme-chart-up: #1f8a4c;
-  --theme-chart-down: #c4563a;
+  --theme-chart-up: #137a43;
+  --theme-chart-up-soft: #34c26a;
+  --theme-chart-down: #e2b878;
   --theme-chart-hollow: 0;
+  --theme-chart-density: .55;
+  --theme-chart-body: .56;
+  --theme-chart-detail: .5;
+  --theme-chart-scale: .62;
+  --theme-chart-grid: rgba(255, 255, 255, .5);
+  --theme-chart-volume: rgba(52, 170, 98, .3);
+  --theme-chart-opacity: .92;
+  --theme-chart-mask: linear-gradient(90deg, transparent 32%, rgba(0, 0, 0, .6) 39%, #000 46%);
   --theme-portrait-filter: none;
   --theme-picker-bg: #f7fcf8;
   --theme-picker-text: #163828;
@@ -251,9 +280,40 @@
   color: var(--theme-nav-text, #ede9dc);
 }
 .brand, .nav-links a, .menu-btn, .brand-sub { color: var(--theme-nav-text, #ede9dc); }
+/* Hero layers, back to front: theme artwork, chart canvas, portrait cutout, live copy.
+   Every fallback is the Classic value, so themes without artwork keep their scene. */
 .scene-hero {
-  background: var(--theme-scene-bg);
+  background:
+    var(--theme-hero-art, none) var(--theme-hero-art-position, center) / cover no-repeat,
+    var(--theme-scene-bg);
   color: var(--theme-text, #f6efe6);
+}
+.scene-hero .hero-veil {
+  background: var(--theme-veil, linear-gradient(90deg, rgba(42,32,28,.66), rgba(42,32,28,.46) 28%, rgba(42,32,28,.13) 49%, transparent 66%));
+}
+.scene-hero .hero-grid { opacity: var(--theme-hero-grid-opacity, .55); }
+.scene-hero #ribbon {
+  opacity: var(--theme-chart-opacity, .76);
+  -webkit-mask-image: var(--theme-chart-mask, linear-gradient(90deg, #0004, #0008 30%, #000 54%, #000));
+  mask-image: var(--theme-chart-mask, linear-gradient(90deg, #0004, #0008 30%, #000 54%, #000));
+}
+.scene-hero .hero-foot { border-top-color: var(--theme-rule, rgba(240,223,198,.2)); }
+.brand-dot, .hero-period { color: var(--theme-accent, #e7c8a5); }
+@media (max-width: 760px) {
+  .scene-hero {
+    background:
+      var(--theme-hero-art-fade-mobile, none),
+      var(--theme-hero-art, none) var(--theme-hero-art-position-mobile, center) / var(--theme-hero-art-size-mobile, cover) no-repeat,
+      var(--theme-scene-bg-mobile, var(--theme-scene-bg));
+  }
+  .scene-hero .hero-veil {
+    background: var(--theme-veil-mobile, linear-gradient(180deg, rgba(42,32,28,.44), rgba(42,32,28,.28) 32%, transparent 64%));
+  }
+  .scene-hero #ribbon {
+    opacity: var(--theme-chart-opacity-mobile, .66);
+    -webkit-mask-image: var(--theme-chart-mask-mobile, linear-gradient(90deg, #0009, #000 25%));
+    mask-image: var(--theme-chart-mask-mobile, linear-gradient(90deg, #0009, #000 25%));
+  }
 }
 .scene-hero h1 { color: var(--theme-heading, #f7f1e8); }
 .scene-hero .tagline, .scene-hero .tagline em { color: var(--theme-tagline, #f0d7b4); }

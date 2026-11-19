@@ -51,7 +51,7 @@ button, input { font: inherit; }
 .skip {
   position: absolute;
   left: 16px;
-  top: -40px;
+  top: -64px;
   background: var(--ivory);
   color: var(--ink);
   padding: 8px 12px;

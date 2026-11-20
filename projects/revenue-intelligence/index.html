@@ -5,6 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Revenue Intelligence · Haley Maes</title>
+  <meta name="description" content="Merchandise net sales from the UCI Online Retail II invoices, with a walk-forward forecast. Nominal GBP. Not profit or cash." />
   <meta name="theme-color" content="#1c1c1b" />
   <link rel="icon" href="../../assets/brand/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="icon" href="../../assets/brand/icon-192.png" sizes="192x192" type="image/png" />
@@ -32,47 +33,88 @@
     <div class="wrap">
       <div class="case-top">
         <div>
-          <p class="status">Prototype · In development</p>
+          <p class="status">Completed study</p>
           <h1>Revenue Intelligence &amp; Forecasting</h1>
         </div>
         <div class="prose">
-          <p class="case-lead">A proposed console for reading booked revenue beside a forward range. The series below is sample data for the layout.</p>
+          <p class="case-lead">Merchandise net sales for a UK online gift wholesaler, built from the public UCI Online Retail II invoice lines. Prices are nominal pounds. Nothing here is profit, margin, or a cash forecast.</p>
           <p><a class="quiet-link" href="../../index.html#work">All work</a></p>
         </div>
       </div>
       <div class="console">
-        <div class="console-top"><span>REV-01 · Sample year</span><span class="chip">Illustrative</span></div>
+        <div class="console-top"><span>Online Retail II · Dec 2009–Nov 2011</span><span class="chip">Completed</span></div>
         <div class="metric-row">
-          <div class="metric"><span>Booked</span><strong>$4.80M</strong></div>
-          <div class="metric"><span>Low case</span><strong>$4.51M</strong></div>
-          <div class="metric"><span>High case</span><strong>$5.09M</strong></div>
+          <div class="metric"><span>Complete months</span><strong>£18.47M</strong></div>
+          <div class="metric"><span>Jan–Nov 2011 vs 2010</span><strong>+2.3%</strong></div>
+          <div class="metric"><span>One-step error</span><strong>8.4%</strong></div>
         </div>
-        <svg class="chart" viewBox="0 0 640 230" role="img" aria-label="Illustrative monthly revenue and a dashed forward range">
-          <g stroke="rgba(237,233,220,0.08)"><path d="M40 30H620M40 90H620M40 150H620M40 200H620" /></g>
-          <path d="M430 104 L490 62 L550 78 L610 48 L610 118 L550 112 L490 108 L430 104Z" fill="rgba(122,167,255,0.16)" />
-          <polyline points="40,156 100,142 160,148 220,118 280,126 340,96 400,104 430,104" fill="none" stroke="#7ddee6" stroke-width="2.4" />
-          <polyline points="430,104 490,84 550,92 610,70" fill="none" stroke="#7aa7ff" stroke-width="2" stroke-dasharray="5 6" />
+        <svg class="chart" viewBox="0 0 640 230" role="img" aria-label="Merchandise net sales for 24 complete months, in pounds">
+          <g stroke="rgba(237,233,220,0.08)"><path d="M36 24H612M36 79H612M36 134H612M36 188H612" /></g>
+          <polyline points="36.0,98.3 61.0,118.3 86.1,127.6 111.1,101.4 136.2,114.7 161.2,118.1 186.3,110.8 211.3,117.1 236.3,111.8 261.4,91.1 286.4,65.0 311.5,27.5 336.5,100.7 361.6,121.3 386.6,130.5 411.7,109.8 436.7,132.7 461.7,103.8 486.8,104.6 511.8,110.0 536.9,107.3 561.9,71.6 587.0,65.9 612.0,24.0" fill="none" stroke="#7ddee6" stroke-width="2.4" />
+          <polyline points="612.0,24.0 628.0,100.7" fill="none" stroke="#7aa7ff" stroke-width="2" stroke-dasharray="5 6" />
           <g fill="#aaa395" font-size="11" font-family="Inter, sans-serif">
-            <text x="40" y="222">Jan</text><text x="160" y="222">Mar</text><text x="280" y="222">May</text><text x="400" y="222">Jul</text><text x="520" y="222">Sep</text>
+                        <text x="36" y="208" text-anchor="middle">Dec 09</text>
+            <text x="111" y="208" text-anchor="middle">Mar 10</text>
+            <text x="186" y="208" text-anchor="middle">Jun 10</text>
+            <text x="261" y="208" text-anchor="middle">Sep 10</text>
+            <text x="337" y="208" text-anchor="middle">Dec 10</text>
+            <text x="412" y="208" text-anchor="middle">Mar 11</text>
+            <text x="487" y="208" text-anchor="middle">Jun 11</text>
+            <text x="562" y="208" text-anchor="middle">Sep 11</text>
+            <text x="612" y="208" text-anchor="middle">Nov 11</text>
           </g>
         </svg>
+        <p class="fine">Solid line: merchandise net sales in the 24 complete months, December 2009 through November 2011. Peak is November 2011 at £1,423,253. The dashed step is the December 2011 base plan, £757,330, which is December 2010 again. The file’s partial December, £439,267 through 9 December, is not plotted and is not an accuracy score.</p>
         <div class="table-wrap">
           <table>
-            <caption class="fine">Illustrative monthly amounts, in millions. Not a client extract.</caption>
-            <thead><tr><th>Month</th><th>Amount</th><th>State</th></tr></thead>
+            <caption class="fine">Merchandise net sales by complete month. Year-over-year compares the same calendar month. Postage is excluded.</caption>
+            <thead><tr><th>Month</th><th>Net sales</th><th>Vs prior year</th></tr></thead>
             <tbody>
-              <tr><td>January</td><td>0.62</td><td>Booked</td></tr>
-              <tr><td>March</td><td>0.74</td><td>Booked</td></tr>
-              <tr><td>May</td><td>0.81</td><td>Booked</td></tr>
-              <tr><td>July</td><td>0.88</td><td>Booked</td></tr>
-              <tr><td>September</td><td>0.96</td><td>Sketch only</td></tr>
+              <tr><td>December 2009</td><td>£778,069</td><td>—</td></tr>
+              <tr><td>January 2010</td><td>£604,589</td><td>—</td></tr>
+              <tr><td>February 2010</td><td>£523,808</td><td>—</td></tr>
+              <tr><td>March 2010</td><td>£751,969</td><td>—</td></tr>
+              <tr><td>April 2010</td><td>£636,011</td><td>—</td></tr>
+              <tr><td>May 2010</td><td>£606,335</td><td>—</td></tr>
+              <tr><td>June 2010</td><td>£669,763</td><td>—</td></tr>
+              <tr><td>July 2010</td><td>£615,619</td><td>—</td></tr>
+              <tr><td>August 2010</td><td>£660,881</td><td>—</td></tr>
+              <tr><td>September 2010</td><td>£841,130</td><td>—</td></tr>
+              <tr><td>October 2010</td><td>£1,067,260</td><td>—</td></tr>
+              <tr><td>November 2010</td><td>£1,392,728</td><td>—</td></tr>
+              <tr><td>December 2010</td><td>£757,330</td><td>-2.7%</td></tr>
+              <tr><td>January 2011</td><td>£578,814</td><td>-4.3%</td></tr>
+              <tr><td>February 2011</td><td>£499,163</td><td>-4.7%</td></tr>
+              <tr><td>March 2011</td><td>£678,980</td><td>-9.7%</td></tr>
+              <tr><td>April 2011</td><td>£480,039</td><td>-24.5%</td></tr>
+              <tr><td>May 2011</td><td>£730,872</td><td>+20.5%</td></tr>
+              <tr><td>June 2011</td><td>£723,533</td><td>+8.0%</td></tr>
+              <tr><td>July 2011</td><td>£676,574</td><td>+9.9%</td></tr>
+              <tr><td>August 2011</td><td>£700,256</td><td>+6.0%</td></tr>
+              <tr><td>September 2011</td><td>£1,009,869</td><td>+20.1%</td></tr>
+              <tr><td>October 2011</td><td>£1,059,341</td><td>-0.7%</td></tr>
+              <tr><td>November 2011</td><td>£1,423,253</td><td>+2.2%</td></tr>
             </tbody>
           </table>
         </div>
       </div>
       <div class="points">
-        <article><h3>The question</h3><p>What has already been earned, and how wide is an honest range from here?</p></article>
-        <article><h3>Still to build</h3><p>Actual drivers, seasonality, and a forecast that can be checked against later results. This page does not do that yet.</p></article>
+        <article>
+          <h3>What was measured</h3>
+          <p>Merchandise net sales are gross merchandise lines, plus returns, plus discount and commission lines. Across the whole extract that is £18,905,453. The 24 complete months are £18,466,186. Returns were 1.8% of merchandise gross. Postage, £433,411 signed, is kept out of the target. The source is Chen, D. (2012), <em>Online Retail II</em>, UCI Machine Learning Repository.</p>
+        </article>
+        <article>
+          <h3>The forecast that survived</h3>
+          <p>On 12 one-step forecasts from December 2010 through November 2011, repeating the same month last year missed by £65,495 on average, or 8.4% of revenue. Last month missed by £193,678. A drift model missed by £197,875. A trend-plus-cycle regression missed by £225,932. The base plan does not add a growth trend the data did not reward.</p>
+        </article>
+        <article>
+          <h3>December, and the range around it</h3>
+          <p>Both complete Decembers stop on 23 December. Their average, £768,000, sits with an ordinary month. November is the peak: its average was £1.41 million, 1.83 times the average complete month. For a full December after November 2011 the selected model says £757,330. An approximate 80% residual band is £649,796 to £864,865. A separate growth scenario, from the 10th and 90th percentiles of observed year-over-year changes, is £687,609 to £901,564. The band is not widened for months that were not walk-forward tested.</p>
+        </article>
+        <article>
+          <h3>Where the book sits</h3>
+          <p>Identified customers are 86% of net sales. Among positive identified sales, the top decile is 63%, 273 customers account for half, and repeat customers are 97%. The median identified customer is £844. The mean is £2,802. The top 10 products are 7.6% of positive product net sales, so the concentration is in customers, not in a handful of items.</p>
+        </article>
       </div>
     </div>
   </main>

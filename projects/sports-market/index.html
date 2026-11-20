@@ -1,87 +1,853 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="../../js/theme.js"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Expected Value · Haley Maes</title>
-  <meta name="theme-color" content="#1c1c1b" />
-  <link rel="icon" href="../../assets/brand/favicon-32.png" sizes="32x32" type="image/png" />
-  <link rel="icon" href="../../assets/brand/icon-192.png" sizes="192x192" type="image/png" />
-  <link rel="apple-touch-icon" href="../../assets/brand/apple-touch-icon.png" />
+  <title>Sports market EV · Haley Maes</title>
+  <meta name="description" content="Convert American odds to implied probability, separate posted margin from realized hold, and score only documented prices. Not betting advice." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" />
-  <link rel="stylesheet" href="../../css/site.css" />
-  <link rel="stylesheet" href="../../css/themes.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@600;700&display=swap" />
+  <style>
+    :root {
+      --bg: #07080d;
+      --bg-2: #10131b;
+      --ink: #e8eef8;
+      --muted: #93a0b5;
+      --faint: #6d7b90;
+      --line: rgba(168, 198, 232, 0.16);
+      --cyan: #8ef6ff;
+      --amber: #ffc56d;
+      --rose: #ff7b93;
+      --violet: #c3b6ff;
+      --ok: #9dffc6;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "IBM Plex Sans", sans-serif;
+      background:
+        radial-gradient(900px 420px at 8% -10%, rgba(142, 246, 255, 0.09), transparent 55%),
+        radial-gradient(800px 480px at 100% 0%, rgba(255, 197, 109, 0.07), transparent 50%),
+        var(--bg);
+      line-height: 1.5;
+    }
+    body::before {
+      content: "";
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(142, 246, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(142, 246, 255, 0.035) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent 85%);
+    }
+    .wrap { width: min(1120px, calc(100% - 32px)); margin: 0 auto; position: relative; }
+    header { padding: 36px 0 10px; }
+    .kicker {
+      font-family: "IBM Plex Mono", monospace;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      font-size: 12px;
+      margin: 0 0 10px;
+    }
+    h1 {
+      font-family: Syne, sans-serif;
+      font-size: clamp(40px, 6vw, 68px);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      margin: 0 0 14px;
+      max-width: 14ch;
+    }
+    .lede { max-width: 68ch; color: var(--muted); font-size: 18px; margin: 0; }
+    .banner {
+      margin: 22px 0;
+      border: 1px solid var(--line);
+      background: rgba(16, 19, 27, 0.8);
+      padding: 12px 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .banner strong { color: var(--ink); font-weight: 600; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 8px 0 28px;
+    }
+    .stat, .card {
+      background: rgba(16, 19, 27, 0.88);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+    .stat { padding: 14px 14px 12px; }
+    .stat b, .readout b, .price {
+      font-family: "IBM Plex Mono", monospace;
+      font-weight: 500;
+    }
+    .stat b { display: block; font-size: 26px; letter-spacing: -0.04em; color: var(--cyan); }
+    .stat span, .hint, .note { color: var(--muted); font-size: 13px; }
+    section { margin: 0 0 28px; }
+    h2 {
+      font-family: Syne, sans-serif;
+      font-size: 28px;
+      letter-spacing: -0.03em;
+      margin: 0 0 8px;
+    }
+    .section-kicker {
+      font-family: "IBM Plex Mono", monospace;
+      color: var(--faint);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 14px; }
+    .card { padding: 16px; }
+    .sides { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { display: block; color: var(--faint); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+    .name, input[type="number"] {
+      width: 100%;
+      background: #0b0e15;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 0;
+      padding: 8px 10px;
+      font: 500 16px/1.2 "IBM Plex Sans", sans-serif;
+    }
+    .price { font-size: 40px; letter-spacing: -0.05em; margin: 10px 0 8px; }
+    .sign { display: flex; gap: 6px; margin-bottom: 8px; }
+    button, .sign button {
+      font: 500 13px/1 "IBM Plex Sans", sans-serif;
+      color: var(--ink);
+      background: #0b0e15;
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+    button.is-on, .sign button.is-on { border-color: var(--cyan); color: var(--cyan); }
+    button:hover { border-color: var(--amber); }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--cyan);
+      margin: 4px 0 8px;
+    }
+    .readouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+    .readout { border: 1px solid var(--line); padding: 10px; background: #0b0e15; }
+    .readout b { display: block; font-size: 18px; }
+    .band { margin-top: 14px; }
+    .track {
+      position: relative;
+      height: 28px;
+      background: #0b0e15;
+      border: 1px solid var(--line);
+      margin: 8px 0;
+    }
+    .track i, .tick {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+    }
+    .gap { background: rgba(255, 123, 147, 0.45); }
+    .tick {
+      width: 2px;
+      background: var(--amber);
+    }
+    .tick.market { background: var(--cyan); }
+    .axis-labels { display: flex; justify-content: space-between; color: var(--faint); font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+    canvas { width: 100%; height: 300px; display: block; background: #0b0e15; border: 1px solid var(--line); }
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 12px; margin-top: 8px; }
+    .swatch { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+    .sliders { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-bottom: 10px; }
+    .ev-num { font-family: "IBM Plex Mono", monospace; font-size: 42px; letter-spacing: -0.05em; margin: 4px 0; }
+    .ev-num.pos { color: var(--amber); }
+    .ev-num.neg { color: var(--rose); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--faint); font-weight: 500; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+    td.num, th.num { text-align: right; font-family: "IBM Plex Mono", monospace; }
+    .callout {
+      border-left: 3px solid var(--rose);
+      padding: 8px 12px;
+      color: var(--muted);
+      margin: 8px 0 12px;
+    }
+    .presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
+    .checks { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pill { font-family: "IBM Plex Mono", monospace; font-size: 12px; border: 1px solid var(--line); padding: 4px 8px; color: var(--muted); }
+    .pill.ok { color: var(--ok); border-color: rgba(157, 255, 198, 0.4); }
+    .pill.bad { color: var(--rose); border-color: rgba(255, 123, 147, 0.5); }
+    footer { padding: 10px 0 40px; color: var(--faint); font-size: 13px; }
+    a { color: var(--cyan); }
+    @media (max-width: 860px) {
+      .stats, .grid-2, .sides, .readouts, .sliders { grid-template-columns: 1fr; }
+      h1 { max-width: none; }
+    }
+  </style>
 </head>
-<body class="subpage">
-  <header class="nav">
-    <div class="nav-inner">
-      <a class="brand" href="../../index.html"><img class="brand-logo" src="../../assets/brand/hm-logo.webp" width="40" height="40" alt="" />Haley Maes</a>
-      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
-      <nav class="nav-links" id="nav-links" aria-label="Primary">
-        <a href="../../index.html#work">Work</a>
-        <a href="../../index.html#capabilities">Capabilities</a>
-        <a href="../../index.html#about">About</a>
-        <a href="../../index.html#contact">Contact</a>
-      </nav>
-    </div>
-  </header>
-  <main class="case">
-    <div class="wrap">
-      <div class="case-top">
-        <div>
-          <p class="status">Prototype · Simulator is live</p>
-          <h1>Sports Market Pricing &amp; Expected Value</h1>
+<body>
+<a class="hm-back" href="../../index.html#work">← All work</a>
+<style>
+.hm-back{position:sticky;top:0;z-index:30;display:block;padding:12px 22px;background:#07080d;color:#8ef6ff;font:500 12px/1 "IBM Plex Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid rgba(168,198,232,.16)}
+.hm-back:hover{color:#fff}
+</style>
+  <div class="wrap">
+    <header>
+      <p class="kicker">Sports market · expected value</p>
+      <h1>The price is a probability plus a margin.</h1>
+      <p class="lede">American odds convert to a break-even probability. Two break-evens that sum to more than one are the book’s posted margin. Realized hold is a different number: it depends on which side the money was on. Expected value below uses a model probability you can move. It is not a claim that the model is right.</p>
+    </header>
+
+    <div class="banner" id="status-banner"><strong>Research exhibit.</strong> No bet is recommended. Positive model EV means the probability you supplied clears the posted price. It is not a recorded edge, and nothing on this page is a season-long result.</div>
+
+    <div class="stats" id="hold-stats"></div>
+
+    <section>
+      <p class="section-kicker">01 · Price</p>
+      <h2>Two American prices, and the margin between them</h2>
+      <p class="hint">Negative odds −O imply O / (O + 100). Positive odds +O imply 100 / (O + 100). The overround is the sum minus one. Proportional de-vig divides each side by the sum. Additive de-vig subtracts half the overround from each side. They agree on a coin flip and diverge when one side is a longshot.</p>
+      <div class="presets" id="presets">
+        <button type="button" data-preset="lix">Load Super Bowl LIX pair</button>
+        <button type="button" data-preset="broncos">Load Broncos–Giants snapshot</button>
+        <button type="button" data-preset="flat">Hypothetical −110 / −110</button>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="sides">
+            <div>
+              <label for="name-a">Side A</label>
+              <input class="name" id="name-a" value="Side A" />
+              <div class="price" id="price-a">+100</div>
+              <div class="sign" data-side="a">
+                <button type="button" data-sign="1" class="is-on">Underdog</button>
+                <button type="button" data-sign="-1">Favorite</button>
+              </div>
+              <label for="mag-a">Price magnitude</label>
+              <input id="mag-a" type="range" min="100" max="800" value="100" />
+            </div>
+            <div>
+              <label for="name-b">Side B</label>
+              <input class="name" id="name-b" value="Side B" />
+              <div class="price" id="price-b">−110</div>
+              <div class="sign" data-side="b">
+                <button type="button" data-sign="1">Underdog</button>
+                <button type="button" data-sign="-1" class="is-on">Favorite</button>
+              </div>
+              <label for="mag-b">Price magnitude</label>
+              <input id="mag-b" type="range" min="100" max="800" value="110" />
+            </div>
+          </div>
+          <div class="readouts" id="price-readouts"></div>
+          <div class="band">
+            <label>Where a model probability would clear a price</label>
+            <div class="track" id="band-track"></div>
+            <div class="axis-labels"><span>0%</span><span>P(side A wins)</span><span>100%</span></div>
+            <p class="hint" id="band-note"></p>
+          </div>
         </div>
-        <div class="prose">
-          <p class="case-lead">Enter an American price, your estimated probability, and a stake. Implied probability, edge, and expected value are calculated from those inputs.</p>
-          <p><a class="quiet-link" href="../../index.html#work">All work</a></p>
+        <div class="card" id="case-card"></div>
+      </div>
+    </section>
+
+    <section>
+      <p class="section-kicker">02 · Distribution</p>
+      <h2>A model margin, drawn as a normal</h2>
+      <p class="hint">The case study turns a point margin into a win probability at 3 percentage points per point. That rule is the tangent, at a pick’em, of a normal margin distribution. The sigma on the slider starts at the value that makes the tangent true. It is not estimated from a file of scores. Moving it is a sensitivity, not a fit.</p>
+      <div class="card">
+        <div class="sliders">
+          <div>
+            <label for="mean">Model mean margin for side A, in points</label>
+            <input id="mean" type="range" min="-14" max="14" step="0.1" value="3.5" />
+            <b id="mean-read"></b>
+          </div>
+          <div>
+            <label for="sigma">Sigma, points</label>
+            <input id="sigma" type="range" min="10" max="18" step="0.05" value="13.3" />
+            <b id="sigma-read"></b>
+          </div>
+          <div>
+            <label for="spread">Posted spread for side A (optional)</label>
+            <input id="spread" type="number" step="0.5" value="1.25" />
+          </div>
+          <div>
+            <label for="stake">Hypothetical stake, dollars</label>
+            <input id="stake" type="range" min="1" max="200" value="100" />
+            <b id="stake-read"></b>
+          </div>
+        </div>
+        <canvas id="density" height="300"></canvas>
+        <div class="legend">
+          <span><i class="swatch" style="background:#8ef6ff"></i>Win region, margin &gt; 0</span>
+          <span><i class="swatch" style="background:#ff7b93"></i>Loss region</span>
+          <span><i class="swatch" style="background:#ffc56d"></i>Model density</span>
+          <span><i class="swatch" style="background:#c3b6ff"></i>Cover line, if a spread is entered</span>
+        </div>
+        <p class="hint" id="dist-note"></p>
+      </div>
+    </section>
+
+    <section>
+      <p class="section-kicker">03 · Expected value</p>
+      <h2>Conditional on the probability, not on the result</h2>
+      <div class="grid-2">
+        <div class="card">
+          <label>Which price</label>
+          <div class="sign" id="ev-side">
+            <button type="button" data-ev="a" class="is-on">Side A</button>
+            <button type="button" data-ev="b">Side B</button>
+          </div>
+          <div class="ev-num" id="ev-num">—</div>
+          <p class="hint" id="ev-note"></p>
+          <div class="readouts" id="ev-readouts"></div>
+        </div>
+        <div class="card">
+          <h2 style="font-size:22px">Same price, other means</h2>
+          <p class="hint">The price in this table is Eagles +100. Only the +3.5 mean is the case-study input. A hypothetical −1.5 mean, the other direction, makes the same price negative EV. Zero is a pick’em. Those two rows are not other versions of the game.</p>
+          <div id="sensitivity"></div>
         </div>
       </div>
+    </section>
 
-      <section class="console" aria-labelledby="sim-title">
-        <div class="console-top"><span id="sim-title">EV-01 · Working calculation</span><span class="chip chip-live">Your inputs</span></div>
-        <form id="ev-form">
-          <div class="ev-fields">
-            <label class="field" for="odds">American odds
-              <input id="odds" name="odds" type="number" inputmode="numeric" step="1" value="-110" />
-            </label>
-            <label class="field" for="prob">Estimated probability
-              <input id="prob" name="prob" type="range" min="1" max="99" value="55" />
-              <span id="prob-out" class="field-value">55%</span>
-            </label>
-            <label class="field" for="stake">Stake
-              <input id="stake" name="stake" type="number" inputmode="decimal" min="1" step="1" value="100" />
-            </label>
-          </div>
-        </form>
-        <p id="ev-error" class="ev-error" hidden></p>
-        <dl class="ev-readout">
-          <div><dt>Implied probability</dt><dd id="out-implied">—</dd></div>
-          <div><dt>Decimal odds</dt><dd id="out-decimal">—</dd></div>
-          <div><dt>Edge</dt><dd id="out-edge">—</dd></div>
-          <div><dt>Expected value</dt><dd id="out-ev">—</dd></div>
-        </dl>
-        <div class="compare" aria-hidden="true">
-          <div class="compare-row"><span>Implied</span><div class="compare-bar"><i id="bar-implied" style="--w:0%"></i></div></div>
-          <div class="compare-row"><span>Estimate</span><div class="compare-bar"><i id="bar-estimate" style="--w:0%"></i></div></div>
-        </div>
-        <p id="out-note" class="fine"></p>
-        <p class="fine">A learning tool for price versus estimated probability. Not betting, investment, or financial advice. The distribution below is a sketch and does not follow these inputs.</p>
-      </section>
+    <section>
+      <p class="section-kicker">04 · Scores on documented inputs</p>
+      <h2>Four readings, two games</h2>
+      <p class="hint">Brier score is the squared gap between the probability and the 0/1 result. Log loss is the negative log of the probability on the result. Lower is better on both. Three of the four rows are Super Bowl LIX read three ways, so a lower score there is one game, not three pieces of evidence.</p>
+      <div class="card">
+        <div id="forecasts"></div>
+        <canvas id="scores" height="280" style="margin-top:14px"></canvas>
+        <p class="hint" id="score-note">Every subject in the scored set won. A reliability curve needs losses. The chart draws the algebraic identity Brier = (1 − p)² for an event that happened. The dots sit on that identity. They were not fit.</p>
+      </div>
+    </section>
 
-      <section class="console">
-        <div class="console-top"><span>Distribution sketch</span><span class="chip">Illustrative</span></div>
-        <div class="dist" aria-hidden="true">
-          <i style="--h:18%"></i><i style="--h:30%"></i><i style="--h:46%"></i><i style="--h:68%"></i><i style="--h:88%"></i><i class="on" style="--h:100%"></i><i style="--h:84%"></i><i style="--h:60%"></i><i style="--h:38%"></i><i style="--h:22%"></i>
-        </div>
-        <p class="fine">Shape only. It does not change when the calculator changes, and it is not a fitted distribution.</p>
-      </section>
-    </div>
-  </main>
-  <script src="../../js/nav.js"></script>
-  <script src="../../js/ev.js"></script>
+    <section>
+      <p class="section-kicker">05 · What was not scored</p>
+      <h2>Comeback checkpoints are a selection, not a backtest</h2>
+      <p class="hint">The prior case study follows games in which a tiny live win probability lost. Averaging those checkpoints punishes the forecast for the way the file was built. Estimated live moneylines from that file are not in the table, because they were labeled estimates.</p>
+      <div id="checkpoints"></div>
+      <div class="card" style="margin-top:14px">
+        <h2 style="font-size:22px">Left out on purpose</h2>
+        <div id="exclusions"></div>
+      </div>
+    </section>
+
+    <section>
+      <p class="section-kicker">06 · Limits</p>
+      <h2>What this can and cannot support</h2>
+      <div class="card">
+        <ul>
+          <li>The independent model is a mean margin, not a simulation of drives, injuries, or weather. Sigma is implied by the 3% rule. Changing sigma does not create a calibrated football model.</li>
+          <li>SRS inputs are the figures cited in the portfolio case study. They were not re-downloaded from Pro-Football-Reference for this page.</li>
+          <li>The LIX moneyline is the pair stated in that case study. A single closing print from every book was not archived here. The Broncos pair is a BetMGM snapshot at 12:27 p.m. ET, about three and a half hours before kickoff.</li>
+          <li>De-vig is an assumption about how the book split its margin. The gap between the proportional and additive numbers is uncertainty about that split.</li>
+          <li>Nevada’s 14.6% is the share of Super Bowl handle the books won. It is not the overround on the moneyline, and it is not evidence of a repeatable betting advantage.</li>
+          <li>No path on this page was generated by simulating bettors, seasons, or bankrolls. There is no performance record to report.</li>
+        </ul>
+        <div class="checks" id="checks"></div>
+      </div>
+    </section>
+
+    <footer>
+      Haley Maes · Sports market pricing and expected value · Built from public prices and the prior probability case. Not a sportsbook and not advice.
+    </footer>
+  </div>
+
+  <script>
+    const ANALYSIS = {"meta":{"title":"Sports market pricing and expected value","project":"Project 03","sigma_from_three_percent":13.298076013381092,"per_point":0.03,"grain":"One documented price or one cited checkpoint. Not a season of odds."},"lix":{"id":"lix","label":"Super Bowl LIX","date":"2025-02-09","side_a":"Eagles","side_b":"Chiefs","odds_a":100,"odds_b":-120,"implied_a":0.5,"implied_b":0.5454545454545454,"overround":0.045454545454545414,"fair_proportional_a":0.4782608695652174,"fair_proportional_b":0.5217391304347826,"fair_additive_a":0.4772727272727273,"fair_additive_b":0.5227272727272727,"score_a":40,"score_b":22,"margin_a":18,"spread_points_a":1.25,"spread_note":"Case-study CSV midpoint of a Chiefs -1 to -1.5 range. Eagles +1.25 is not a single corroborated close, and no spread juice was published. Spread expected value is not computed.","price_note":"Moneyline is the pair stated in the portfolio case study. A 5 Feb 2025 Reuters note shows BetMGM at Chiefs -1.5. This project did not archive a book-by-book closing moneyline."},"lix_model":{"mean_margin":3.5,"srs_a":7.7,"srs_b":4.2,"per_point":0.03,"sigma":13.298076013381092,"linear_probability":0.605,"linear_inside_unit_interval":true,"normal_probability":0.6038002311461352,"normal_cover_at_csv_midpoint":0.6395269093805404,"source":"2024 SRS figures as cited by the portfolio case study from Pro-Football-Reference. Not re-downloaded here. 7.7 \u2212 4.2 = 3.5.","ev_linear_per_unit_on_plus_100":0.20999999999999996,"ev_normal_per_unit_on_plus_100":0.20760046229227047,"decimal_a":2.0},"broncos":{"id":"broncos_giants","label":"Broncos vs Giants, Week 7 2025","date":"2025-10-19","side_a":"Broncos","side_b":"Giants","odds_a":-424,"odds_b":322,"implied_a":0.8091603053435115,"implied_b":0.23696682464454977,"overround":0.04612712998806123,"fair_proportional_a":0.7734818093788906,"fair_proportional_b":0.22651819062110942,"fair_additive_a":0.7860967403494808,"fair_additive_b":0.21390325965051915,"prose_devig_a":0.765,"prose_gap_vs_proportional":-0.008481809378890537,"score_a":33,"score_b":32,"margin_a":1,"spread_points_a":-7.5,"covered":false,"cover_miss_points":-6.5,"price_note":"BetMGM moneyline and spread as of 12:27 p.m. ET, reported by USA Today. Kickoff was 4:05 p.m. ET. Another book's later print was Denver -430 / Giants +337. No independent SRS margin is in the source, so this game has a market score and no model score. The case study's 76.5% de-vig is stored beside the recomputed probabilities and is not used as a forecast."},"holds":[{"id":"nevada_lix","label":"Nevada, Super Bowl LIX","win_dollars":22134104,"handle_dollars":151618159,"basis":"NGCB chairman, unaudited release, quoted 11 Feb 2025","rounded_inputs":false,"hold":0.1459858380156166},{"id":"new_york_lix","label":"New York, Super Bowl LIX","win_dollars":47400000,"handle_dollars":154900000,"basis":"Secondary report of NYSGC. Handle and win rounded to $0.1 million. Includes futures.","rounded_inputs":true,"hold":0.30600387346675273},{"id":"pennsylvania_lix","label":"Pennsylvania, Super Bowl LIX","win_dollars":-6500000,"handle_dollars":101500000,"basis":"Secondary report of PGCB. Books lost about $6.5 million on about $101.5 million. Rounded inputs.","rounded_inputs":true,"hold":-0.06403940886699508}],"forecasts":[{"id":"lix_market_proportional","game":"Super Bowl LIX","date":"2025-02-09","subject":"Eagles win","family":"Market, proportional de-vig","group":"lix","probability":0.4782608695652174,"independent_of_result_selection":true,"note":"Posted pair from the case study. One game.","outcome":1,"brier":0.2722117202268431,"log_loss":0.7375989431307791},{"id":"lix_model_linear","game":"Super Bowl LIX","date":"2025-02-09","subject":"Eagles win","family":"SRS map, 3 points per percent","group":"lix","probability":0.605,"independent_of_result_selection":true,"note":"Same game as the market row. A better score is not a second sample.","outcome":1,"brier":0.15602500000000002,"log_loss":0.5025268209512956},{"id":"lix_model_normal","game":"Super Bowl LIX","date":"2025-02-09","subject":"Eagles win","family":"SRS mean, normal margin","group":"lix","probability":0.6038002311461352,"independent_of_result_selection":true,"note":"Alternate map of the same 3.5-point mean. Not additional evidence.","outcome":1,"brier":0.15697425683985586,"log_loss":0.5045118788904337},{"id":"broncos_market_proportional","game":"Broncos vs Giants, Week 7 2025","date":"2025-10-19","subject":"Broncos win","family":"Market, proportional de-vig","group":"broncos","probability":0.7734818093788906,"independent_of_result_selection":true,"note":"BetMGM snapshot, not a universal close. No model row, because no pregame rating was in the source.","outcome":1,"brier":0.051310490682261276,"log_loss":0.25685312653205417}],"checkpoints":{"sets":[{"name":"Super Bowl LIX, in-game checkpoints","why":"Narrative checkpoints after Philadelphia was ahead. The game was already the pregame case. Finals and pregame rows are excluded so a settled 100% does not pad the score.","rows":[{"label":"Q1 6:15, Eagles 7\u20130","probability":0.684,"outcome":1,"brier":0.09985599999999997,"log_loss":0.3797973613595865},{"label":"Q2 7:03, Eagles 17\u20130","probability":0.882,"outcome":1,"brier":0.013923999999999999,"log_loss":0.12556322297534575},{"label":"Halftime, Eagles 24\u20130","probability":0.961,"outcome":1,"brier":0.0015210000000000026,"log_loss":0.0397808700118446},{"label":"Q3 2:40, Eagles 34\u20130","probability":0.999,"outcome":1,"brier":1.0000000000000019e-06,"log_loss":0.0010005003335835344}],"n":4,"mean_brier":0.028825499999999993,"usable_as_performance":false},{"name":"Broncos\u2013Giants, in-game checkpoints","why":"The game is in the source because Denver came back from a 0.2% win probability. Scoring those checkpoints against the comeback measures the selection.","rows":[{"label":"End of Q3, Giants 19\u20130","probability":0.068,"outcome":1,"brier":0.8686239999999998,"log_loss":2.6882475738060303},{"label":"Q4 7:12, Giants 26\u20138","probability":0.002,"outcome":1,"brier":0.996004,"log_loss":6.214608098422191},{"label":"Q4 3:51, Giants 26\u201323","probability":0.191,"outcome":1,"brier":0.6544809999999999,"log_loss":1.6554818509355071},{"label":"Q4 1:14, Broncos 30\u201326","probability":0.967,"outcome":1,"brier":0.0010890000000000019,"log_loss":0.033556783528842754},{"label":"Q4 0:37, Giants 32\u201330","probability":0.107,"outcome":1,"brier":0.7974490000000001,"log_loss":2.234926444520231}],"n":5,"mean_brier":0.6635293999999999,"usable_as_performance":false},{"name":"Knicks playoff deficits","why":"Four moments chosen because the Knicks erased them. Pregame moneylines in the source CSV have no book or timestamp in this project and are not scored. Estimated live moneylines are not treated as historical odds.","rows":[{"label":"2025 ECSF G1, down 20","probability":0.024,"outcome":1,"brier":0.952576,"log_loss":3.7297014486341915},{"label":"2025 ECSF G2, 4:46 Q4","probability":0.029,"outcome":1,"brier":0.9428409999999999,"log_loss":3.540459448995663},{"label":"2026 ECF G1, down 22","probability":0.001,"outcome":1,"brier":0.998001,"log_loss":6.907755278982137},{"label":"2026 Finals G4, 8:59 Q4","probability":0.004,"outcome":1,"brier":0.992016,"log_loss":5.521460917862246}],"n":4,"mean_brier":0.9713585,"usable_as_performance":false}]},"sensitivity":[{"mean_margin":-1.5,"sigma":11.0,"probability":0.44576690954157727,"ev_per_unit":-0.10846618091684546,"is_case_study_mean":false,"hypothetical_mean":true},{"mean_margin":-1.5,"sigma":13.298076013381092,"probability":0.4550952440304119,"ev_per_unit":-0.08980951193917619,"is_case_study_mean":false,"hypothetical_mean":true},{"mean_margin":-1.5,"sigma":16.0,"probability":0.4626538754446733,"ev_per_unit":-0.07469224911065342,"is_case_study_mean":false,"hypothetical_mean":true},{"mean_margin":0.0,"sigma":11.0,"probability":0.5,"ev_per_unit":0.0,"is_case_study_mean":false,"hypothetical_mean":true},{"mean_margin":0.0,"sigma":13.298076013381092,"probability":0.5,"ev_per_unit":0.0,"is_case_study_mean":false,"hypothetical_mean":true},{"mean_margin":0.0,"sigma":16.0,"probability":0.5,"ev_per_unit":0.0,"is_case_study_mean":false,"hypothetical_mean":true},{"mean_margin":3.5,"sigma":11.0,"probability":0.6248264881741514,"ev_per_unit":0.24965297634830286,"is_case_study_mean":true,"hypothetical_mean":false},{"mean_margin":3.5,"sigma":13.298076013381092,"probability":0.6038002311461352,"ev_per_unit":0.20760046229227047,"is_case_study_mean":true,"hypothetical_mean":false},{"mean_margin":3.5,"sigma":16.0,"probability":0.5865776011415509,"ev_per_unit":0.17315520228310177,"is_case_study_mean":true,"hypothetical_mean":false}],"exclusions":[{"item":"Case-study live moneylines (Broncos +3500, Knicks +1400, and the rest of the est_live_ml column)","reason":"The source file names them estimates. They are not historical odds in this project."},{"item":"Knicks pregame spreads and moneylines in the case-study CSV","reason":"No book, timestamp, or independent citation is attached here. Left out of EV and out of the scores."},{"item":"Broncos prose figure, 76.5% de-vigged","reason":"Proportional de-vig of the BetMGM pair -424/+322 is not 76.5%, and neither is the additive de-vig. The figure is reported as a conflict, not used as the market probability."},{"item":"Super Bowl LVIII hold of 3.7%","reason":"That rate matches an early Nevada tally of about $6.8 million on $186 million. Later accounts of the same game quote about 5.9% on about $190 million. Neither number enters the arithmetic."},{"item":"Spread expected value","reason":"A spread number is not a price. Juice differed by book and by snapshot, and this project does not pick one."}],"method":{"implied":"Negative American odds \u2212O convert at O / (O + 100). Positive odds +O convert at 100 / (O + 100).","overround":"Sum of the two implied probabilities, minus one. This is the posted margin, not the realized hold.","devig":"Proportional: divide each implied probability by the sum. Additive: subtract half the overround from each side.","ev":"Probability times decimal odds, minus one. Decimal odds are the reciprocal of the raw implied probability.","brier":"Squared difference between the probability and the 0/1 result. Lower is better.","log_loss":"Negative log of the probability assigned to the result. A confident miss dominates the score.","distribution":"Margin is drawn as normal with mean equal to the model spread and sigma taken from the 3% tangent, unless the slider moves it."},"checks":[{"name":"lix_overround_is_one_twenty_second","ok":true,"detail":"Chiefs -120 plus Eagles +100 overround is 0.045455, the float of 1/22."},{"name":"lix_proportional_matches_fraction","ok":true,"detail":"Eagles fair probability 0.478261 matches 11/23."},{"name":"srs_gap_is_three_and_a_half","ok":true,"detail":"7.7 \u2212 4.2 = 3.5, and 0.50 + 0.03 \u00d7 3.5 = 0.605."},{"name":"sigma_matches_three_percent_slope","ok":true,"detail":"Sigma implied by a 3-point-per-percent tangent is 13.2981."},{"name":"normal_tangent_is_three_percent","ok":true,"detail":"Normal density slope at a pick'em is 0.030000 per point."},{"name":"plus_100_ev_at_linear_map","ok":true,"detail":"At 60.5% and +100, expected profit is 0.21 per unit staked. That is conditional on the 60.5%."},{"name":"breakeven_is_the_raw_price_not_the_devig","ok":true,"detail":"EV is zero at the raw implied probability and negative at the de-vigged probability."},{"name":"both_sides_negative_inside_the_margin","ok":true,"detail":"Between the two break-evens, both LIX prices are negative EV if the model probability is the de-vig."},{"name":"broncos_prose_devig_is_not_silently_adopted","ok":true,"detail":"76.5% minus proportional de-vig is -0.0085. It is not a scored forecast."},{"name":"broncos_failed_to_cover","ok":true,"detail":"Broncos won by 1. Against -7.5 that is a miss of 6.5 points. No spread EV is attached."},{"name":"nevada_hold_rounds_to_published_14_6","ok":true,"detail":"22,134,104 / 151,618,159 = 14.59858%, which rounds to 14.6%."},{"name":"tail_sets_are_not_in_the_scored_forecasts","ok":true,"detail":"Comeback checkpoints stay in the diagnostic and out of the scored forecast list."},{"name":"no_guaranteed_edge_language","ok":true,"detail":"Forbidden phrases found: none."},{"name":"additive_and_proportional_both_sum_to_one","ok":true,"detail":"Both de-vig methods sum to one on the LIX pair."},{"name":"lix_rows_share_one_outcome","ok":true,"detail":"Three LIX scores are three readings of one game."},{"name":"brier_identity","ok":true,"detail":"A 50% forecast scores 0.25. A certainty that happens scores 0."},{"name":"log_loss_penalises_the_two_tenths_of_a_percent","ok":true,"detail":"A 0.2% forecast that happens scores much worse than 60.5%. That fact is not a model grade without a sample."}]};
+
+    const state = {
+      nameA: "Eagles",
+      nameB: "Chiefs",
+      signA: 1,
+      signB: -1,
+      magA: 100,
+      magB: 120,
+      mean: 3.5,
+      sigma: ANALYSIS.meta.sigma_from_three_percent,
+      spread: 1.25,
+      stake: 100,
+      evSide: "a",
+      mode: "lix",
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const pct = (x, d = 1) => (x * 100).toFixed(d) + "%";
+    const signed = (odds) => (odds > 0 ? "+" + odds : String(odds));
+    const money = (n) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+    const oddsOf = (sign, mag) => sign * mag;
+
+    function erf(x) {
+      if (Math.abs(x) > 6) return Math.sign(x);
+      const inv = 2 / Math.sqrt(Math.PI);
+      let term = x;
+      let sum = x;
+      for (let n = 1; n < 80; n++) {
+        term *= -x * x / n;
+        sum += term / (2 * n + 1);
+      }
+      return inv * sum;
+    }
+    function implied(odds) {
+      const o = Number(odds);
+      return o < 0 ? (-o) / (-o + 100) : 100 / (o + 100);
+    }
+    function decimalOdds(odds) { return 1 / implied(odds); }
+    function evUnit(probability, odds) { return probability * decimalOdds(odds) - 1; }
+    function fairProp(a, b) { const s = a + b; return [a / s, b / s]; }
+    function fairAdd(a, b) { const half = (a + b - 1) / 2; return [a - half, b - half]; }
+    function normCdf(z) { return 0.5 * (1 + erf(z / Math.SQRT2)); }
+    function winProb(mean, sigma) { return 1 - normCdf((0 - mean) / sigma); }
+    function coverProb(mean, spreadPoints, sigma) {
+      return 1 - normCdf(((-spreadPoints) - mean) / sigma);
+    }
+    function brier(p, y) { return (p - y) ** 2; }
+
+    function currentOdds() {
+      return { a: oddsOf(state.signA, state.magA), b: oddsOf(state.signB, state.magB) };
+    }
+
+    function renderHolds() {
+      const lix = ANALYSIS.lix;
+      const cards = [
+        [pct(lix.overround, 2), "Posted overround on the LIX pair, −120 / +100. Exactly 1/22."],
+        [pct(ANALYSIS.holds[0].hold, 1), "Nevada realized hold. $22,134,104 won on $151,618,159 handled."],
+        [pct(ANALYSIS.holds[1].hold, 1), "New York reported hold, rounded inputs, futures included."],
+        [pct(ANALYSIS.holds[2].hold, 1), "Pennsylvania reported result. Books lost money on Eagles money."],
+      ];
+      $("hold-stats").innerHTML = cards.map(([value, copy]) =>
+        `<div class="stat"><b>${value}</b><span>${copy}</span></div>`
+      ).join("");
+    }
+
+    function renderCaseCard() {
+      const lix = ANALYSIS.lix;
+      const model = ANALYSIS.lix_model;
+      const broncos = ANALYSIS.broncos;
+      const modeCopy = {
+        lix: `<h2 style="font-size:22px">Loaded: Super Bowl LIX</h2>
+          <p>Eagles ${lix.score_a}–Chiefs ${lix.score_b}. SRS cited as ${model.srs_a} versus ${model.srs_b}, a ${model.mean_margin.toFixed(1)} point mean. Linear map ${pct(model.linear_probability)}. Normal map ${pct(model.normal_probability, 1)}.</p>
+          <p class="hint">${lix.price_note} ${lix.spread_note}</p>`,
+        broncos: `<h2 style="font-size:22px">Loaded: Broncos snapshot</h2>
+          <p>Final ${broncos.score_a}–${broncos.score_b}. Margin ${broncos.margin_a > 0 ? "+" : ""}${broncos.margin_a}. Spread ${broncos.spread_points_a}. Margin plus spread = ${broncos.cover_miss_points}. The favorite did not cover. No spread price is used.</p>
+          <p>Proportional de-vig ${pct(broncos.fair_proportional_a, 1)}. Additive ${pct(broncos.fair_additive_a, 1)}. The case study also says ${pct(broncos.prose_devig_a, 1)}, which is ${pct(Math.abs(broncos.prose_gap_vs_proportional), 1)} away from the proportional figure and is not used.</p>
+          <p class="hint">${broncos.price_note}</p>`,
+        flat: `<h2 style="font-size:22px">Loaded: a hypothetical even price</h2>
+          <p>−110 / −110 is the textbook two-way margin, about 4.76%. It is not a close from either documented game. The mean is set to a pick’em so the distribution is centered.</p>`,
+        edit: `<h2 style="font-size:22px">Edited prices</h2>
+          <p class="hint">The sliders have moved off a documented preset. Figures in this panel are the live pair. They are not historical odds.</p>`,
+      };
+      $("case-card").innerHTML = modeCopy[state.mode];
+    }
+
+    function renderPrices() {
+      const odds = currentOdds();
+      $("price-a").textContent = signed(odds.a);
+      $("price-b").textContent = signed(odds.b);
+      $("name-a").value = state.nameA;
+      $("name-b").value = state.nameB;
+      const ia = implied(odds.a);
+      const ib = implied(odds.b);
+      const hold = ia + ib - 1;
+      const [pa, pb] = fairProp(ia, ib);
+      const [aa, ab] = fairAdd(ia, ib);
+      const holdClass = hold > 0 ? "A posted margin" : hold < 0 ? "Prices sum to less than one" : "No margin";
+      $("price-readouts").innerHTML = [
+        ["Raw A / B", `${pct(ia)} / ${pct(ib)}`],
+        ["Overround", pct(hold, 2)],
+        ["Proportional fair", `${pct(pa)} / ${pct(pb)}`],
+        ["Additive fair", `${pct(aa)} / ${pct(ab)}`],
+        ["Method gap on A", pct(pa - aa, 2)],
+        ["Reading", holdClass],
+      ].map(([k, v]) => `<div class="readout"><span>${k}</span><b>${v}</b></div>`).join("");
+
+      const pModel = winProb(state.mean, state.sigma);
+      const low = 1 - ib;
+      const high = ia;
+      const track = $("band-track");
+      track.innerHTML = "";
+      if (high > low) {
+        const gap = document.createElement("i");
+        gap.className = "gap";
+        gap.style.left = (low * 100) + "%";
+        gap.style.width = ((high - low) * 100) + "%";
+        track.appendChild(gap);
+      }
+      const marketTick = document.createElement("i");
+      marketTick.className = "tick market";
+      marketTick.style.left = `calc(${pa * 100}% - 1px)`;
+      track.appendChild(marketTick);
+      let note;
+      if (state.mode === "broncos") {
+        note = `Cyan tick: proportional fair price on ${state.nameA}, ${pct(pa, 1)}. No model probability is loaded for this game, so nothing here clears a break-even.`;
+      } else {
+        const tick = document.createElement("i");
+        tick.className = "tick";
+        tick.style.left = `calc(${pModel * 100}% - 1px)`;
+        tick.title = "Model probability";
+        track.appendChild(tick);
+        note = `Amber tick: normal model P(${state.nameA}) = ${pct(pModel, 1)}. Cyan tick: proportional fair price ${pct(pa, 1)}. `;
+        if (hold < 0) {
+          note += "This pair sums to less than one, so it is not a single book’s two-way market.";
+        } else if (pModel > high) {
+          note += `${state.nameA} clears its break-even of ${pct(high, 1)}. ${state.nameB} does not.`;
+        } else if (pModel < low) {
+          note += `${state.nameB} clears its break-even. ${state.nameA} does not.`;
+        } else {
+          note += "The model sits between the two break-evens, so both prices are negative EV under this probability.";
+        }
+      }
+      $("band-note").textContent = note;
+      renderCaseCard();
+      renderDistribution();
+      renderEv();
+    }
+
+    function renderDistribution() {
+      const canvas = $("density");
+      const mean = state.mean;
+      const sigma = state.sigma;
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.clientWidth || 640;
+      const h = 300;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      const pad = { l: 44, r: 16, t: 16, b: 32 };
+      const x0 = mean - 3.2 * sigma;
+      const x1 = mean + 3.2 * sigma;
+      const scale = 1 / (sigma * Math.sqrt(2 * Math.PI));
+      const yMax = scale * 1.18;
+      const X = (x) => pad.l + ((x - x0) / (x1 - x0)) * (w - pad.l - pad.r);
+      const Y = (y) => pad.t + (1 - y / yMax) * (h - pad.t - pad.b);
+      const samples = 160;
+      const pts = [];
+      for (let i = 0; i < samples; i++) {
+        const x = x0 + (i / (samples - 1)) * (x1 - x0);
+        const z = (x - mean) / sigma;
+        pts.push([x, scale * Math.exp(-0.5 * z * z)]);
+      }
+      function fillSide(pred, color) {
+        ctx.beginPath();
+        let started = false;
+        pts.forEach(([x, y]) => {
+          if (!pred(x)) return;
+          if (!started) { ctx.moveTo(X(x), Y(0)); started = true; }
+          ctx.lineTo(X(x), Y(y));
+        });
+        ctx.lineTo(X(pts.filter(([x]) => pred(x)).pop()?.[0] ?? 0), Y(0));
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+      }
+      fillSide((x) => x < 0, "rgba(255,123,147,0.28)");
+      fillSide((x) => x >= 0, "rgba(142,246,255,0.22)");
+      ctx.beginPath();
+      pts.forEach(([x, y], i) => i ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y)));
+      ctx.strokeStyle = "#ffc56d";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      const labels = [];
+      function vline(x, color, label) {
+        if (x < x0 || x > x1) return;
+        ctx.beginPath();
+        ctx.moveTo(X(x), pad.t);
+        ctx.lineTo(X(x), h - pad.b);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        labels.push({ x: X(x), color, label });
+      }
+      vline(0, "#8ef6ff", "win");
+      vline(mean, "#ffc56d", "mean");
+      if (state.mode !== "broncos" && Number.isFinite(state.spread)) vline(-state.spread, "#c3b6ff", "cover");
+      labels.sort((a, b) => a.x - b.x);
+      ctx.font = "12px IBM Plex Mono, monospace";
+      let lastX = -999;
+      let row = 0;
+      labels.forEach((item) => {
+        if (item.x - lastX < 52) row = 1 - row;
+        else row = 0;
+        lastX = item.x;
+        ctx.fillStyle = item.color;
+        ctx.fillText(item.label, Math.min(w - pad.r - 48, item.x + 4), pad.t + 14 + row * 16);
+      });
+      ctx.strokeStyle = "rgba(168,198,232,0.25)";
+      ctx.beginPath();
+      ctx.moveTo(pad.l, h - pad.b);
+      ctx.lineTo(w - pad.r, h - pad.b);
+      ctx.stroke();
+      ctx.fillStyle = "#93a0b5";
+      ctx.fillText("margin, points", pad.l, h - 8);
+
+      const linear = 0.5 + mean * 0.03;
+      const normal = winProb(mean, sigma);
+      const linearNote = linear > 0 && linear < 1
+        ? `Linear map ${pct(linear, 1)}.`
+        : `Linear map leaves the unit interval (${pct(linear, 1)}). That is the approximation breaking.`;
+      let coverNote = "No spread entered.";
+      if (state.mode === "broncos") {
+        coverNote = "Cover probability is hidden. A zero mean is only where the slider is parked, not a Broncos projection.";
+      } else if (Number.isFinite(state.spread)) {
+        coverNote = `P(cover ${signedSpread(state.spread)}) = ${pct(coverProb(mean, state.spread, sigma), 1)}. A spread number is not a price, so this is not an EV.`;
+      }
+      const origin = state.mode === "broncos"
+        ? "The Broncos preset does not supply a model mean. The curve is parked and is not a forecast for that game."
+        : state.mode === "lix"
+          ? "Mean 3.5 is the cited SRS gap. Sigma starts at the 3% tangent."
+          : "These slider values are an illustration unless the LIX preset is loaded.";
+      $("mean-read").textContent = (mean > 0 ? "+" : "") + mean.toFixed(1) + " points";
+      $("sigma-read").textContent = sigma.toFixed(2) + " points";
+      $("stake-read").textContent = money(state.stake) + " hypothetical";
+      const probNote = state.mode === "broncos"
+        ? ""
+        : `Normal P(${state.nameA} wins) = ${pct(normal, 1)}. ${linearNote} `;
+      $("dist-note").textContent = `${origin} ${probNote}${coverNote}`;
+    }
+
+    function signedSpread(n) { return n > 0 ? "+" + n : String(n); }
+
+    function renderEv() {
+      const odds = currentOdds();
+      const pA = winProb(state.mean, state.sigma);
+      const usingA = state.evSide === "a";
+      const probability = usingA ? pA : 1 - pA;
+      const price = usingA ? odds.a : odds.b;
+      const name = usingA ? state.nameA : state.nameB;
+      const per = evUnit(probability, price);
+      const dollars = per * state.stake;
+      const el = $("ev-num");
+      const identified = state.mode !== "broncos";
+      el.textContent = identified ? (dollars >= 0 ? "+" : "−") + money(Math.abs(dollars)) : "Withheld";
+      el.className = "ev-num" + (identified ? (per >= 0 ? " pos" : " neg") : "");
+      const source = state.mode === "lix"
+        ? "These are the LIX inputs."
+        : state.mode === "flat"
+          ? "This is a hypothetical −110 pick’em, not a historical close."
+          : "These are edited inputs, not a historical close.";
+      $("ev-note").textContent = identified
+        ? `If P(${name} wins) is ${pct(probability, 1)}, ${signed(price)} returns ${per >= 0 ? "+" : ""}${per.toFixed(3)} per unit, ${dollars >= 0 ? "+" : "−"}${money(Math.abs(dollars))} on the stake. ${source}`
+        : "Model EV is withheld. The Broncos snapshot has a price and a final score, and no independent pregame margin. Editing a slider leaves this preset and labels the result as an illustration.";
+      const be = implied(price);
+      $("ev-readouts").innerHTML = [
+        ["Model probability", pct(probability, 1)],
+        ["Break-even price", pct(be, 1)],
+        ["Gap", pct(probability - be, 1)],
+        ["Per unit", identified ? (per >= 0 ? "+" : "") + per.toFixed(3) : "—"],
+      ].map(([k, v]) => `<div class="readout"><span>${k}</span><b>${v}</b></div>`).join("");
+    }
+
+    function renderSensitivity() {
+      const rows = ANALYSIS.sensitivity.map((row) => `<tr>
+        <td class="num">${row.mean_margin.toFixed(1)}${row.hypothetical_mean ? " · hypothetical" : " · case input"}</td>
+        <td class="num">${row.sigma.toFixed(2)}</td>
+        <td class="num">${pct(row.probability, 1)}</td>
+        <td class="num">${row.ev_per_unit >= 0 ? "+" : ""}${row.ev_per_unit.toFixed(3)}</td>
+      </tr>`).join("");
+      $("sensitivity").innerHTML = `<table>
+        <thead><tr><th class="num">Mean</th><th class="num">Sigma</th><th class="num">P(Eagles)</th><th class="num">EV / unit at +100</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+    }
+
+    function renderForecasts() {
+      const body = ANALYSIS.forecasts.map((row) => `<tr>
+        <td>${row.game}<br><span class="hint">${row.note}</span></td>
+        <td>${row.family}</td>
+        <td class="num">${pct(row.probability, 1)}</td>
+        <td class="num">${row.outcome}</td>
+        <td class="num">${row.brier.toFixed(3)}</td>
+        <td class="num">${row.log_loss.toFixed(3)}</td>
+      </tr>`).join("");
+      $("forecasts").innerHTML = `<table>
+        <thead><tr><th>Forecast</th><th>Family</th><th class="num">p</th><th class="num">Result</th><th class="num">Brier</th><th class="num">Log loss</th></tr></thead>
+        <tbody>${body}</tbody></table>`;
+      drawScores();
+    }
+
+    function drawScores() {
+      const canvas = $("scores");
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.clientWidth || 640;
+      const h = 280;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      const pad = { l: 46, r: 12, t: 16, b: 28 };
+      const X = (p) => pad.l + p * (w - pad.l - pad.r);
+      const Y = (b) => pad.t + (1 - b) * (h - pad.t - pad.b);
+      ctx.strokeStyle = "rgba(168,198,232,0.35)";
+      ctx.strokeRect(pad.l, pad.t, w - pad.l - pad.r, h - pad.t - pad.b);
+      ctx.beginPath();
+      for (let i = 0; i <= 80; i++) {
+        const p = i / 80;
+        const y = (1 - p) ** 2;
+        i ? ctx.lineTo(X(p), Y(y)) : ctx.moveTo(X(p), Y(y));
+      }
+      ctx.strokeStyle = "#8ef6ff";
+      ctx.stroke();
+      ANALYSIS.forecasts.forEach((row) => {
+        ctx.fillStyle = "#ffc56d";
+        ctx.beginPath();
+        ctx.arc(X(row.probability), Y(row.brier), 5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ANALYSIS.checkpoints.sets.flatMap((set) => set.rows).forEach((row) => {
+        ctx.strokeStyle = "#ff7b93";
+        ctx.beginPath();
+        ctx.arc(X(row.probability), Y(row.brier), 3.5, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+      ctx.fillStyle = "#93a0b5";
+      ctx.font = "12px IBM Plex Mono, monospace";
+      ctx.fillText("probability", pad.l, h - 8);
+      ctx.save();
+      ctx.translate(14, h / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText("Brier", 0, 0);
+      ctx.restore();
+    }
+
+    function renderCheckpoints() {
+      $("checkpoints").innerHTML = ANALYSIS.checkpoints.sets.map((set) => {
+        const rows = set.rows.map((row) => `<tr>
+          <td>${row.label}</td>
+          <td class="num">${pct(row.probability, 1)}</td>
+          <td class="num">${row.brier.toFixed(3)}</td>
+          <td class="num">${row.log_loss.toFixed(3)}</td>
+        </tr>`).join("");
+        return `<div class="card" style="margin-bottom:10px">
+          <h2 style="font-size:20px">${set.name}</h2>
+          <div class="callout">Mean Brier ${set.mean_brier.toFixed(3)} on ${set.n} rows. Not a performance number. ${set.why}</div>
+          <table><thead><tr><th>Checkpoint</th><th class="num">Cited p</th><th class="num">Brier</th><th class="num">Log loss</th></tr></thead><tbody>${rows}</tbody></table>
+        </div>`;
+      }).join("");
+      $("exclusions").innerHTML = "<ul>" + ANALYSIS.exclusions.map((row) =>
+        `<li><strong>${row.item}.</strong> ${row.reason}</li>`
+      ).join("") + "</ul>";
+    }
+
+    function renderChecks() {
+      const lix = ANALYSIS.lix;
+      const model = ANALYSIS.lix_model;
+      const tests = [
+        ["Implied −120", Math.abs(implied(-120) - lix.implied_b) < 1e-12],
+        ["Implied +100", Math.abs(implied(100) - lix.implied_a) < 1e-12],
+        ["Overround", Math.abs(implied(-120) + implied(100) - 1 - lix.overround) < 1e-12],
+        ["Proportional fair", Math.abs(fairProp(lix.implied_a, lix.implied_b)[0] - lix.fair_proportional_a) < 1e-12],
+        ["EV at 60.5% and +100", Math.abs(evUnit(0.605, 100) - 0.21) < 1e-12],
+        ["Normal at SRS mean", Math.abs(winProb(3.5, ANALYSIS.meta.sigma_from_three_percent) - model.normal_probability) < 1e-8],
+        ["Brier matches the file", ANALYSIS.forecasts.every((row) => Math.abs(brier(row.probability, row.outcome) - row.brier) < 1e-12)],
+      ];
+      const passed = tests.filter(([, ok]) => ok).length;
+      $("checks").innerHTML = `<span class="pill ${passed === tests.length ? "ok" : "bad"}">${passed}/${tests.length} browser checks match the Python file</span>`
+        + tests.map(([name, ok]) => `<span class="pill ${ok ? "ok" : "bad"}">${ok ? "pass" : "fail"} · ${name}</span>`).join("");
+    }
+
+    function applyOdds(sign, mag, side) {
+      state[side === "a" ? "signA" : "signB"] = sign;
+      state[side === "a" ? "magA" : "magB"] = mag;
+      const group = document.querySelector(`.sign[data-side="${side}"]`);
+      group.querySelectorAll("button").forEach((btn) => {
+        btn.classList.toggle("is-on", Number(btn.dataset.sign) === sign);
+      });
+      $(side === "a" ? "mag-a" : "mag-b").value = String(mag);
+    }
+
+    function markEdited() {
+      if (state.mode !== "edit") state.mode = "edit";
+    }
+
+    function loadPreset(name) {
+      state.mode = name;
+      state.sigma = ANALYSIS.meta.sigma_from_three_percent;
+      $("sigma").value = String(state.sigma);
+      if (name === "lix") {
+        state.nameA = "Eagles";
+        state.nameB = "Chiefs";
+        applyOdds(1, 100, "a");
+        applyOdds(-1, 120, "b");
+        state.mean = 3.5;
+        state.spread = 1.25;
+      } else if (name === "broncos") {
+        state.nameA = "Broncos";
+        state.nameB = "Giants";
+        applyOdds(-1, 424, "a");
+        applyOdds(1, 322, "b");
+        state.mean = 0;
+        state.spread = -7.5;
+      } else {
+        state.nameA = "Side A";
+        state.nameB = "Side B";
+        applyOdds(-1, 110, "a");
+        applyOdds(-1, 110, "b");
+        state.mean = 0;
+        state.spread = 0;
+      }
+      $("mean").value = String(state.mean);
+      $("spread").value = String(state.spread);
+      document.querySelectorAll("#presets button").forEach((btn) => {
+        btn.classList.toggle("is-on", btn.dataset.preset === name);
+      });
+      renderPrices();
+    }
+
+    function bind() {
+      document.querySelectorAll(".sign[data-side] button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          applyOdds(Number(btn.dataset.sign), state[btn.parentElement.dataset.side === "a" ? "magA" : "magB"], btn.parentElement.dataset.side);
+          markEdited();
+          renderPrices();
+        });
+      });
+      $("mag-a").addEventListener("input", () => { state.magA = Number($("mag-a").value); markEdited(); renderPrices(); });
+      $("mag-b").addEventListener("input", () => { state.magB = Number($("mag-b").value); markEdited(); renderPrices(); });
+      $("name-a").addEventListener("input", () => { state.nameA = $("name-a").value || "Side A"; markEdited(); renderPrices(); });
+      $("name-b").addEventListener("input", () => { state.nameB = $("name-b").value || "Side B"; markEdited(); renderPrices(); });
+      $("mean").addEventListener("input", () => { state.mean = Number($("mean").value); markEdited(); renderPrices(); });
+      $("sigma").addEventListener("input", () => { state.sigma = Number($("sigma").value); markEdited(); renderPrices(); });
+      $("spread").addEventListener("input", () => {
+        const value = $("spread").value.trim();
+        state.spread = value === "" ? NaN : Number(value);
+        markEdited();
+        renderPrices();
+      });
+      $("stake").addEventListener("input", () => { state.stake = Number($("stake").value); renderEv(); $("stake-read").textContent = money(state.stake) + " hypothetical"; });
+      document.querySelectorAll("#ev-side button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.evSide = btn.dataset.ev;
+          document.querySelectorAll("#ev-side button").forEach((b) => b.classList.toggle("is-on", b === btn));
+          renderEv();
+        });
+      });
+      document.querySelectorAll("#presets button").forEach((btn) => {
+        btn.addEventListener("click", () => loadPreset(btn.dataset.preset));
+      });
+      window.addEventListener("resize", () => { renderDistribution(); drawScores(); });
+    }
+
+    function boot() {
+      $("sigma").value = String(state.sigma);
+      $("mean").value = String(state.mean);
+      bind();
+      renderHolds();
+      renderSensitivity();
+      renderForecasts();
+      renderCheckpoints();
+      renderChecks();
+      loadPreset("lix");
+      requestAnimationFrame(() => { renderDistribution(); drawScores(); });
+    }
+    try { boot(); }
+    catch (error) {
+      $("status-banner").innerHTML = "<strong>Page error.</strong> " + error.message;
+    }
+  </script>
 </body>
 </html>

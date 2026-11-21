@@ -1,32 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="classic">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Working Capital · Haley Maes</title>
   <style>
     :root {
-      --paper: #efeae0;
-      --sheet: #f8f5ef;
-      --ink: #1b1914;
-      --muted: #6d675e;
-      --line: #ddd6c8;
-      --green: #1c4936;
-      --green-bg: #e6f0ea;
-      --rust: #86392c;
-      --rust-bg: #f8eee9;
-      --blue: #243c56;
-      --blue-bg: #e7eef4;
-      --gold: #7a5b24;
-      --gold-bg: #f3ecd9;
       --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
       --sans: "Avenir Next", "Segoe UI", Helvetica, Arial, sans-serif;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: var(--paper);
-      color: var(--ink);
+      background: var(--background-primary);
+      color: var(--text-primary);
       font-family: var(--sans);
       font-size: 15px;
       line-height: 1.45;
@@ -40,7 +27,7 @@
       font-size: 11px;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--text-secondary);
     }
     h1 {
       margin: 0;
@@ -50,17 +37,17 @@
       letter-spacing: -0.03em;
       line-height: 0.95;
     }
-    .lede { max-width: 62ch; margin: 14px 0 0; color: var(--muted); }
+    .lede { max-width: 62ch; margin: 14px 0 0; color: var(--text-secondary); }
     .asof { text-align: right; }
     .asof b { display: block; font-family: var(--serif); font-size: 22px; font-weight: 500; }
     .banner {
       margin: 22px 0 8px;
       padding: 12px 14px;
-      background: var(--gold-bg);
-      border: 1px solid #e2d3ae;
+      background: var(--background-secondary);
+      border: 1px solid var(--border-subtle);
     }
     .banner strong { font-weight: 600; }
-    .fail-banner { background: var(--rust-bg); border-color: #e4c8c0; }
+    .fail-banner { background: var(--background-secondary); border-color: var(--accent-champagne); }
     section { margin-top: 36px; }
     h2 {
       margin: 0 0 6px;
@@ -69,16 +56,16 @@
       font-weight: 500;
       letter-spacing: -0.02em;
     }
-    .section-note { margin: 0 0 16px; color: var(--muted); max-width: 72ch; }
+    .section-note { margin: 0 0 16px; color: var(--text-secondary); max-width: 72ch; }
     .kpis {
       display: grid;
       grid-template-columns: 1.3fr 1fr 1fr 1fr;
-      border-top: 1px solid var(--ink);
-      border-bottom: 1px solid var(--line);
+      border-top: 1px solid var(--text-primary);
+      border-bottom: 1px solid var(--border-subtle);
     }
     .kpi { padding: 14px 16px 16px 0; }
-    .kpi + .kpi { padding-left: 16px; border-left: 1px solid var(--line); }
-    .kpi span { display: block; color: var(--muted); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .kpi + .kpi { padding-left: 16px; border-left: 1px solid var(--border-subtle); }
+    .kpi span { display: block; color: var(--text-secondary); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
     .kpi b {
       display: block;
       margin-top: 6px;
@@ -88,100 +75,101 @@
       letter-spacing: -0.03em;
       font-variant-numeric: tabular-nums;
     }
-    .kpi em { display: block; margin-top: 4px; font-style: normal; color: var(--muted); font-size: 13px; }
+    .kpi em { display: block; margin-top: 4px; font-style: normal; color: var(--text-secondary); font-size: 13px; }
     .split { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
     .bars { display: flex; flex-direction: column; gap: 10px; }
     .bar-row { display: grid; grid-template-columns: 52px 1fr 92px; gap: 10px; align-items: center; }
     .bar-row span, .bar-row b { font-variant-numeric: tabular-nums; font-size: 13px; }
     .bar-row b { text-align: right; font-weight: 600; }
-    .track { height: 16px; background: #e7e1d6; }
+    .track { height: 16px; background: var(--background-secondary); }
     .stack { display: flex; height: 100%; width: 0; }
     .stack i { display: block; height: 100%; }
-    .stack .pat { background: var(--green); }
-    .stack .ins { background: var(--blue); }
-    .legend { display: flex; gap: 16px; margin-top: 8px; color: var(--muted); font-size: 12px; }
+    .stack .pat { background: var(--chart-ink); }
+    .stack .ins { background: var(--chart-smoke); }
+    .legend { display: flex; gap: 16px; margin-top: 8px; color: var(--text-secondary); font-size: 12px; }
     .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
     table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-    th, td { padding: 7px 8px; text-align: right; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th, td { padding: 7px 8px; text-align: right; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
     th:first-child, td:first-child { text-align: left; }
-    th { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-    caption { caption-side: bottom; text-align: left; color: var(--muted); font-size: 12px; padding-top: 8px; }
+    th { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); font-weight: 600; }
+    caption { caption-side: bottom; text-align: left; color: var(--text-secondary); font-size: 12px; padding-top: 8px; }
     .controls { display: flex; flex-wrap: wrap; gap: 18px 28px; align-items: end; margin: 8px 0 14px; }
-    .scenarios { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); }
+    .scenarios { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border-subtle); }
     .scenarios button {
       text-align: left;
       background: transparent;
       border: 0;
-      border-right: 1px solid var(--line);
+      border-right: 1px solid var(--border-subtle);
       padding: 12px;
     }
     .scenarios button:last-child { border-right: 0; }
-    .scenarios button[aria-pressed="true"] { background: var(--green-bg); }
+    .scenarios button[aria-pressed="true"] { background: var(--ribbon-black); color: var(--background-highlight); }
     .scenarios b { display: block; font-size: 14px; }
-    .scenarios small { display: block; color: var(--muted); margin-top: 4px; }
+    .scenarios small { display: block; color: var(--text-secondary); margin-top: 4px; }
     .scenarios em { display: block; margin-top: 10px; font-style: normal; font-family: var(--serif); font-size: 22px; font-variant-numeric: tabular-nums; }
     label.slider { display: flex; flex-direction: column; gap: 6px; min-width: 220px; font-size: 13px; }
-    label.slider input { width: 100%; accent-color: var(--green); }
+    label.slider input { width: 100%; accent-color: var(--chart-ink); }
     .pills { display: flex; flex-wrap: wrap; gap: 6px; }
     .pills button, .ghost {
       background: transparent;
-      border: 1px solid var(--line);
+      border: 1px solid var(--border-subtle);
       padding: 6px 10px;
       font-size: 13px;
     }
-    .pills button[aria-pressed="true"] { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
+    .pills button[aria-pressed="true"] { background: var(--text-primary); color: var(--background-highlight); border-color: var(--text-primary); }
     .search {
-      border: 1px solid var(--line);
-      background: var(--sheet);
+      border: 1px solid var(--border-subtle);
+      background: var(--background-highlight);
       padding: 7px 10px;
       min-width: 180px;
     }
     tr.hit { cursor: pointer; }
-    tr.hit:hover { background: rgba(255,255,255,0.45); }
-    tr.detail td { text-align: left; background: var(--sheet); }
+    tr.hit:hover { background: var(--background-highlight); }
+    tr.detail td { text-align: left; background: var(--background-highlight); }
     .detail-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 18px; padding: 6px 0 8px; }
     .detail-grid p { margin: 0 0 6px; }
     .scroll { overflow-x: auto; }
-    .history { background: var(--gold-bg); border: 1px solid #e2d3ae; padding: 22px 22px 8px; }
+    .history { background: var(--background-secondary); border: 1px solid var(--border-subtle); padding: 22px 22px 8px; }
     .history h2 { margin-bottom: 4px; }
     .pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: end; max-width: 520px; margin: 16px 0; }
     .pair b { font-family: var(--serif); font-size: 48px; font-weight: 500; letter-spacing: -0.04em; line-height: 0.9; }
-    .pair span { display: block; color: var(--gold); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; }
-    .arrow { font-family: var(--serif); font-size: 28px; color: var(--gold); padding-bottom: 18px; }
+    .pair span { display: block; color: var(--text-secondary); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; }
+    .arrow { font-family: var(--serif); font-size: 28px; color: var(--text-secondary); padding-bottom: 18px; }
     .two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
     .sheet {
-      background: rgba(255,255,255,0.35);
-      border: 1px solid #e2d3ae;
+      background: var(--background-highlight);
+      border: 1px solid var(--border-subtle);
       padding: 12px 14px;
       margin-bottom: 12px;
     }
     .sheet h3 { margin: 0 0 8px; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; }
     .sheet p { margin: 0 0 8px; }
     dl.check { margin: 0; }
-    .check div { display: grid; grid-template-columns: 72px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .check div { display: grid; grid-template-columns: 72px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border-subtle); }
     .check dt { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
-    .ok { color: var(--green); }
-    .bad { color: var(--rust); }
-    .noted { color: var(--gold); }
+    .ok { color: var(--chart-ink); }
+    .bad { color: var(--chart-smoke); }
+    .noted { color: var(--text-secondary); }
     .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 28px; }
     .method-grid p { margin: 0 0 12px; }
-    footer { margin-top: 28px; color: var(--muted); font-size: 13px; }
+    footer { margin-top: 28px; color: var(--text-secondary); font-size: 13px; }
     @media (max-width: 800px) {
       .kicker { letter-spacing: 0.08em; }
       header.top, .split, .two, .kpis, .scenarios, .detail-grid, .method-grid { grid-template-columns: 1fr; }
-      .kpi + .kpi { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); }
+      .kpi + .kpi { border-left: 0; padding-left: 0; border-top: 1px solid var(--border-subtle); }
       h1 { font-size: 36px; }
       .asof { text-align: left; }
-      .scenarios button { border-right: 0; border-bottom: 1px solid var(--line); }
+      .scenarios button { border-right: 0; border-bottom: 1px solid var(--border-subtle); }
       .pair b { font-size: 40px; }
     }
   </style>
+  <link rel="stylesheet" href="../../css/palette.css?v=locked" />
 </head>
 <body>
 <a class="hm-back" href="../../index.html#work">← All work</a>
 <style>
-.hm-back{position:sticky;top:0;z-index:30;display:block;padding:12px 22px;background:#1b1914;color:#f8f5ef;font:500 12px/1 "Avenir Next","Segoe UI",sans-serif;letter-spacing:.14em;text-transform:uppercase;text-decoration:none}
-.hm-back:hover{color:#fff}
+.hm-back{position:sticky;top:0;z-index:30;display:block;padding:12px 22px;background:var(--ribbon-black);color:var(--background-highlight);font:500 12px/1 "Avenir Next","Segoe UI",sans-serif;letter-spacing:.14em;text-transform:uppercase;text-decoration:none}
+.hm-back:hover{color:var(--accent-champagne)}
 </style>
   <div class="wrap">
     <header class="top">
@@ -208,7 +196,7 @@
         <h2>Aging buckets</h2>
         <p class="section-note">Share of synthetic open dollars. Patient and insurance are the two sides of the same balance. 0–30 is built to be mostly insurance. 90+ is built to be mostly patient. The 90+ share is whatever the seed produced.</p>
         <div class="bars" id="bars"></div>
-        <div class="legend"><span><i class="pat" style="background:var(--green)"></i>Patient</span><span><i class="ins" style="background:var(--blue)"></i>Insurance</span></div>
+        <div class="legend"><span><i class="pat" style="background:var(--chart-ink)"></i>Patient</span><span><i class="ins" style="background:var(--chart-smoke)"></i>Insurance</span></div>
       </div>
       <div>
         <h2>Collections forecast</h2>

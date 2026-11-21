@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="classic">
 <head>
-  <script src="../../js/theme.js"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Anomaly Detection · Haley Maes</title>
-  <meta name="theme-color" content="#1c1c1b" />
+  <meta name="theme-color" content="#F8F5EF" />
   <link rel="icon" href="../../assets/brand/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="icon" href="../../assets/brand/icon-192.png" sizes="192x192" type="image/png" />
   <link rel="apple-touch-icon" href="../../assets/brand/apple-touch-icon.png" />
@@ -14,6 +13,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="../../css/site.css" />
   <link rel="stylesheet" href="../../css/themes.css" />
+  <link rel="stylesheet" href="../../css/palette.css?v=locked" />
 </head>
 <body class="subpage">
   <header class="nav">
@@ -43,15 +43,15 @@
       <div class="console">
         <div class="console-top"><span>EXC-01 · Sample field</span><span class="chip">Illustrative</span></div>
         <svg class="scatter" viewBox="0 0 640 240" role="img" aria-label="Illustrative points with one marked outlier">
-          <g stroke="rgba(237,233,220,0.08)"><path d="M30 40H610M30 110H610M30 180H610" /></g>
-          <g fill="#7aa7ff">
+          <g stroke="var(--chart-grid)"><path d="M30 40H610M30 110H610M30 180H610" /></g>
+          <g fill="var(--chart-smoke)">
             <circle cx="70" cy="150" r="5" /><circle cx="120" cy="138" r="4" /><circle cx="168" cy="156" r="5" />
             <circle cx="214" cy="132" r="4" /><circle cx="260" cy="146" r="5" /><circle cx="310" cy="128" r="4" />
             <circle cx="360" cy="142" r="5" /><circle cx="408" cy="136" r="4" /><circle cx="456" cy="150" r="5" />
             <circle cx="504" cy="134" r="4" /><circle cx="548" cy="148" r="4" />
           </g>
-          <circle cx="590" cy="62" r="7" fill="none" stroke="#e39b96" stroke-width="2" />
-          <circle cx="590" cy="62" r="3" fill="#e39b96" />
+          <circle cx="590" cy="62" r="7" fill="none" stroke="var(--chart-accent)" stroke-width="2" />
+          <circle cx="590" cy="62" r="3" fill="var(--chart-ink)" />
         </svg>
         <p class="fine">The marked point is placed by hand so the screen has a focal exception. It is not the output of a model.</p>
       </div>

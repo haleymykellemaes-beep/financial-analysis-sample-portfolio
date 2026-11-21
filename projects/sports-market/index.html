@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="classic">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,30 +9,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@600;700&display=swap" />
   <style>
-    :root {
-      --bg: #07080d;
-      --bg-2: #10131b;
-      --ink: #e8eef8;
-      --muted: #93a0b5;
-      --faint: #6d7b90;
-      --line: rgba(168, 198, 232, 0.16);
-      --cyan: #8ef6ff;
-      --amber: #ffc56d;
-      --rose: #ff7b93;
-      --violet: #c3b6ff;
-      --ok: #9dffc6;
-      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-    }
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
     body {
       min-height: 100vh;
-      color: var(--ink);
+      color: var(--text-primary);
       font-family: "IBM Plex Sans", sans-serif;
-      background:
-        radial-gradient(900px 420px at 8% -10%, rgba(142, 246, 255, 0.09), transparent 55%),
-        radial-gradient(800px 480px at 100% 0%, rgba(255, 197, 109, 0.07), transparent 50%),
-        var(--bg);
+      background: var(--background-primary);
       line-height: 1.5;
     }
     body::before {
@@ -41,8 +24,8 @@
       position: fixed;
       inset: 0;
       background-image:
-        linear-gradient(rgba(142, 246, 255, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(142, 246, 255, 0.035) 1px, transparent 1px);
+        linear-gradient(color-mix(in srgb, var(--ribbon-charcoal) 4%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--ribbon-charcoal) 4%, transparent) 1px, transparent 1px);
       background-size: 72px 72px;
       mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent 85%);
     }
@@ -52,7 +35,7 @@
       font-family: "IBM Plex Mono", monospace;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--cyan);
+      color: var(--chart-ink);
       font-size: 12px;
       margin: 0 0 10px;
     }
@@ -64,16 +47,16 @@
       margin: 0 0 14px;
       max-width: 14ch;
     }
-    .lede { max-width: 68ch; color: var(--muted); font-size: 18px; margin: 0; }
+    .lede { max-width: 68ch; color: var(--text-secondary); font-size: 18px; margin: 0; }
     .banner {
       margin: 22px 0;
-      border: 1px solid var(--line);
-      background: rgba(16, 19, 27, 0.8);
+      border: 1px solid var(--border-subtle);
+      background: var(--background-secondary);
       padding: 12px 14px;
-      color: var(--muted);
+      color: var(--text-secondary);
       font-size: 14px;
     }
-    .banner strong { color: var(--ink); font-weight: 600; }
+    .banner strong { color: var(--text-primary); font-weight: 600; }
     .stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -81,17 +64,17 @@
       margin: 8px 0 28px;
     }
     .stat, .card {
-      background: rgba(16, 19, 27, 0.88);
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
+      background: var(--background-highlight);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 12px 32px color-mix(in srgb, var(--text-primary) 8%, transparent);
     }
     .stat { padding: 14px 14px 12px; }
     .stat b, .readout b, .price {
       font-family: "IBM Plex Mono", monospace;
       font-weight: 500;
     }
-    .stat b { display: block; font-size: 26px; letter-spacing: -0.04em; color: var(--cyan); }
-    .stat span, .hint, .note { color: var(--muted); font-size: 13px; }
+    .stat b { display: block; font-size: 26px; letter-spacing: -0.04em; color: var(--chart-ink); }
+    .stat span, .hint, .note { color: var(--text-secondary); font-size: 13px; }
     section { margin: 0 0 28px; }
     h2 {
       font-family: Syne, sans-serif;
@@ -101,7 +84,7 @@
     }
     .section-kicker {
       font-family: "IBM Plex Mono", monospace;
-      color: var(--faint);
+      color: var(--text-secondary);
       font-size: 12px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
@@ -109,12 +92,12 @@
     .grid-2 { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 14px; }
     .card { padding: 16px; }
     .sides { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    label { display: block; color: var(--faint); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+    label { display: block; color: var(--text-secondary); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
     .name, input[type="number"] {
       width: 100%;
-      background: #0b0e15;
-      color: var(--ink);
-      border: 1px solid var(--line);
+      background: var(--background-primary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
       border-radius: 0;
       padding: 8px 10px;
       font: 500 16px/1.2 "IBM Plex Sans", sans-serif;
@@ -123,28 +106,28 @@
     .sign { display: flex; gap: 6px; margin-bottom: 8px; }
     button, .sign button {
       font: 500 13px/1 "IBM Plex Sans", sans-serif;
-      color: var(--ink);
-      background: #0b0e15;
-      border: 1px solid var(--line);
+      color: var(--text-primary);
+      background: var(--background-primary);
+      border: 1px solid var(--border-subtle);
       padding: 8px 10px;
       cursor: pointer;
     }
-    button.is-on, .sign button.is-on { border-color: var(--cyan); color: var(--cyan); }
-    button:hover { border-color: var(--amber); }
+    button.is-on, .sign button.is-on { background: var(--ribbon-black); border-color: var(--ribbon-black); color: var(--background-highlight); }
+    button:hover { border-color: var(--text-primary); }
     input[type="range"] {
       width: 100%;
-      accent-color: var(--cyan);
+      accent-color: var(--chart-ink);
       margin: 4px 0 8px;
     }
     .readouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
-    .readout { border: 1px solid var(--line); padding: 10px; background: #0b0e15; }
+    .readout { border: 1px solid var(--border-subtle); padding: 10px; background: var(--background-primary); }
     .readout b { display: block; font-size: 18px; }
     .band { margin-top: 14px; }
     .track {
       position: relative;
       height: 28px;
-      background: #0b0e15;
-      border: 1px solid var(--line);
+      background: var(--background-primary);
+      border: 1px solid var(--border-subtle);
       margin: 8px 0;
     }
     .track i, .tick {
@@ -152,48 +135,49 @@
       top: 0;
       bottom: 0;
     }
-    .gap { background: rgba(255, 123, 147, 0.45); }
+    .gap { background: var(--chart-smoke-fill); }
     .tick {
       width: 2px;
-      background: var(--amber);
+      background: var(--chart-accent);
     }
-    .tick.market { background: var(--cyan); }
-    .axis-labels { display: flex; justify-content: space-between; color: var(--faint); font-family: "IBM Plex Mono", monospace; font-size: 11px; }
-    canvas { width: 100%; height: 300px; display: block; background: #0b0e15; border: 1px solid var(--line); }
-    .legend { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 12px; margin-top: 8px; }
+    .tick.market { background: var(--chart-ink); }
+    .axis-labels { display: flex; justify-content: space-between; color: var(--text-secondary); font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+    canvas { width: 100%; height: 300px; display: block; background: var(--background-primary); border: 1px solid var(--border-subtle); }
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; color: var(--text-secondary); font-size: 12px; margin-top: 8px; }
     .swatch { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
     .sliders { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-bottom: 10px; }
     .ev-num { font-family: "IBM Plex Mono", monospace; font-size: 42px; letter-spacing: -0.05em; margin: 4px 0; }
-    .ev-num.pos { color: var(--amber); }
-    .ev-num.neg { color: var(--rose); }
+    .ev-num.pos { color: var(--text-primary); }
+    .ev-num.neg { color: var(--chart-smoke); }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
-    th { color: var(--faint); font-weight: 500; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+    th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+    th { color: var(--text-secondary); font-weight: 500; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
     td.num, th.num { text-align: right; font-family: "IBM Plex Mono", monospace; }
     .callout {
-      border-left: 3px solid var(--rose);
+      border-left: 3px solid var(--chart-smoke);
       padding: 8px 12px;
-      color: var(--muted);
+      color: var(--text-secondary);
       margin: 8px 0 12px;
     }
     .presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
     .checks { display: flex; flex-wrap: wrap; gap: 6px; }
-    .pill { font-family: "IBM Plex Mono", monospace; font-size: 12px; border: 1px solid var(--line); padding: 4px 8px; color: var(--muted); }
-    .pill.ok { color: var(--ok); border-color: rgba(157, 255, 198, 0.4); }
-    .pill.bad { color: var(--rose); border-color: rgba(255, 123, 147, 0.5); }
-    footer { padding: 10px 0 40px; color: var(--faint); font-size: 13px; }
-    a { color: var(--cyan); }
+    .pill { font-family: "IBM Plex Mono", monospace; font-size: 12px; border: 1px solid var(--border-subtle); padding: 4px 8px; color: var(--text-secondary); }
+    .pill.ok { color: var(--chart-ink); border-color: var(--border-subtle); }
+    .pill.bad { border-style: dashed; color: var(--chart-smoke); border-color: var(--border-subtle); }
+    footer { padding: 10px 0 40px; color: var(--text-secondary); font-size: 13px; }
+    a { color: var(--chart-ink); }
     @media (max-width: 860px) {
       .stats, .grid-2, .sides, .readouts, .sliders { grid-template-columns: 1fr; }
       h1 { max-width: none; }
     }
   </style>
+  <link rel="stylesheet" href="../../css/palette.css?v=locked" />
 </head>
 <body>
 <a class="hm-back" href="../../index.html#work">← All work</a>
 <style>
-.hm-back{position:sticky;top:0;z-index:30;display:block;padding:12px 22px;background:#07080d;color:#8ef6ff;font:500 12px/1 "IBM Plex Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid rgba(168,198,232,.16)}
-.hm-back:hover{color:#fff}
+.hm-back{position:sticky;top:0;z-index:30;display:block;padding:12px 22px;background:var(--ribbon-black);color:var(--background-highlight);font:500 12px/1 "IBM Plex Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid var(--border-subtle)}
+.hm-back:hover{color:var(--accent-champagne)}
 </style>
   <div class="wrap">
     <header>
@@ -281,10 +265,10 @@
         </div>
         <canvas id="density" height="300"></canvas>
         <div class="legend">
-          <span><i class="swatch" style="background:#8ef6ff"></i>Win region, margin &gt; 0</span>
-          <span><i class="swatch" style="background:#ff7b93"></i>Loss region</span>
-          <span><i class="swatch" style="background:#ffc56d"></i>Model density</span>
-          <span><i class="swatch" style="background:#c3b6ff"></i>Cover line, if a spread is entered</span>
+          <span><i class="swatch" style="background:var(--chart-ink-fill)"></i>Win region, margin &gt; 0</span>
+          <span><i class="swatch" style="background:var(--chart-smoke-fill)"></i>Loss region</span>
+          <span><i class="swatch" style="background:var(--chart-accent)"></i>Model density</span>
+          <span><i class="swatch" style="background:var(--chart-smoke)"></i>Cover line, if a spread is entered</span>
         </div>
         <p class="hint" id="dist-note"></p>
       </div>
@@ -505,6 +489,9 @@
       renderEv();
     }
 
+    const palette = getComputedStyle(document.documentElement);
+    const chartColor = (token) => palette.getPropertyValue(token).trim();
+
     function renderDistribution() {
       const canvas = $("density");
       const mean = state.mean;
@@ -544,11 +531,11 @@
         ctx.fillStyle = color;
         ctx.fill();
       }
-      fillSide((x) => x < 0, "rgba(255,123,147,0.28)");
-      fillSide((x) => x >= 0, "rgba(142,246,255,0.22)");
+      fillSide((x) => x < 0, chartColor("--chart-smoke-fill"));
+      fillSide((x) => x >= 0, chartColor("--chart-ink-fill"));
       ctx.beginPath();
       pts.forEach(([x, y], i) => i ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y)));
-      ctx.strokeStyle = "#ffc56d";
+      ctx.strokeStyle = chartColor("--chart-accent");
       ctx.lineWidth = 2;
       ctx.stroke();
       const labels = [];
@@ -558,13 +545,15 @@
         ctx.moveTo(X(x), pad.t);
         ctx.lineTo(X(x), h - pad.b);
         ctx.strokeStyle = color;
+        ctx.setLineDash(label === "cover" ? [4, 3] : []);
         ctx.lineWidth = 1;
         ctx.stroke();
-        labels.push({ x: X(x), color, label });
+        ctx.setLineDash([]);
+        labels.push({ x: X(x), label });
       }
-      vline(0, "#8ef6ff", "win");
-      vline(mean, "#ffc56d", "mean");
-      if (state.mode !== "broncos" && Number.isFinite(state.spread)) vline(-state.spread, "#c3b6ff", "cover");
+      vline(0, chartColor("--chart-ink"), "win");
+      vline(mean, chartColor("--chart-accent"), "mean");
+      if (state.mode !== "broncos" && Number.isFinite(state.spread)) vline(-state.spread, chartColor("--chart-smoke"), "cover");
       labels.sort((a, b) => a.x - b.x);
       ctx.font = "12px IBM Plex Mono, monospace";
       let lastX = -999;
@@ -573,15 +562,15 @@
         if (item.x - lastX < 52) row = 1 - row;
         else row = 0;
         lastX = item.x;
-        ctx.fillStyle = item.color;
+        ctx.fillStyle = chartColor("--text-secondary");
         ctx.fillText(item.label, Math.min(w - pad.r - 48, item.x + 4), pad.t + 14 + row * 16);
       });
-      ctx.strokeStyle = "rgba(168,198,232,0.25)";
+      ctx.strokeStyle = chartColor("--chart-grid");
       ctx.beginPath();
       ctx.moveTo(pad.l, h - pad.b);
       ctx.lineTo(w - pad.r, h - pad.b);
       ctx.stroke();
-      ctx.fillStyle = "#93a0b5";
+      ctx.fillStyle = chartColor("--text-secondary");
       ctx.fillText("margin, points", pad.l, h - 8);
 
       const linear = 0.5 + mean * 0.03;
@@ -682,7 +671,7 @@
       const pad = { l: 46, r: 12, t: 16, b: 28 };
       const X = (p) => pad.l + p * (w - pad.l - pad.r);
       const Y = (b) => pad.t + (1 - b) * (h - pad.t - pad.b);
-      ctx.strokeStyle = "rgba(168,198,232,0.35)";
+      ctx.strokeStyle = chartColor("--chart-grid");
       ctx.strokeRect(pad.l, pad.t, w - pad.l - pad.r, h - pad.t - pad.b);
       ctx.beginPath();
       for (let i = 0; i <= 80; i++) {
@@ -690,21 +679,21 @@
         const y = (1 - p) ** 2;
         i ? ctx.lineTo(X(p), Y(y)) : ctx.moveTo(X(p), Y(y));
       }
-      ctx.strokeStyle = "#8ef6ff";
+      ctx.strokeStyle = chartColor("--chart-ink");
       ctx.stroke();
       ANALYSIS.forecasts.forEach((row) => {
-        ctx.fillStyle = "#ffc56d";
+        ctx.fillStyle = chartColor("--chart-accent");
         ctx.beginPath();
         ctx.arc(X(row.probability), Y(row.brier), 5, 0, Math.PI * 2);
         ctx.fill();
       });
       ANALYSIS.checkpoints.sets.flatMap((set) => set.rows).forEach((row) => {
-        ctx.strokeStyle = "#ff7b93";
+        ctx.strokeStyle = chartColor("--chart-smoke");
         ctx.beginPath();
         ctx.arc(X(row.probability), Y(row.brier), 3.5, 0, Math.PI * 2);
         ctx.stroke();
       });
-      ctx.fillStyle = "#93a0b5";
+      ctx.fillStyle = chartColor("--text-secondary");
       ctx.font = "12px IBM Plex Mono, monospace";
       ctx.fillText("probability", pad.l, h - 8);
       ctx.save();

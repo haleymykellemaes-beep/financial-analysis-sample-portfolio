@@ -19,17 +19,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Haley Maes | Financial &amp; Data Analytics</title>
   <meta name="description" content="Haley Maes — financial and data analysis, forecasting, risk, and operational intelligence. Numbers tell stories. I translate them." />
-  <meta name="theme-color" content="#f3e2d4" />
+  <meta name="theme-color" content="#F8F5EF" />
   <link rel="icon" href="assets/brand/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="icon" href="assets/brand/icon-192.png" sizes="192x192" type="image/png" />
   <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" as="image" href="assets/home/haley-portrait.webp" fetchpriority="high" />
+  <link rel="preload" as="image" href="assets/home/haley-desk-transparent.png" fetchpriority="high" />
   <!-- Fonts are loaded in site.css for consistent typography across project pages. -->
   <link rel="stylesheet" href="css/site.css?v=home-layers" />
   <link rel="stylesheet" href="css/themes.css?v=home-layers" />
-  <link rel="stylesheet" href="css/home.css?v=home-layers" />
+  <link rel="stylesheet" href="css/home.css?v=black-cream" />
 </head>
 <body class="home">
   <a class="skip" href="#work">Skip to work</a>
@@ -46,8 +46,7 @@
     </div>
   </header>
 
-  <!-- Hero layers, back to front: environment, rear silk, chart, portrait, live copy, signal points.
-       The foreground ribbon is .silk-seam, just after the hero, so it can cross into the work below. -->
+  <!-- Hero layers, back to front: background, ribbons, chart, portrait, copy, signal points. -->
   <header class="home-hero" id="top" data-hero>
     <div class="hero-env" aria-hidden="true">
       <div class="hero-env__depth" data-layer="depth"></div>
@@ -58,12 +57,53 @@
       <div class="silk silk--low" data-silk="low"><img class="silk__img" src="assets/home/silk-low.webp" alt="" width="1448" height="783" decoding="async" /></div>
       <div class="silk silk--top" data-silk="top"><img class="silk__img" src="assets/home/silk-top.webp" alt="" width="887" height="602" decoding="async" /></div>
       <div class="silk silk--right" data-silk="right"><img class="silk__img" src="assets/home/silk-right.webp" alt="" width="373" height="682" decoding="async" /></div>
+
+      <div class="silk silk--bridge" data-silk="bridge">
+        <svg class="silk__img" viewBox="0 0 1440 500" preserveAspectRatio="none" focusable="false">
+          <defs>
+            <path id="portrait-organza" d="M-40 434C208 470 409 448 614 315C781 207 839 126 983 112C1148 96 1221 218 1480 54L1480 127C1231 243 1136 163 984 158C846 154 802 236 628 351C425 484 226 488-40 457Z"/>
+            <linearGradient id="portrait-organza-fold" x1="0" y1="0" x2=".23" y2="1">
+              <stop stop-color="var(--ribbon-black)" stop-opacity=".72"/>
+              <stop offset=".33" stop-color="var(--ribbon-charcoal)" stop-opacity=".5"/>
+              <stop offset=".52" stop-color="var(--ribbon-smoke)" stop-opacity=".32"/>
+              <stop offset=".68" stop-color="var(--ribbon-black)" stop-opacity=".62"/>
+              <stop offset="1" stop-color="var(--ribbon-smoke)" stop-opacity=".2"/>
+            </linearGradient>
+            <linearGradient id="portrait-organza-fade" gradientUnits="userSpaceOnUse" x1="0" x2="1440" y1="0" y2="0">
+              <stop offset=".2" stop-color="white" stop-opacity="0"/>
+              <stop offset=".39" stop-color="white" stop-opacity=".2"/>
+              <stop offset=".63" stop-color="white"/>
+              <stop offset="1" stop-color="white" stop-opacity=".7"/>
+            </linearGradient>
+            <mask id="portrait-organza-mask" mask-type="alpha">
+              <rect width="1440" height="500" fill="url(#portrait-organza-fade)"/>
+            </mask>
+            <pattern id="portrait-organza-weave" width="4" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(19)">
+              <path d="M0 0H4 M1 0V5" fill="none" stroke="var(--background-highlight)" stroke-opacity=".27" stroke-width=".36"/>
+            </pattern>
+            <linearGradient id="ivory-organza-fold" x1="0" y1="0" x2=".7" y2="1">
+              <stop stop-color="var(--ribbon-ivory)" stop-opacity=".07"/>
+              <stop offset=".28" stop-color="var(--ribbon-ivory)" stop-opacity=".72"/>
+              <stop offset=".49" stop-color="var(--background-highlight)" stop-opacity=".96"/>
+              <stop offset=".72" stop-color="var(--ribbon-ivory)" stop-opacity=".88"/>
+              <stop offset="1" stop-color="var(--ribbon-smoke)" stop-opacity=".22"/>
+            </linearGradient>
+          </defs>
+          <g mask="url(#portrait-organza-mask)">
+            <use href="#portrait-organza" fill="url(#portrait-organza-fold)"/>
+            <use href="#portrait-organza" fill="url(#portrait-organza-weave)"/>
+            <path d="M-40 449C206 485 423 462 618 335C790 224 849 134 982 133C1131 131 1225 228 1480 86M-40 454C202 484 429 477 625 345C800 227 843 147 985 145C1122 143 1218 236 1480 104" fill="none" stroke="var(--ribbon-ivory)" stroke-opacity=".55" stroke-width=".8"/>
+          </g>
+          <path d="M-50 216C153 169 261 243 476 242C699 241 780 142 965 193C1134 239 1247 225 1490 151L1490 184C1261 259 1129 271 968 220C795 167 697 273 477 269C251 266 151 205-50 252Z" fill="url(#ivory-organza-fold)"/>
+          <path d="M-20 236C148 195 272 256 477 255C701 255 791 154 965 206C1128 257 1249 241 1460 171" fill="none" stroke="var(--background-highlight)" stroke-opacity=".8"/>
+        </svg>
+      </div>
     </div>
 
     <div class="hero-chart" data-signal aria-hidden="true"></div>
 
     <figure class="hero-figure" data-figure>
-      <img class="hero-figure__img" src="assets/home/haley-portrait.webp" alt="Haley Maes smiling at her desk beside a laptop" width="819" height="937" fetchpriority="high" decoding="async" />
+      <img class="hero-figure__img" src="assets/home/haley-desk-transparent.png" alt="Haley Maes smiling at her desk beside a laptop" width="1402" height="1122" fetchpriority="high" decoding="async" />
     </figure>
 
     <div class="wrap hero-content" data-hero-content>
@@ -105,12 +145,11 @@
     </nav>
   </header>
 
-  <div class="silk-seam" aria-hidden="true">
-    <div class="silk-seam__ribbon" data-seam><img src="assets/home/silk-seam.webp" alt="" width="1376" height="348" decoding="async" /></div>
-  </div>
-
   <main>
     <section class="work" id="work" aria-labelledby="work-title">
+      <div class="silk-seam" aria-hidden="true">
+        <div class="silk-seam__ribbon" data-seam><img src="assets/home/silk-seam.webp" alt="" width="1376" height="348" decoding="async" /></div>
+      </div>
       <div class="work-bloom" aria-hidden="true" data-bloom><img src="assets/home/silk-bloom.webp" alt="" width="480" height="720" loading="lazy" decoding="async" /></div>
       <svg class="work-thread" viewBox="0 0 1440 520" preserveAspectRatio="none" aria-hidden="true" data-thread>
         <path d="M-20 70 C 220 40, 420 150, 640 120 S 1040 20, 1180 140 S 1320 420, 1460 470" />
@@ -123,6 +162,15 @@
           <p class="work-intro" data-head-reveal>An exploration of financial intelligence, predictive modeling, operational insights, and the stories hidden within data.</p>
           <p class="work-note" data-head-reveal>The drawings on these cards are sketches. Revenue, expected value, and working capital open completed studies. The other three are still prototypes.</p>
         </header>
+
+        <ul class="work-tools" aria-label="Analysis tools">
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.65 3.6 3 8 3s8-1.35 8-3V5M4 12c0 1.65 3.6 3 8 3s8-1.35 8-3"/></svg><span>SQL</span></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6H7V5a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v5a2 2 0 0 1-2 2h-5a3 3 0 0 0-3 3v2H5a3 3 0 0 1-3-3v-3a3 3 0 0 1 3-3h7m0 10h5v1a3 3 0 0 1-3 3h-4a3 3 0 0 1-3-3v-4m10-8h2a3 3 0 0 1 3 3v3a3 3 0 0 1-3 3h-7"/><path d="M10 5h.01M14 19h.01"/></svg><span>Python</span></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5l11-3v20L3 19zM14 5h7v14h-7M14 10h7m-7 4h7M7 9l4 6m0-6-4 6"/></svg><span>Excel</span></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v4m-2-2h4m-2 5v6m-3-3h6m-3 6v4m-2-2h4M4 9v6m-3-3h6m13-3v6m-3-3h6M6 5v4M4 7h4m10-2v4m-2-2h4M6 15v4m-2-2h4m10-2v4m-2-2h4"/></svg><span>Tableau</span></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.65 3.6 3 8 3s8-1.35 8-3V5M4 12c0 1.65 3.6 3 8 3s8-1.35 8-3"/></svg><span>SQLite</span></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 21h20M4 17v-4h3v4m4 0V9h3v8m4 0V5h3v12M3 9l5-4 5 1 5-4"/></svg><span>Financial Analysis</span></li>
+        </ul>
 
         <div class="work-grid">
           <article class="work-card work-card--feature" id="project-revenue">
@@ -386,8 +434,8 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js"></script>
   <script src="js/market-data.js"></script>
   <script src="js/nav.js"></script>
-  <script src="js/signal.js?v=home-layers"></script>
+  <script src="js/signal.js?v=black-cream"></script>
   <script src="js/work.js?v=home-layers"></script>
-  <script src="js/home.js?v=home-layers"></script>
+  <script src="js/home.js?v=black-cream"></script>
 </body>
 </html>

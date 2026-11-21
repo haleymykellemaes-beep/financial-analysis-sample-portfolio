@@ -14,7 +14,7 @@
   const TIMING = {
     silk: 0, silkDuration: 2.4,        // ribbons part: top drifts up, lower unfolds down
     depth: 0.1, depthDuration: 1.5,
-    grid: 0.5, candles: 0.65, line: 0.75, lineDuration: 1.45,
+    backdrop: 0.5, line: 0.75, lineDuration: 1.45,
     points: 1.6, pointStagger: 0.13,   // data points light in sequence
     portrait: 0.85, portraitDuration: 1.3,
     name: 1.0, sub: 1.25, rest: 1.5, nav: 1.7,
@@ -110,9 +110,7 @@
     gsap.set(reveals, { y: 14 });
     if (seamImg) gsap.set(seamImg, { xPercent: -8 });
     if (parts) {
-      gsap.set(parts.grid, { opacity: 0 });
-      gsap.set(parts.candles, { opacity: 0 });
-      gsap.set(parts.volume, { scaleY: 0, transformOrigin: "50% 100%", transformBox: "fill-box" });
+      gsap.set(parts.backdrop, { opacity: 0 });
       gsap.set([parts.line, parts.halo], { strokeDasharray: 1, strokeDashoffset: 1 });
     }
     if (points.length) gsap.set(points, { opacity: 0 });
@@ -141,9 +139,7 @@
       .to(desk, { opacity: 1, duration: TIMING.depthDuration, ease: "sine.out" }, TIMING.depth + 0.25);
 
     if (parts) {
-      tl.to(parts.grid, { opacity: 1, duration: 1, ease: "sine.out" }, TIMING.grid)
-        .to(parts.candles, { opacity: (i, node) => Number(node.getAttribute("opacity")) || 1, duration: 0.6, stagger: 0.016, ease: "sine.out" }, TIMING.candles)
-        .to(parts.volume, { scaleY: 1, duration: 0.7, stagger: 0.012 }, TIMING.candles + 0.15)
+      tl.to(parts.backdrop, { opacity: 1, duration: 1, ease: "sine.out" }, TIMING.backdrop)
         .to([parts.halo, parts.line], { strokeDashoffset: 0, duration: TIMING.lineDuration, ease: "power2.inOut" }, TIMING.line);
     }
     if (points.length) {

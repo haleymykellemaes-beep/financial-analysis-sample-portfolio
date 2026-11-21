@@ -14,11 +14,12 @@ Then open http://localhost:8765/experiments/ribbon-signal-network/ and add `?int
 
 | File | Purpose |
 |---|---|
-| `index.html` | The page. The hero is new; the sections below it are copied from `/index.html` with their paths adjusted, so the nav, buttons and project links resolve. It loads the live stylesheets, `js/home-nav.js` and `js/work.js`, and the shared images, by relative path. |
+| `index.html` | The page. The hero is new; the sections below it are copied from `/index.html` with their paths adjusted, so the nav, buttons and project links resolve. It loads `css/home.css`, `css/palette.css`, `js/work.js` and the shared images by relative path. |
 | `projects.js` | The six studies: titles, short labels, categories, confirmed tools, descriptions, destinations and composition anchors. This is the only place that content lives. |
 | `network.js` | Fits the nodes between the copy and the portrait, draws the pathways (SVG), builds the nodes, preview cards and strip from `projects.js`, and handles hover, focus, click, touch and Escape. Exposes `window.HMSignal` in the same shape as `js/signal.js`. |
 | `motion.js` | The opening sequence, silk drift and scroll motion (GSAP), forked from `js/home.js`. |
 | `rsn.css` | The locked palette, scoped to this page, and every hero, node, card, strip and responsive style. |
+| `shared/` | Unedited snapshots of `css/home-base.css`, `css/home-themes.css` and `js/home-nav.js` from `main`, so the page renders the same on branches that don't have them (the Pages branch doesn't). |
 
 ## How it behaves
 

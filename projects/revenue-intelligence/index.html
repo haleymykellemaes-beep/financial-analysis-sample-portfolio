@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="classic">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Revenue Intelligence · Haley Maes</title>
-  <meta name="theme-color" content="#1c1c1b" />
+  <meta name="theme-color" content="#F8F5EF" />
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml" />
-  <script src="../../js/theme.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="../../css/site.css" />
   <link rel="stylesheet" href="../../css/themes.css" />
+  <link rel="stylesheet" href="../../css/palette.css?v=locked" />
 </head>
 <body class="subpage">
   <header class="nav">
@@ -46,11 +46,11 @@
           <div class="metric"><span>High case</span><strong>$5.09M</strong></div>
         </div>
         <svg class="chart" viewBox="0 0 640 230" role="img" aria-label="Illustrative monthly revenue and a dashed forward range">
-          <g stroke="rgba(237,233,220,0.08)"><path d="M40 30H620M40 90H620M40 150H620M40 200H620" /></g>
+          <g stroke="var(--chart-grid)"><path d="M40 30H620M40 90H620M40 150H620M40 200H620" /></g>
           <path d="M430 104 L490 62 L550 78 L610 48 L610 118 L550 112 L490 108 L430 104Z" fill="rgba(122,167,255,0.16)" />
-          <polyline points="40,156 100,142 160,148 220,118 280,126 340,96 400,104 430,104" fill="none" stroke="#7ddee6" stroke-width="2.4" />
-          <polyline points="430,104 490,84 550,92 610,70" fill="none" stroke="#7aa7ff" stroke-width="2" stroke-dasharray="5 6" />
-          <g fill="#aaa395" font-size="11" font-family="Inter, sans-serif">
+          <polyline points="40,156 100,142 160,148 220,118 280,126 340,96 400,104 430,104" fill="none" stroke="var(--chart-ink)" stroke-width="2.4" />
+          <polyline points="430,104 490,84 550,92 610,70" fill="none" stroke="var(--chart-smoke)" stroke-width="2" stroke-dasharray="5 6" />
+          <g fill="var(--text-secondary)" font-size="11" font-family="Inter, sans-serif">
             <text x="40" y="222">Jan</text><text x="160" y="222">Mar</text><text x="280" y="222">May</text><text x="400" y="222">Jul</text><text x="520" y="222">Sep</text>
           </g>
         </svg>

@@ -1,0 +1,105 @@
+/* Shared portfolio palette. Thumbnail art keeps its original colors. */
+:root {
+  --background-primary: #F8F5EF;
+  --background-secondary: #EFEAE2;
+  --background-highlight: #FFFCF8;
+  --text-primary: #171717;
+  --text-secondary: #414141;
+  --text-muted: #77736E;
+  --ribbon-black: #171717;
+  --ribbon-charcoal: #303030;
+  --ribbon-smoke: #62605E;
+  --ribbon-ivory: #EAE5DC;
+  --accent-champagne: #C8AB91;
+  --border-subtle: rgba(23, 23, 23, 0.14);
+
+  /* Chart surfaces, lines and fills use the same palette in HTML and canvas. */
+  --chart-grid: color-mix(in srgb, var(--ribbon-charcoal) 18%, transparent);
+  --chart-ink: var(--ribbon-black);
+  --chart-smoke: var(--ribbon-smoke);
+  --chart-accent: var(--accent-champagne);
+  --chart-ink-fill: color-mix(in srgb, var(--chart-ink) 24%, transparent);
+  --chart-smoke-fill: color-mix(in srgb, var(--chart-smoke) 13%, transparent);
+}
+
+.home, .subpage {
+  --ink: var(--text-primary);
+  --ink-soft: var(--text-secondary);
+  --ivory: var(--background-primary);
+  --cream: var(--background-highlight);
+  --champagne: var(--accent-champagne);
+  --gold: var(--accent-champagne);
+  --gold-ink: var(--text-secondary);
+  --taupe: var(--text-secondary);
+  --charcoal: var(--ribbon-black);
+  --blue: var(--chart-smoke);
+  --cyan: var(--chart-ink);
+  --magenta: var(--chart-accent);
+  --green: var(--chart-ink);
+  --red: var(--chart-smoke);
+  --data-track: var(--background-secondary);
+  --data-grid: var(--chart-grid);
+  --data-gold: var(--chart-accent);
+  --data-label: var(--text-secondary);
+  --page-muted: var(--text-secondary);
+  --page-line: var(--border-subtle);
+  --chip-border: var(--border-subtle);
+  --link-hover: var(--text-secondary);
+  color: var(--text-primary);
+  background: var(--background-primary);
+}
+
+:is(.home, .subpage) .nav { color: var(--text-primary); }
+:is(.home, .subpage) .nav .brand { color: var(--text-primary); }
+html[data-theme] :is(.home, .subpage) .nav-links a:hover { color: var(--text-secondary); }
+:is(.home, .subpage) :is(.nav-links a, .menu-btn, .brand-sub) { color: var(--text-primary); }
+.subpage .nav {
+  background: var(--background-primary);
+  border-color: var(--border-subtle);
+}
+:is(.home, .subpage) .menu-btn { border-color: var(--border-subtle); }
+
+@media (max-width: 760px) {
+  html[data-theme] :is(.home, .subpage) .nav-links { background: var(--background-primary); }
+}
+
+:is(.home, .subpage) :is(.cap, .edu li, .points article, th, td) {
+  border-color: var(--border-subtle);
+}
+:is(.home, .subpage) .quiet-link { text-decoration-color: var(--accent-champagne); }
+:is(.home, .subpage) .quiet-link:hover { color: var(--text-secondary); }
+html[data-theme] :is(.home, .subpage) .footer {
+  background: var(--ribbon-black);
+  color: var(--background-highlight);
+}
+:is(.home, .subpage) .footer .fine { color: var(--ribbon-ivory); }
+html[data-theme] :is(.home, .subpage) .footer a:hover { color: var(--background-highlight); }
+
+html[data-theme] .subpage .console {
+  background: var(--background-highlight);
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--text-primary) 8%, transparent);
+}
+.subpage :is(.console-top, .field, .metric strong, .field-value, .ev-readout dd) {
+  color: var(--text-primary);
+}
+.subpage .field input[type="number"], .subpage .ev-readout div {
+  background: var(--background-primary);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+.subpage .tornado-track, .subpage .compare-bar {
+  background: var(--background-secondary);
+}
+.subpage .tornado .up, .subpage .compare-bar i {
+  background: var(--chart-ink);
+  box-shadow: none;
+}
+.subpage .tornado .down {
+  background: var(--chart-smoke);
+  box-shadow: none;
+}
+
+:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 3px; }
+html[data-theme] :is(.home, .subpage) .footer :focus-visible { outline-color: var(--background-highlight); }

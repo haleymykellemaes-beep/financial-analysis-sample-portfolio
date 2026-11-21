@@ -13,7 +13,7 @@
 
   const TIMING = {
     silk: 0, silkDuration: 2.4,        // ribbons part: top drifts up, lower unfolds down
-    depth: 0.1, depthDuration: 1.5,    // the warm background deepens
+    depth: 0.1, depthDuration: 1.5,
     grid: 0.5, candles: 0.65, line: 0.75, lineDuration: 1.45,
     points: 1.6, pointStagger: 0.13,   // data points light in sequence
     portrait: 0.85, portraitDuration: 1.3,
@@ -21,7 +21,7 @@
     seam: 1.4
   };
   const SCROLL = {
-    copy: -90, chart: -50, silkTop: -150, silkRight: -90, silkLow: 34, figure: -60, env: 40
+    copy: -90, chart: -50, silkTop: -48, silkRight: -34, silkLow: 20, silkBridge: -26, figure: -34, env: 24
   };
 
   const root = document.documentElement;
@@ -30,12 +30,17 @@
   const gsap = window.gsap;
   const ScrollTrigger = window.ScrollTrigger;
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const stacked = window.matchMedia("(max-width: 760px), (max-aspect-ratio: 4/5)");
+  const stacked = window.matchMedia("(max-width: 900px), (max-aspect-ratio: 4/5)");
   const nav = document.querySelector(".nav");
   const q = (selector) => hero.querySelector(selector);
   const content = q("[data-hero-content]");
   const signalNav = q("[data-signal-nav]");
-  const silk = { top: q('[data-silk="top"]'), low: q('[data-silk="low"]'), right: q('[data-silk="right"]') };
+  const silk = {
+    top: q('[data-silk="top"]'),
+    low: q('[data-silk="low"]'),
+    right: q('[data-silk="right"]'),
+    bridge: q('[data-silk="bridge"]')
+  };
   const seam = document.querySelector("[data-seam]");
 
   /* ----- Stacked layout: the portrait stage starts below the copy ----- */
@@ -84,7 +89,7 @@
     window.clearTimeout(window.__introFallback);
     try { window.sessionStorage.setItem("hm-intro", "played"); } catch (e) { /* storage blocked */ }
 
-    const imgs = (node) => node && node.querySelector("img");
+    const artwork = (node) => node && node.firstElementChild;
     const depth = q('[data-layer="depth"]');
     const desk = q('[data-layer="desk"]');
     const portrait = q(".hero-figure__img");
@@ -96,9 +101,10 @@
 
     // Hidden states move inline first, then the CSS cover comes off without a flash.
     gsap.set([depth, desk, portrait, ...reveals, nav, seamImg].filter(Boolean), { opacity: 0 });
-    gsap.set(imgs(silk.top), { opacity: 0, xPercent: -5, yPercent: 30, rotation: 4, scale: 1.06, transformOrigin: "0% 0%" });
-    gsap.set(imgs(silk.low), { opacity: 0, xPercent: -7, yPercent: -24, rotation: -3, scale: 1.04, transformOrigin: "0% 100%" });
-    gsap.set(imgs(silk.right), { opacity: 0, xPercent: 16, yPercent: -10, rotation: -4, transformOrigin: "100% 0%" });
+    gsap.set(artwork(silk.top), { opacity: 0, xPercent: -5, yPercent: 30, rotation: 4, scale: 1.06, transformOrigin: "0% 0%" });
+    gsap.set(artwork(silk.low), { opacity: 0, xPercent: -7, yPercent: -24, rotation: -3, scale: 1.04, transformOrigin: "0% 100%" });
+    gsap.set(artwork(silk.right), { opacity: 0, xPercent: 16, yPercent: -10, rotation: -4, transformOrigin: "100% 0%" });
+    gsap.set(artwork(silk.bridge), { opacity: 0 });
     gsap.set(portrait, { y: 26 });
     gsap.set(lines, { y: 0, yPercent: 105 });
     gsap.set(reveals, { y: 14 });
@@ -124,12 +130,13 @@
       }
     });
 
-    tl.to(imgs(silk.top), { opacity: 1, duration: 0.7, ease: "sine.out" }, TIMING.silk)
-      .to(imgs(silk.low), { opacity: 1, duration: 0.7, ease: "sine.out" }, TIMING.silk + 0.08)
-      .to(imgs(silk.right), { opacity: 1, duration: 0.9, ease: "sine.out" }, TIMING.silk + 0.3)
-      .to(imgs(silk.top), { xPercent: 0, yPercent: 0, rotation: 0, scale: 1, duration: TIMING.silkDuration, ease: silkEase }, TIMING.silk)
-      .to(imgs(silk.low), { xPercent: 0, yPercent: 0, rotation: 0, scale: 1, duration: TIMING.silkDuration + 0.25, ease: silkEase }, TIMING.silk + 0.05)
-      .to(imgs(silk.right), { xPercent: 0, yPercent: 0, rotation: 0, duration: TIMING.silkDuration - 0.2, ease: silkEase }, TIMING.silk + 0.3)
+    tl.to(artwork(silk.top), { opacity: 1, duration: 0.7, ease: "sine.out" }, TIMING.silk)
+      .to(artwork(silk.low), { opacity: 1, duration: 0.7, ease: "sine.out" }, TIMING.silk + 0.08)
+      .to(artwork(silk.right), { opacity: 1, duration: 0.9, ease: "sine.out" }, TIMING.silk + 0.3)
+      .to(artwork(silk.bridge), { opacity: 1, duration: 1.15, ease: "sine.out" }, TIMING.silk + 0.2)
+      .to(artwork(silk.top), { xPercent: 0, yPercent: 0, rotation: 0, scale: 1, duration: TIMING.silkDuration, ease: silkEase }, TIMING.silk)
+      .to(artwork(silk.low), { xPercent: 0, yPercent: 0, rotation: 0, scale: 1, duration: TIMING.silkDuration + 0.25, ease: silkEase }, TIMING.silk + 0.05)
+      .to(artwork(silk.right), { xPercent: 0, yPercent: 0, rotation: 0, duration: TIMING.silkDuration - 0.2, ease: silkEase }, TIMING.silk + 0.3)
       .to(depth, { opacity: 1, duration: TIMING.depthDuration, ease: "sine.out" }, TIMING.depth)
       .to(desk, { opacity: 1, duration: TIMING.depthDuration, ease: "sine.out" }, TIMING.depth + 0.25);
 
@@ -158,9 +165,15 @@
   const idle = [];
   function drift() {
     if (idle.length) return;
-    [[silk.top, 0.5, 5, 11], [silk.low, -0.4, -4, 13], [silk.right, 0.7, 6, 9.5]].forEach(([node, rotation, y, duration]) => {
-      const img = node && node.querySelector("img");
-      if (img) idle.push(gsap.to(img, { rotation, y, duration, ease: "sine.inOut", repeat: -1, yoyo: true }));
+    [
+      [silk.top, 7, 3, 0.45, 1.024, 17],
+      [silk.low, -6, -3, -0.35, 0.98, 19],
+      [silk.right, -5, 5, 0.6, 1.025, 16],
+      [silk.bridge, 8, 0, -0.35, 1.035, 21]
+    ].forEach(([node, x, y, rotation, scaleY, duration]) => {
+      const layer = node && node.firstElementChild;
+      if (!layer) return;
+      idle.push(gsap.to(layer, { x, y, rotation, scaleY, opacity: 0.9, duration, ease: "sine.inOut", repeat: -1, yoyo: true }));
     });
     if (ScrollTrigger) {
       ScrollTrigger.create({ trigger: hero, start: "top top", end: "bottom top", onToggle: (self) => idle.forEach((t) => (self.isActive ? t.resume() : t.pause())) });
@@ -180,26 +193,28 @@
   function scrollMotion() {
     if (!ScrollTrigger) return;
     const mm = gsap.matchMedia();
-    mm.add("(min-width: 761px) and (min-aspect-ratio: 4/5)", () => {
+    mm.add("(width > 900px) and (aspect-ratio > 4/5)", () => {
       gsap.timeline({ scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.8 } })
         .to(content, { y: SCROLL.copy, opacity: 0.2, ease: "none" }, 0)
         .to([q("[data-signal]"), signalNav], { y: SCROLL.chart, opacity: 0.25, ease: "none" }, 0)
         .to(silk.top, { y: SCROLL.silkTop, rotation: -2.5, ease: "none" }, 0)
         .to(silk.right, { y: SCROLL.silkRight, rotation: 2, ease: "none" }, 0)
         .to(silk.low, { y: SCROLL.silkLow, rotation: 0.8, ease: "none" }, 0)
-        .to(q("[data-figure]"), { y: SCROLL.figure, opacity: 0.8, ease: "none" }, 0)
+        .to(silk.bridge, { y: SCROLL.silkBridge, ease: "none" }, 0)
+        .to(q("[data-figure]"), { y: SCROLL.figure, ease: "none" }, 0)
         .to(q(".hero-env"), { y: SCROLL.env, ease: "none" }, 0);
     });
-    mm.add("(max-width: 760px), (max-aspect-ratio: 4/5)", () => {
+    mm.add(stacked.media, () => {
       gsap.timeline({ scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.6 } })
-        .to(silk.top, { y: -60, ease: "none" }, 0)
+        .to(silk.top, { y: -26, ease: "none" }, 0)
+        .to(silk.bridge, { y: -15, ease: "none" }, 0)
         .to(q("[data-figure]"), { y: -30, ease: "none" }, 0);
     });
 
     // The foreground ribbon unfurls toward the edge and opens the gallery.
     if (seam) {
       gsap.to(seam, {
-        xPercent: 24, yPercent: -34, rotation: -3, scaleY: 1.35, opacity: 0, ease: "none",
+        xPercent: 5, yPercent: -16, rotation: -1.2, scaleY: 1.08, opacity: 0.38, ease: "none",
         scrollTrigger: { trigger: "#work", start: "top bottom", end: "top 18%", scrub: 1 }
       });
     }

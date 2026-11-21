@@ -1,7 +1,7 @@
 /*
  * Follow the Signal: the hero's background chart and its project points.
  *
- * The candles, volume, and the champagne line are illustrative. They come from
+ * The candles, volume, and signal line are illustrative. They come from
  * the "hero" block of data/market.json, written by python/generate_market.py,
  * and are not market data. Each point on the line is a real link to a project
  * card. Points light up when the pointer comes near or a point takes focus.
@@ -33,7 +33,7 @@
   const figure = hero.querySelector("[data-figure]");
   const content = hero.querySelector("[data-hero-content]");
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const stacked = window.matchMedia("(max-width: 760px), (max-aspect-ratio: 4/5)");
+  const stacked = window.matchMedia("(max-width: 900px), (max-aspect-ratio: 4/5)");
 
   let data = null;
   let svg = null;
@@ -147,7 +147,7 @@
       const x = field.left + ((field.right - field.left) * c) / 8;
       grid += `M${fx(x)} ${fx(field.top - 30)}V${fx(geo.baseY + 10)}`;
     }
-    el("path", { d: grid, fill: "none", stroke: "rgba(48,42,41,.075)", "stroke-width": 1 }, gridG);
+    el("path", { d: grid, fill: "none", stroke: "var(--signal-grid)", "stroke-width": 1 }, gridG);
 
     const volG = el("g", { class: "sig-volume" }, svg);
     const volBase = geo.baseY - (phone ? 10 : 14);
@@ -160,19 +160,19 @@
       const under = !phone && x < m.copyRight + 24 ? CONFIG.fieldUnderCopy : 1;
       const up = c.c >= c.o;
       const g = el("g", { class: "sig-candle", opacity: under }, candleG);
-      el("path", { d: `M${fx(x)} ${fx(yOf(c.h))}V${fx(yOf(c.l))}`, stroke: up ? "rgba(48,42,41,.34)" : "rgba(140,119,104,.4)", "stroke-width": 1 }, g);
+      el("path", { d: `M${fx(x)} ${fx(yOf(c.h))}V${fx(yOf(c.l))}`, stroke: "var(--signal-wick)", "stroke-width": 1 }, g);
       const top = yOf(Math.max(c.o, c.c));
       const h = Math.max(1.5, Math.abs(yOf(c.o) - yOf(c.c)));
-      el("rect", { x: fx(x - body / 2), y: fx(top), width: fx(body), height: fx(h), rx: 0.6, fill: up ? "rgba(48,42,41,.3)" : "rgba(180,162,145,.42)" }, g);
+      el("rect", { x: fx(x - body / 2), y: fx(top), width: fx(body), height: fx(h), rx: 0.6, fill: up ? "var(--signal-up)" : "var(--signal-down)" }, g);
       candleNodes.push(g);
       const vh = volH * data.volume[i];
-      volumeNodes.push(el("rect", { x: fx(x - body / 2), y: fx(volBase - vh), width: fx(body), height: fx(vh), fill: "rgba(48,42,41,.085)", opacity: under, class: "sig-vol" }, volG));
+      volumeNodes.push(el("rect", { x: fx(x - body / 2), y: fx(volBase - vh), width: fx(body), height: fx(vh), fill: "var(--signal-volume)", opacity: under, class: "sig-vol" }, volG));
     });
 
     const lineG = el("g", { class: "sig-line" }, svg);
     const d = linePath();
-    const halo = el("path", { d, fill: "none", stroke: "rgba(255,244,230,.85)", "stroke-width": 5, "stroke-linecap": "round", pathLength: 1 }, lineG);
-    const line = el("path", { d, fill: "none", stroke: "#c29b76", "stroke-width": 1.4, "stroke-linecap": "round", pathLength: 1 }, lineG);
+    const halo = el("path", { d, fill: "none", stroke: "var(--signal-halo)", "stroke-width": 4, "stroke-linecap": "round", pathLength: 1 }, lineG);
+    const line = el("path", { d, fill: "none", stroke: "var(--signal-line)", "stroke-width": 1.4, "stroke-linecap": "round", pathLength: 1 }, lineG);
 
     host.replaceChildren(svg);
     parts = { svg, grid: gridG, candles: candleNodes, volume: volumeNodes, line, halo, lineG };

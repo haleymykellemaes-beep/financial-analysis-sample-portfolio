@@ -177,9 +177,9 @@ a { color: inherit; }
 .stage__disc {
   position: absolute;
   z-index: 1;
-  left: 48.4%;
-  top: 53.7%;
-  width: 141.6%;
+  left: 52.5%;
+  top: 55%;
+  width: 104%;
   aspect-ratio: 1;
   border-radius: 50%;
   transform: translate(-50%, -50%);
@@ -195,18 +195,13 @@ a { color: inherit; }
   height: 100%;
   object-fit: cover;
   object-position: 50% 0;
-  /* The photo's frame cuts the jacket and hair at the sides; feather those edges below the shoulders. */
-  -webkit-mask-image: linear-gradient(180deg, #000 0 46%, transparent 55%), linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-  -webkit-mask-composite: source-over;
-  mask-image: linear-gradient(180deg, #000 0 46%, transparent 55%), linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-  mask-composite: add;
   pointer-events: none;
 }
 .stage__role {
   position: absolute;
   z-index: 4;
-  left: 50.6%;
-  top: 72.4%;
+  left: 52.5%;
+  top: 81.6%;
   display: flex;
   align-items: center;
   gap: 0.9em;
@@ -399,15 +394,15 @@ a { color: inherit; }
     position: relative;
     left: auto;
     top: auto;
-    width: min(74vw, 430px);
+    width: min(86vw, 520px);
     max-width: none;
     height: auto;
-    aspect-ratio: 671 / 872;
+    aspect-ratio: 1114 / 1157;
     margin: 6px auto 0;
   }
-  .stage__disc { width: 128%; top: 52%; }
+  .stage__disc { width: 100%; top: 52%; }
   .stage__portrait { height: 100%; }
-  .stage__role { top: 91.5%; font-size: clamp(14px, 4.4vw, 22px); }
+  .stage__role { top: 95.3%; font-size: clamp(14px, 4.4vw, 22px); }
   .stage__role span { width: clamp(28px, 9vw, 56px); }
 
   .orbit { position: relative; inset: auto; margin: 26px 22px 0; pointer-events: auto; }
@@ -471,6 +466,31 @@ h2 { margin: 0; font: 400 clamp(2.4rem, 4.6vw, 4rem)/1.04 var(--serif); letter-s
 .work { padding: clamp(80px, 10vw, 140px) 0 clamp(72px, 9vw, 120px); background: linear-gradient(180deg, var(--paper), var(--paper-2)); }
 .section-head { max-width: 40rem; margin-bottom: clamp(36px, 5vw, 60px); }
 .section-note { margin-top: 14px; font-size: 0.92rem; color: var(--ink-3); }
+/* Toolbox: the same tools and icons as the live homepage's strip. */
+.toolbox { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: clamp(16px, 3vw, 40px); margin: 0 0 clamp(36px, 5vw, 60px); border-block: 1px solid var(--rule); }
+.toolbox__label { font: italic 400 1.25rem/1 var(--serif); color: var(--rose-ink); }
+.toolbox__list { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: 0; padding: 16px 0; list-style: none; }
+.toolbox__list li {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 4px 8px;
+  font: 500 11px/1.35 var(--sans);
+  letter-spacing: 0.16em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.toolbox__list li + li { border-inline-start: 1px solid var(--rule); }
+.toolbox__list svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.45; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 760px) {
+  .toolbox { grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 16px; }
+  .toolbox__list { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 14px; }
+  .toolbox__list li:nth-child(4) { border-inline-start: 0; }
+}
+
 .work-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 2vw, 26px); margin: 0; padding: 0; list-style: none; }
 .work-card a {
   position: relative;

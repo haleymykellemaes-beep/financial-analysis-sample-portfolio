@@ -12,7 +12,7 @@
  *             headline, portrait, a grid of the six studies, then the card.
  *
  * Interaction
- *   hover / focus / tap a node   selects it: the card changes to that study, its
+ *   hover (after ~0.1s) / focus / tap a node   selects it: the card changes to that study, its
  *                                curves light and a pulse runs along them
  *   pointer on the card          keeps the selection, so nothing flickers
  *   pointer leaves the hero      returns to the featured study
@@ -42,9 +42,11 @@
   /* ----- The reference composition, in artboard units ----- */
 
   const BOARD = { w: 1672, h: 941, gutter: 47 };
-  const STAGE = { x: 547, y: 85, w: 501.6, h: 856 };   // the photo's box
-  const HAIR = 54 / 1145;   // top of the hair, as a share of the photo's height
-  const CROP = 0.76;        // the hero's bottom edge cuts the photo here (just below the neckline)
+  // The photo's box (1114 x 1353 px), sized so the face matches the reference.
+  const STAGE = { x: 438, y: 121, w: 686, h: 833 };
+  const HAIR = 0.004;       // top of the hair, as a share of the photo's height
+  const CROP = 0.855;       // the hero's bottom edge cuts the photo here (just below the neckline)
+  const FACE_X = 0.525;     // the face's centre, as a share of the photo's width
   const CARD = { x: 1284, y: 210, w: 345 };
   // dot: the node's dot. label: where the title block sits relative to the dot
   // (left offset; top or bottom edge offset).
@@ -59,25 +61,26 @@
   // Curves run from a node into the portrait (which hides their ends) or between
   // nodes. Ends given as a slot follow that node; control points move with them.
   const CURVES = [
-    { from: "l1", to: [650, 470], c1: [440, 380], c2: [520, 445], owners: ["l1"] },
+    { from: "l1", to: [655, 410], c1: [520, 330], c2: [575, 412], owners: ["l1"] },
     { from: "l2", to: [610, 632], c1: [350, 560], c2: [450, 612], owners: ["l2"] },
-    { from: "l3", to: [660, 540], c1: [300, 600], c2: [430, 540], owners: ["l3"] },
+    { from: "l3", to: [700, 556], c1: [300, 596], c2: [450, 548], owners: ["l3"] },
     { from: [318, 748], to: [470, 834], c1: [340, 790], c2: [400, 822], owners: ["l3"], kind: "dotted" },
     { from: "l2", to: "l3", c1: [318, 560], c2: [272, 610], owners: ["l2", "l3"], kind: "dotted" },
     { from: "r1", to: [895, 296], c1: [1022, 238], c2: [960, 262], owners: ["r1"] },
-    { from: "r1", to: [990, 470], c1: [1092, 322], c2: [1070, 420], owners: ["r1"], kind: "soft" },
-    { from: "r2", to: [995, 602], c1: [1132, 555], c2: [1080, 590], owners: ["r2"] },
-    { from: [998, 513], to: "r3", c1: [1150, 656], c2: [1208, 690], owners: ["r3"] },
-    { from: "r3", to: [1136, 816], c1: [1216, 790], c2: [1182, 812], owners: ["r3"], kind: "soft" },
+    { from: "r1", to: [912, 470], c1: [1092, 322], c2: [1050, 430], owners: ["r1"], kind: "soft" },
+    { from: "r2", to: [960, 612], c1: [1132, 555], c2: [1060, 590], owners: ["r2"] },
+    { from: [925, 565], to: "r3", c1: [1130, 640], c2: [1208, 690], owners: ["r3"] },
+    { from: "r3", to: [1085, 826], c1: [1216, 790], c2: [1150, 822], owners: ["r3"], kind: "soft" },
     { from: "r2", to: "r3", c1: [1215, 585], c2: [1228, 680], owners: ["r2", "r3"], kind: "dotted" }
   ];
   const SPARKLES = [[372, 574, 9], [1112, 566, 8], [262, 548, 5]];
   // Left and right edges of the cut-out photo: [y, left, right] as fractions of the
   // image. Below the shoulders the sides are feathered, so the edge is the fade.
-  const SILHOUETTE = [[0.045, 0.5, 0.5], [0.06, 0.42, 0.54], [0.08, 0.33, 0.61], [0.1, 0.29, 0.65], [0.13, 0.24, 0.7],
-    [0.16, 0.22, 0.74], [0.2, 0.19, 0.77], [0.25, 0.16, 0.8], [0.3, 0.15, 0.81], [0.35, 0.12, 0.85], [0.4, 0.1, 0.91],
-    [0.45, 0.1, 0.93], [0.5, 0.04, 0.93], [0.55, 0.05, 0.95], [1, 0.05, 0.95]];
-  const FACE = { x: 0.3, y: 0.13, w: 0.42, h: 0.33 };
+  const SILHOUETTE = [[0, 0.44, 0.44], [0.01, 0.34, 0.45], [0.02, 0.29, 0.5], [0.04, 0.28, 0.57], [0.06, 0.25, 0.61],
+    [0.08, 0.23, 0.63], [0.1, 0.23, 0.66], [0.13, 0.22, 0.68], [0.16, 0.21, 0.7], [0.2, 0.2, 0.71], [0.25, 0.23, 0.72],
+    [0.3, 0.25, 0.74], [0.35, 0.27, 0.74], [0.4, 0.3, 0.72], [0.45, 0.32, 0.72], [0.5, 0.3, 0.75], [0.55, 0.25, 0.75],
+    [0.6, 0.09, 0.91], [0.65, 0.06, 0.94], [0.7, 0.05, 0.96], [0.75, 0.03, 0.97], [0.8, 0.02, 0.98], [0.9, 0.004, 0.99], [1, 0, 1]];
+  const FACE = { x: 0.37, y: 0.15, w: 0.34, h: 0.32 };
 
   /* ----- Helpers ----- */
 
@@ -273,13 +276,13 @@
     // The portrait keeps its hair at the reference height and is scaled so the
     // bottom edge crops it at the chest (CROP).
     const oy = (H - BOARD.h * sc) / 2;
-    const hairTop = oy + 125 * sc;
-    // On narrow desktops the photo is capped at 43% of the width (a little more jacket
+    const hairTop = oy + 124 * sc;
+    // On narrow desktops the photo is capped at 54% of the width (a little more jacket
     // shows), so the right-hand nodes keep room between the hair and the card.
-    const imgH = Math.min((H - hairTop) / (CROP - HAIR), (0.43 * W * STAGE.h) / STAGE.w);
+    const imgH = Math.min((H - hairTop) / (CROP - HAIR), (0.54 * W * STAGE.h) / STAGE.w);
     const sp = imgH / STAGE.h;
-    const faceX = ox + (STAGE.x + 0.505 * STAGE.w) * sc;
-    const stageBox = { x: faceX - 0.505 * STAGE.w * sp, y: hairTop - HAIR * imgH, w: STAGE.w * sp, h: imgH };
+    const faceX = ox + (STAGE.x + FACE_X * STAGE.w) * sc;
+    const stageBox = { x: faceX - FACE_X * STAGE.w * sp, y: hairTop - HAIR * imgH, w: STAGE.w * sp, h: imgH };
     hero.style.setProperty("--s", sc.toFixed(5));
     hero.style.setProperty("--ox", r1(ox) + "px");
     hero.style.setProperty("--oy", r1(oy) + "px");
@@ -492,13 +495,20 @@
   }
 
   let leaveTimer = 0;
+  let intentTimer = 0;
+  const INTENT = 110;   // ms a pointer rests on a node before the card follows it
   const backToFeatured = () => { select(FEATURED, { engage: false }); };
 
   nodes.forEach((n) => {
+    // Hover intent: sweeping across another label on the way to the card doesn't swap it.
     n.btn.addEventListener("pointerenter", (e) => {
       if (e.pointerType !== "mouse") return;
       window.clearTimeout(leaveTimer);
-      select(n.p, { engage: true });
+      window.clearTimeout(intentTimer);
+      intentTimer = window.setTimeout(() => select(n.p, { engage: true }), INTENT);
+    });
+    n.btn.addEventListener("pointerleave", (e) => {
+      if (e.pointerType === "mouse") window.clearTimeout(intentTimer);
     });
     n.btn.addEventListener("focus", () => {
       if (!n.btn.matches(":focus-visible")) return;

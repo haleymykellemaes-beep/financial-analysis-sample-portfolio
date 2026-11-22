@@ -14,12 +14,12 @@ Then open http://localhost:8765/experiments/editorial-orbit/
 
 | File | Purpose |
 |---|---|
-| `index.html` | The page: hero, work, about and contact. |
+| `index.html` | The page: hero, toolbox, work, about and contact. |
 | `projects.js` | The six studies: titles, node labels, tools, summaries, case-study URLs, chart figures and positions. The only place that content lives. |
 | `orbit.js` | Builds the nodes, card, charts and work cards from `projects.js`; lays out the hero; handles hover, focus, tap and Escape; plays the opening and the scroll hand-off. |
 | `orbit.css` | Colour, type and layout tokens; desktop and stacked layouts. |
-| `assets/haley-headshot.webp` | The headshot on a transparent background (lossless). |
-| `tools/make_headshot_cutout.py` | Rebuilds that cutout from the original photo (BiRefNet portrait matte; only the semi-transparent hair edges are recoloured, every opaque pixel is the original). |
+| `assets/haley-headshot.webp` | The black-and-white headshot on a transparent background, as supplied (lossless). |
+| `tools/make_headshot_cutout.py` | Cuts a new photo out of its background if one isn't supplied already cut out (BiRefNet portrait matte; only the semi-transparent hair edges are recoloured, every opaque pixel is the original). |
 | `assets/favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | The tab icon: "HM" in Libre Caslon Display, the title's typeface, as outlines. Dark tile in dark mode. |
 | `tools/make_favicon.py` | Rebuilds `favicon.svg` from the font file. |
 | `assets/Haley-Maes-Resume.pdf` | The résumé linked from About and the footer. |

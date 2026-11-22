@@ -14,7 +14,7 @@ Then open http://localhost:8765/experiments/editorial-orbit/
 
 | File | Purpose |
 |---|---|
-| `index.html` | The page: hero, toolbox, work, about and contact. |
+| `index.html` | The page: hero, toolbox, work, about, off the clock and contact. |
 | `projects.js` | The six studies: titles, node labels, tools, summaries, case-study URLs, chart figures and positions. The only place that content lives. |
 | `orbit.js` | Builds the nodes, card, charts and work cards from `projects.js`; lays out the hero; handles hover, focus, tap and Escape; plays the opening and the scroll hand-off. |
 | `orbit.css` | Colour, type and layout tokens; desktop and stacked layouts. |

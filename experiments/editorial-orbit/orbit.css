@@ -206,7 +206,7 @@ a { color: inherit; }
   position: absolute;
   z-index: 4;
   left: 50.6%;
-  top: 90.8%;
+  top: 72.4%;
   display: flex;
   align-items: center;
   gap: 0.9em;
@@ -353,13 +353,14 @@ a { color: inherit; }
 .viz .viz-grid { stroke: var(--viz-grid); stroke-width: 1; }
 .viz .viz-bar { fill: var(--viz-bar); }
 .viz .viz-bar--hi { fill: var(--viz-hi); }
-.viz .viz-line { fill: none; stroke: var(--viz-hi); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
-.viz .viz-end { fill: var(--viz-ink); stroke: var(--viz-hi); stroke-width: 2; }
-.card .viz { --viz-ink: var(--card-ink); --viz-muted: var(--card-muted); --viz-grid: rgba(246, 239, 234, 0.12); --viz-bar: rgba(246, 239, 234, 0.3); --viz-hi: var(--card-rose); }
+.viz .viz-line { fill: none; stroke: var(--viz-line); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+.viz .viz-end { fill: var(--viz-dot); stroke: var(--viz-line); stroke-width: 2; }
+/* Charts use the page's three colours only: ink, ivory and blush. */
+.card .viz { --viz-ink: var(--card-ink); --viz-muted: var(--card-muted); --viz-grid: rgba(246, 239, 234, 0.12); --viz-bar: rgba(232, 182, 175, 0.3); --viz-hi: var(--card-rose); --viz-area: var(--card-rose); --viz-line: var(--card-rose); --viz-dot: var(--card-ink); }
 
 /* ----- 5. Stacked layout: phones, upright tablets, narrow windows ----- */
 
-@media (max-width: 1179px), (max-aspect-ratio: 13/10) {
+@media (max-width: 1239px), (max-aspect-ratio: 13/10) {
   .hero {
     --s: 0.6;
     --u: 0.6px;
@@ -401,12 +402,12 @@ a { color: inherit; }
     width: min(74vw, 430px);
     max-width: none;
     height: auto;
-    aspect-ratio: 671 / 940;
+    aspect-ratio: 671 / 872;
     margin: 6px auto 0;
   }
   .stage__disc { width: 128%; top: 52%; }
   .stage__portrait { height: 100%; }
-  .stage__role { top: 92%; font-size: clamp(14px, 4.4vw, 22px); }
+  .stage__role { top: 91.5%; font-size: clamp(14px, 4.4vw, 22px); }
   .stage__role span { width: clamp(28px, 9vw, 56px); }
 
   .orbit { position: relative; inset: auto; margin: 26px 22px 0; pointer-events: auto; }
@@ -456,7 +457,7 @@ a { color: inherit; }
   .node__title { grid-column: 2; grid-row: 2; font-size: 0.9rem; }
 }
 
-@media (min-width: 640px) and (max-width: 1179px), (min-width: 640px) and (max-aspect-ratio: 13/10) {
+@media (min-width: 640px) and (max-width: 1239px), (min-width: 640px) and (max-aspect-ratio: 13/10) {
   .orbit__nodes { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, auto); max-width: 900px; margin: 0 auto; }
   .orbit__head { text-align: center; }
 }
@@ -490,7 +491,7 @@ h2 { margin: 0; font: 400 clamp(2.4rem, 4.6vw, 4rem)/1.04 var(--serif); letter-s
 .work-card__num { font: italic 400 1.4rem/1 var(--serif); letter-spacing: 0; text-transform: none; color: var(--rose); }
 .work-card h3 { margin: 14px 0 8px; font: 400 1.6rem/1.1 var(--serif); letter-spacing: -0.01em; }
 .work-card p { font-size: 0.94rem; line-height: 1.55; color: var(--ink-2); }
-.work-card .viz { --viz-ink: var(--ink); --viz-muted: var(--ink-3); --viz-grid: rgba(21, 18, 19, 0.1); --viz-bar: rgba(21, 18, 19, 0.22); --viz-hi: var(--rose); margin-top: 18px; }
+.work-card .viz { --viz-ink: var(--ink); --viz-muted: var(--ink-3); --viz-grid: rgba(21, 18, 19, 0.1); --viz-bar: #EFD8D4; --viz-hi: var(--ink); --viz-area: #E4B6AF; --viz-line: var(--ink); --viz-dot: #FCFAF8; margin-top: 18px; }
 .work-card .viz svg { display: block; width: 100%; height: auto; overflow: visible; }
 .work-card__caption { margin-top: 6px; font-size: 0.78rem !important; color: var(--ink-3) !important; }
 .work-card__go { margin-top: auto; padding-top: 18px; font: 500 0.9rem/1.2 var(--sans); color: var(--rose-ink); }
@@ -505,6 +506,17 @@ h2 { margin: 0; font: 400 clamp(2.4rem, 4.6vw, 4rem)/1.04 var(--serif); letter-s
 .edu { margin: 28px 0 0; padding: 0; list-style: none; }
 .edu li { display: flex; flex-direction: column; padding: 14px 0; border-top: 1px solid var(--rule); }
 .edu span { color: var(--ink-3); }
+.resume-link {
+  display: inline-block;
+  margin-top: 26px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--blush-line);
+  color: var(--rose-ink);
+  font: 500 0.98rem/1.2 var(--sans);
+  text-decoration: none;
+}
+.resume-link span { display: inline-block; margin-left: 4px; transition: transform 0.3s var(--ease); }
+.resume-link:hover span { transform: translate(2px, -2px); }
 
 .footer { padding: 72px 0 48px; background: var(--ink); color: var(--paper); }
 .footer .eyebrow { color: var(--card-rose); }
@@ -528,7 +540,7 @@ h2 { margin: 0; font: 400 clamp(2.4rem, 4.6vw, 4rem)/1.04 var(--serif); letter-s
 .orbit-intro [data-intro], .orbit-intro .node__dot, .orbit-intro .node__num, .orbit-intro .node__title, .orbit-intro .orbit-lines { opacity: 0; }
 
 /* Scrolling eases the hero away (desktop); orbit.js sets --p from 0 to 1. */
-@media (min-width: 1180px) and (min-aspect-ratio: 13/10) {
+@media (min-width: 1240px) and (min-aspect-ratio: 13/10) {
   /* Moved per layer (not on .stage) so the curves stay between the disc and the photo. */
   .stage__portrait { transform: translate3d(0, calc(var(--p, 0) * -34px), 0); }
   .stage__disc { transform: translate(-50%, calc(-50% + var(--p, 0) * -20px)); }

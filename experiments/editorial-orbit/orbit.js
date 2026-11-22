@@ -8,7 +8,7 @@
  *             meets the bottom edge. Nodes start at their reference positions and
  *             are nudged, if needed, until no label touches the copy, the card,
  *             the portrait or another node.
- *   stacked   below 1180px or on upright screens (CSS does the work): name,
+ *   stacked   below 1240px or on upright screens (CSS does the work): name,
  *             headline, portrait, a grid of the six studies, then the card.
  *
  * Interaction
@@ -36,13 +36,15 @@
   const role = hero.querySelector(".stage__role");
   const NS = "http://www.w3.org/2000/svg";
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const stacked = window.matchMedia("(max-width: 1179px), (max-aspect-ratio: 13/10)");
+  const stacked = window.matchMedia("(max-width: 1239px), (max-aspect-ratio: 13/10)");
   const FEATURED = PROJECTS.find((p) => p.featured) || PROJECTS[0];
 
   /* ----- The reference composition, in artboard units ----- */
 
   const BOARD = { w: 1672, h: 941, gutter: 47 };
   const STAGE = { x: 547, y: 85, w: 501.6, h: 856 };   // the photo's box
+  const HAIR = 54 / 1145;   // top of the hair, as a share of the photo's height
+  const CROP = 0.76;        // the hero's bottom edge cuts the photo here (just below the neckline)
   const CARD = { x: 1284, y: 210, w: 345 };
   // dot: the node's dot. label: where the title block sits relative to the dot
   // (left offset; top or bottom edge offset).
@@ -65,7 +67,7 @@
     { from: "r1", to: [895, 296], c1: [1022, 238], c2: [960, 262], owners: ["r1"] },
     { from: "r1", to: [990, 470], c1: [1092, 322], c2: [1070, 420], owners: ["r1"], kind: "soft" },
     { from: "r2", to: [995, 602], c1: [1132, 555], c2: [1080, 590], owners: ["r2"] },
-    { from: [995, 602], to: "r3", c1: [1140, 600], c2: [1212, 680], owners: ["r3"] },
+    { from: [998, 513], to: "r3", c1: [1150, 656], c2: [1208, 690], owners: ["r3"] },
     { from: "r3", to: [1136, 816], c1: [1216, 790], c2: [1182, 812], owners: ["r3"], kind: "soft" },
     { from: "r2", to: "r3", c1: [1215, 585], c2: [1228, 680], owners: ["r2", "r3"], kind: "dotted" }
   ];
@@ -129,8 +131,8 @@
       });
       const id = `viz-area-${++gradId}`;
       const g = s("linearGradient", { id, x1: 0, y1: 0, x2: 0, y2: 1 }, s("defs", {}, el));
-      s("stop", { offset: 0, "stop-color": "var(--viz-hi)", "stop-opacity": 0.42 }, g);
-      s("stop", { offset: 1, "stop-color": "var(--viz-hi)", "stop-opacity": 0 }, g);
+      s("stop", { offset: 0, "stop-color": "var(--viz-area)", "stop-opacity": 0.5 }, g);
+      s("stop", { offset: 1, "stop-color": "var(--viz-area)", "stop-opacity": 0 }, g);
       const pts = v.map((val, i) => `${r1(X(i))} ${r1(Y(val))}`);
       s("path", { d: `M${pts.join("L")}L${x1} ${y1}L${x0} ${y1}Z`, fill: `url(#${id})` }, el);
       s("path", { class: "viz-line", d: `M${pts.join("L")}` }, el);
@@ -267,12 +269,17 @@
 
     const sc = Math.min(W / BOARD.w, H / BOARD.h);
     const ox = (W - BOARD.w * sc) / 2;
-    // Spare height (screens taller than the reference) is split: half above the
-    // composition, and the portrait grows to fill the rest down to the bottom edge.
+    // Spare height (screens taller than the reference) is split above and below.
+    // The portrait keeps its hair at the reference height and is scaled so the
+    // bottom edge crops it at the chest (CROP).
     const oy = (H - BOARD.h * sc) / 2;
-    const sp = (H - oy - STAGE.y * sc) / STAGE.h;
+    const hairTop = oy + 125 * sc;
+    // On narrow desktops the photo is capped at 43% of the width (a little more jacket
+    // shows), so the right-hand nodes keep room between the hair and the card.
+    const imgH = Math.min((H - hairTop) / (CROP - HAIR), (0.43 * W * STAGE.h) / STAGE.w);
+    const sp = imgH / STAGE.h;
     const faceX = ox + (STAGE.x + 0.505 * STAGE.w) * sc;
-    const stageBox = { x: faceX - 0.505 * STAGE.w * sp, y: oy + STAGE.y * sc, w: STAGE.w * sp, h: STAGE.h * sp };
+    const stageBox = { x: faceX - 0.505 * STAGE.w * sp, y: hairTop - HAIR * imgH, w: STAGE.w * sp, h: imgH };
     hero.style.setProperty("--s", sc.toFixed(5));
     hero.style.setProperty("--ox", r1(ox) + "px");
     hero.style.setProperty("--oy", r1(oy) + "px");

@@ -20,6 +20,9 @@ Then open http://localhost:8765/experiments/editorial-orbit/
 | `orbit.css` | Colour, type and layout tokens; desktop and stacked layouts. |
 | `assets/haley-headshot.webp` | The headshot on a transparent background (lossless). |
 | `tools/make_headshot_cutout.py` | Rebuilds that cutout from the original photo (BiRefNet portrait matte; only the semi-transparent hair edges are recoloured, every opaque pixel is the original). |
+| `assets/favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | The tab icon: "HM" in Libre Caslon Display, the title's typeface, as outlines. Dark tile in dark mode. |
+| `tools/make_favicon.py` | Rebuilds `favicon.svg` from the font file. |
+| `assets/Haley-Maes-Resume.pdf` | The résumé linked from About and the footer. |
 
 ## Content
 
@@ -38,7 +41,7 @@ To change a study, its order or its spot in the hero, edit its entry in `project
 
 ## Behaviour
 
-- **Desktop** (1180px and wider, landscape): laid out on an artboard in the reference image's proportions, scaled to the window. Nodes start at the reference positions and move only as far as needed to stay clear of the headline, the card, the portrait and each other.
+- **Desktop** (1240px and wider, landscape): laid out on an artboard in the reference image's proportions, scaled to the window. The portrait keeps its hair just under the name and is cropped at the chest by the bottom edge (`CROP` in `orbit.js`). Nodes start at the reference positions and move only as far as needed to stay clear of the headline, the card, the portrait and each other.
 - **Hover or keyboard focus on a node:** the card changes to that study, its curves turn rose with a soft pulse, and the other nodes recede. The selection holds while the pointer crosses to the card; leaving the hero or pressing Escape returns to the featured study. Clicking anywhere on the card opens the case study.
 - **Phones and upright tablets:** name, headline, portrait, then the six studies as large tap targets and the card below. A tap selects a study and a separate tap on View Case Study opens it.
 - **Reduced motion:** no opening, pulse or scroll motion; the card changes instantly.

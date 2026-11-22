@@ -518,7 +518,19 @@ h2 { margin: 0; font: 400 clamp(2.4rem, 4.6vw, 4rem)/1.04 var(--serif); letter-s
 .work-card__go span { display: inline-block; margin-left: 6px; transition: transform 0.3s var(--ease); }
 .work-card a:hover .work-card__go span { transform: translateX(4px); }
 
-.about { padding: clamp(80px, 9vw, 120px) 0; background: var(--paper); border-top: 1px solid var(--rule); }
+/* Experience: role on the left, what it delivered on the right. */
+.experience { padding: clamp(80px, 9vw, 120px) 0; background: var(--paper); border-top: 1px solid var(--rule); }
+.roles { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--rule); }
+.role { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(20px, 5vw, 80px); padding: clamp(26px, 3vw, 38px) 0; border-bottom: 1px solid var(--rule); }
+.role h3 { margin: 0; font: 400 clamp(1.5rem, 2.2vw, 1.9rem)/1.1 var(--serif); letter-spacing: -0.01em; }
+.role__org { margin-top: 8px; font-size: 0.95rem; color: var(--ink-2); }
+.role__dates { margin-top: 4px; font: 500 11px/1.5 var(--sans); letter-spacing: 0.14em; text-transform: uppercase; color: var(--rose-ink); }
+.role__points { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.role__points li { position: relative; padding-left: 20px; font-size: 0.97rem; line-height: 1.6; color: var(--ink-2); }
+.role__points li::before { content: ""; position: absolute; left: 0; top: 0.72em; width: 8px; height: 1px; background: var(--blush-line); }
+@media (max-width: 760px) { .role { grid-template-columns: minmax(0, 1fr); } }
+
+.about { padding: clamp(80px, 9vw, 120px) 0; background: var(--paper-2); border-top: 1px solid var(--rule); }
 .about__grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: clamp(28px, 5vw, 80px); }
 .prose { max-width: 40rem; }
 .prose p + p { margin-top: 16px; }

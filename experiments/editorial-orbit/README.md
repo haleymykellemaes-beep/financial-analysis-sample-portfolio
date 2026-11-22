@@ -23,6 +23,7 @@ Then open http://localhost:8765/experiments/editorial-orbit/
 | `assets/favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | The tab icon: "HM" in Libre Caslon Display, the title's typeface, as outlines. Dark tile in dark mode. |
 | `tools/make_favicon.py` | Rebuilds `favicon.svg` from the font file. |
 | `assets/Haley-Maes-Resume.pdf` | The résumé linked from About and the footer. |
+| `assets/off-the-clock/` | Photos for the Off the clock tiles: gloves (supplied with a transparent background) and shoes (cut out of the original photo with BiRefNet, general model). |
 
 ## Content
 

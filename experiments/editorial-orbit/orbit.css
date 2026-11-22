@@ -553,6 +553,7 @@ h2 { margin: 0; font: 400 clamp(2.4rem, 4.6vw, 4rem)/1.04 var(--serif); letter-s
 .tile__kicker { margin-bottom: 4px; font: 500 10.5px/1.4 var(--sans); letter-spacing: 0.16em; text-transform: uppercase; color: var(--rose-ink); }
 .tile h3 { margin: 0 0 8px; font: italic 400 1.7rem/1.1 var(--serif); letter-spacing: -0.01em; }
 .tile p:not(.tile__kicker) { font-size: 0.97rem; line-height: 1.55; color: var(--ink-2); }
+.tile__aside { display: block; margin-top: 8px; font: italic 400 1.05rem/1.35 var(--serif); color: var(--rose-ink); }
 @media (max-width: 760px) { .clock__tiles { grid-template-columns: minmax(0, 1fr); } }
 
 .footer { padding: 72px 0 48px; background: var(--ink); color: var(--paper); }

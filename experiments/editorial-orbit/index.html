@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<!--
+  PREVIEW: editorial homepage with the interactive project orbit.
+  Self-contained in this folder; the live homepage and the case studies are not changed.
+  See README.md.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <script>
+    (function () {
+      var root = document.documentElement;
+      root.classList.add("js");
+      try {
+        var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (still || window.location.hash.length > 1) return;
+        root.classList.add("orbit-intro");
+        window.__orbitIntroFallback = window.setTimeout(function () { root.classList.remove("orbit-intro"); }, 3000);
+      } catch (e) { /* no intro */ }
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Haley Maes | Data Analyst</title>
+  <meta name="robots" content="noindex" />
+  <meta name="description" content="Haley Maes, data analyst. Six case studies in SQL, Python, Excel and Tableau: receivables, student risk, revenue forecasting, film revenue, Nike channels and transaction anomalies." />
+  <meta name="theme-color" content="#F7F3EF" />
+  <link rel="icon" href="../../assets/brand/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap" />
+  <link rel="preload" as="image" href="assets/haley-headshot.webp" fetchpriority="high" />
+  <link rel="stylesheet" href="orbit.css" />
+</head>
+<body class="orbit-page">
+  <a class="skip" href="#work">Skip to work</a>
+
+  <header class="hero" id="top" data-hero>
+    <nav class="masthead" aria-label="Primary" data-intro="nav">
+      <ul class="masthead__links">
+        <li><a href="#work">Work</a></li>
+        <li><a href="https://github.com/haleymykellemaes-beep" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+      </ul>
+      <span class="masthead__rule" aria-hidden="true"></span>
+      <h1 class="masthead__name"><a href="#top">Haley Maes</a></h1>
+      <span class="masthead__rule" aria-hidden="true"></span>
+      <ul class="masthead__links masthead__links--end">
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+
+    <p class="headline" data-intro="headline">
+      <span>Finding signals</span>
+      <span>in the noise.</span>
+      <svg class="headline__swash" viewBox="0 0 240 28" aria-hidden="true" focusable="false">
+        <path d="M2 21C52 12 118 7 236 8" />
+        <path d="M18 25C78 15 140 13 196 13" />
+      </svg>
+    </p>
+
+    <svg class="orbit-lines" data-orbit-lines aria-hidden="true" focusable="false"></svg>
+
+    <div class="stage" data-stage>
+      <span class="stage__disc" aria-hidden="true" data-intro="disc"></span>
+      <img class="stage__portrait" src="assets/haley-headshot.webp" width="671" height="1145" alt="Haley Maes, smiling, in a black blazer" fetchpriority="high" decoding="async" data-intro="portrait" />
+      <p class="stage__role" data-intro="role"><span aria-hidden="true"></span>Data Analyst<span aria-hidden="true"></span></p>
+    </div>
+
+    <section class="orbit" aria-label="Case studies" data-orbit>
+      <p class="orbit__head" aria-hidden="true">Six case studies</p>
+      <ol class="orbit__nodes" data-orbit-nodes></ol>
+      <article class="card" id="orbit-card" data-card aria-labelledby="orbit-card-title" data-intro="card"></article>
+      <p class="orbit-sr" role="status" data-orbit-status></p>
+    </section>
+  </header>
+
+  <main>
+    <section class="work" id="work" aria-labelledby="work-title">
+      <div class="wrap">
+        <header class="section-head">
+          <p class="eyebrow">Selected works</p>
+          <h2 id="work-title">From data to decisions.</h2>
+          <p class="section-note">Each chart below uses figures published in the case study it links to.</p>
+        </header>
+        <ol class="work-grid" data-work></ol>
+      </div>
+    </section>
+
+    <section class="about" id="about" aria-labelledby="about-title">
+      <div class="wrap about__grid">
+        <div>
+          <p class="eyebrow">Profile</p>
+          <h2 id="about-title">My story</h2>
+        </div>
+        <div class="prose">
+          <p class="lede">Data analyst with an investigator’s eye. I turn messy operational and financial data into clear decisions through Excel, SQL, Python, and visualization.</p>
+          <p>I’m especially interested in financial modeling, reporting, reconciliation, and identifying the why behind a number — not just the number itself. I value accuracy, practical tools, and analysis people can actually use.</p>
+          <ul class="edu">
+            <li><strong>B.S., Data Analytics</strong><span>Western Governors University</span></li>
+            <li><strong>Computational Mathematical Sciences</strong><span>Arizona State University</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="contact">
+    <div class="wrap">
+      <p class="eyebrow">Contact</p>
+      <div class="footer__grid">
+        <p class="footer__name">Haley Maes</p>
+        <ul class="footer__links">
+          <li><a href="https://github.com/haleymykellemaes-beep" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/haleymmaes" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+          <li><a href="https://haleymykellemaes-beep.github.io/Haley-Maes-Resume.html" target="_blank" rel="noopener noreferrer">Resume</a></li>
+        </ul>
+      </div>
+      <p class="fine">Arvada, CO. Open to data analyst, financial analyst, and analytics-focused operations roles.</p>
+    </div>
+  </footer>
+
+  <script src="projects.js"></script>
+  <script src="orbit.js"></script>
+</body>
+</html>

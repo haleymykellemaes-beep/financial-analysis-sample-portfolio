@@ -1,0 +1,81 @@
+/* Apple Music case study. Tokens and base styles come from ../orbit.css. */
+
+.music-page { --mono: "IBM Plex Mono", ui-monospace, monospace; }
+
+.mp-nav { border-bottom: 1px solid var(--rule); }
+.mp-nav__inner { display: flex; justify-content: space-between; align-items: center; min-height: 76px; gap: 20px; }
+.mp-nav__name { font: 400 clamp(1.4rem, 2.4vw, 1.9rem)/1 var(--display); letter-spacing: 0.02em; text-transform: uppercase; text-decoration: none; color: var(--ink); }
+.mp-nav ul { display: flex; gap: clamp(18px, 3vw, 36px); margin: 0; padding: 0; list-style: none; }
+.mp-nav a { color: var(--ink); text-decoration: none; }
+.mp-nav ul a:hover { color: var(--rose-ink); }
+
+.mp-hero { padding: clamp(56px, 8vw, 110px) 0 clamp(40px, 5vw, 64px); }
+.mp-hero h1 { max-width: 14ch; margin: 0; font: 400 clamp(2.8rem, 6vw, 5.2rem)/1.02 var(--serif); letter-spacing: -0.025em; }
+.mp-lede { max-width: 38rem; margin-top: 22px; font-size: 1.15rem; line-height: 1.6; color: var(--ink-2); }
+.mp-tools { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 0; padding: 0; list-style: none; }
+.mp-tools li { padding: 5px 13px; border: 1px solid var(--rule); border-radius: 999px; font: 500 0.8rem/1.2 var(--sans); background: #FCFAF8; }
+.mp-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: clamp(36px, 5vw, 56px) 0 0; border-block: 1px solid var(--rule); }
+.mp-stats div { padding: 20px 18px; }
+.mp-stats div + div { border-left: 1px solid var(--rule); }
+.mp-stats dt { font: 500 10.5px/1.4 var(--sans); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
+.mp-stats dd { margin: 8px 0 0; font: 400 clamp(1.8rem, 3.4vw, 2.6rem)/1 var(--serif); }
+
+.mp-q { padding: clamp(48px, 6vw, 80px) 0; border-top: 1px solid var(--rule); }
+.mp-q:nth-of-type(even) { background: var(--paper-2); }
+.mp-q__grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(24px, 5vw, 72px); align-items: start; }
+.mp-q__num { font: italic 400 1.5rem/1 var(--serif); color: var(--rose); }
+.mp-q h2 { margin: 10px 0 0; font: 400 clamp(1.9rem, 3vw, 2.6rem)/1.08 var(--serif); letter-spacing: -0.015em; }
+.mp-finding { margin-top: 16px; font-size: 1.05rem; line-height: 1.65; color: var(--ink-2); }
+.mp-aside { margin-top: 8px; font: italic 400 1.1rem/1.35 var(--serif); color: var(--rose-ink); }
+
+.mp-figure { margin: 0; }
+.mp-figure svg { display: block; width: 100%; height: auto; overflow: visible; }
+.mp-figure figcaption { margin-top: 10px; font-size: 0.82rem; color: var(--ink-3); }
+.music-page .viz { --viz-ink: var(--ink); --viz-muted: var(--ink-3); --viz-grid: rgba(21, 18, 19, 0.14); --viz-bar: #EFD8D4; --viz-hi: var(--ink); }
+.viz text { font-size: 11px; }
+.viz .viz-label { font-size: 12.5px; fill: var(--viz-ink); }
+.viz .viz-small { fill: var(--viz-muted); }
+.music-page .viz .viz-bar--base { fill: var(--viz-bar); stroke: none; }
+
+.mp-songs { margin: 0; padding: 0; list-style: none; counter-reset: song; border-top: 1px solid var(--rule); }
+.mp-songs li { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr) auto; grid-template-areas: "n name plays" "n artist plays"; column-gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--rule); counter-increment: song; }
+.mp-songs li::before { content: counter(song, decimal-leading-zero); grid-area: n; align-self: center; font: italic 400 1.15rem/1 var(--serif); color: var(--rose); }
+.mp-songs__name { grid-area: name; font: 700 1rem/1.3 var(--serif); }
+.mp-songs__artist { grid-area: artist; font-size: 0.88rem; color: var(--ink-3); }
+.mp-songs__plays { grid-area: plays; align-self: center; font: 500 0.85rem/1 var(--sans); font-variant-numeric: tabular-nums; }
+.mp-songs li:first-child .mp-songs__plays { color: var(--rose-ink); }
+
+.mp-skips { display: grid; gap: 28px; }
+
+.mp-sql { margin-top: 26px; }
+.mp-sql summary { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; font: 500 0.88rem/1.2 var(--sans); color: var(--rose-ink); list-style: none; }
+.mp-sql summary::-webkit-details-marker { display: none; }
+.mp-sql summary::before { content: "+"; display: inline-grid; place-items: center; width: 20px; height: 20px; border: 1px solid var(--blush-line); border-radius: 50%; font-size: 0.85rem; transition: transform 0.25s var(--ease); }
+.mp-sql[open] summary::before { transform: rotate(45deg); }
+.mp-sql pre { margin: 14px 0 0; padding: 18px 20px; overflow-x: auto; border-radius: 12px; background: var(--card); color: var(--card-ink); font: 400 0.8rem/1.6 var(--mono); tab-size: 2; }
+
+.mp-method { padding: clamp(56px, 7vw, 96px) 0; border-top: 1px solid var(--rule); background: var(--paper); }
+.mp-method__grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(24px, 5vw, 72px); }
+.mp-method h2 { margin: 0; font: 400 clamp(1.9rem, 3vw, 2.6rem)/1.08 var(--serif); }
+.mp-method code { font: 400 0.9em var(--mono); }
+.mp-method .prose p + p, .mp-method .prose details + p { margin-top: 16px; }
+
+.mp-listen { padding: clamp(56px, 7vw, 96px) 0 clamp(72px, 9vw, 120px); border-top: 1px solid var(--rule); background: var(--paper-2); }
+.mp-listen h2 { margin: 0 0 22px; font: 400 clamp(1.9rem, 3vw, 2.6rem)/1.08 var(--serif); }
+.mp-player { max-width: 660px; }
+.mp-player__tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.mp-player__tabs button { padding: 7px 16px; border: 1px solid var(--rule); border-radius: 999px; background: #FCFAF8; color: var(--ink); font: 500 0.88rem/1.2 var(--sans); cursor: pointer; }
+.mp-player__tabs button[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+.mp-player iframe { display: block; width: 100%; height: 450px; border: 0; border-radius: 12px; overflow: hidden; background: transparent; }
+
+.footer__name a { color: inherit; text-decoration: none; }
+
+@media (max-width: 760px) {
+  .mp-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mp-stats div:nth-child(3) { border-left: 0; }
+  .mp-stats div:nth-child(n + 3) { border-top: 1px solid var(--rule); }
+  .mp-q__grid, .mp-method__grid { grid-template-columns: minmax(0, 1fr); }
+  .viz text { font-size: 15px; }
+  .viz .viz-label { font-size: 15px; }
+  .mp-nav ul { gap: 16px; font-size: 0.92rem; }
+}

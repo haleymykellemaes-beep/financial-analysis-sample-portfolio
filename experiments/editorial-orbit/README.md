@@ -24,6 +24,8 @@ Then open http://localhost:8765/experiments/editorial-orbit/
 | `tools/make_favicon.py` | Rebuilds `favicon.svg` from the font file. |
 | `assets/Haley-Maes-Resume.pdf` | The résumé linked from About and the footer. |
 | `assets/off-the-clock/` | Photos for the Off the clock tiles: gloves (supplied with a transparent background) and shoes (cut out of the original photo with BiRefNet, general model). |
+| `music/` | The Apple Music SQL project: `analysis.sql` (every query, by name), `music-data.js` (generated results), `music.js` (charts and copy for the page and the homepage card), `index.html` and `music.css`. |
+| `tools/build_music_data.py` | Rebuilds `music/music-data.js` from a new Music library export. Only aggregates and top-10 lists are published, never the library itself. |
 
 ## Content
 

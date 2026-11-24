@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<!-- PREVIEW: the Apple Music SQL project. Numbers and SQL come from music-data.js (tools/build_music_data.py). -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Apple Music library, in SQL | Haley Maes</title>
+  <meta name="robots" content="noindex" />
+  <meta name="description" content="A personal SQL project: 13,118 songs from my Apple Music library, loaded into SQLite and queried for what I save, what I play and what I skip." />
+  <meta name="theme-color" content="#F7F3EF" />
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="../assets/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=IBM+Plex+Mono:wght@400;500&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap" />
+  <link rel="stylesheet" href="../orbit.css" />
+  <link rel="stylesheet" href="music.css" />
+</head>
+<body class="orbit-page music-page">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="mp-nav">
+    <div class="wrap mp-nav__inner">
+      <a class="mp-nav__name" href="../">Haley Maes</a>
+      <nav aria-label="Primary">
+        <ul>
+          <li><a href="../#work">Work</a></li>
+          <li><a href="../#about">About</a></li>
+          <li><a href="../#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <header class="mp-hero">
+      <div class="wrap">
+        <p class="eyebrow">Off the clock · Personal data project</p>
+        <h1>My Apple Music library, in SQL</h1>
+        <p class="mp-lede">I exported my Apple Music library, every song I’ve saved since 2007, loaded it into SQLite and asked it what I actually listen to.</p>
+        <ul class="mp-tools" aria-label="Tools"><li>SQL</li><li>SQLite</li><li>Python</li></ul>
+        <dl class="mp-stats" data-stats></dl>
+      </div>
+    </header>
+
+    <section class="mp-q" data-q="genre_mix" aria-labelledby="q1">
+      <div class="wrap mp-q__grid">
+        <div class="mp-q__text">
+          <p class="mp-q__num">01</p>
+          <h2 id="q1">What I save vs. what I play</h2>
+          <p class="mp-finding" data-finding></p>
+        </div>
+        <div class="mp-q__chart" data-chart></div>
+      </div>
+      <details class="wrap mp-sql"><summary>View the SQL</summary><pre><code data-sql></code></pre></details>
+    </section>
+
+    <section class="mp-q" data-q="top_artists" aria-labelledby="q2">
+      <div class="wrap mp-q__grid">
+        <div class="mp-q__text">
+          <p class="mp-q__num">02</p>
+          <h2 id="q2">Who I actually listen to</h2>
+          <p class="mp-finding" data-finding></p>
+        </div>
+        <div class="mp-q__chart" data-chart></div>
+      </div>
+      <details class="wrap mp-sql"><summary>View the SQL</summary><pre><code data-sql></code></pre><pre><code data-sql="concentration"></code></pre></details>
+    </section>
+
+    <section class="mp-q" data-q="top_songs" aria-labelledby="q3">
+      <div class="wrap mp-q__grid">
+        <div class="mp-q__text">
+          <p class="mp-q__num">03</p>
+          <h2 id="q3">The songs on repeat</h2>
+          <p class="mp-finding" data-finding></p>
+        </div>
+        <div class="mp-q__chart" data-chart></div>
+      </div>
+      <details class="wrap mp-sql"><summary>View the SQL</summary><pre><code data-sql></code></pre></details>
+    </section>
+
+    <section class="mp-q" data-q="growth" aria-labelledby="q4">
+      <div class="wrap mp-q__grid">
+        <div class="mp-q__text">
+          <p class="mp-q__num">04</p>
+          <h2 id="q4">When the library took off</h2>
+          <p class="mp-finding" data-finding></p>
+        </div>
+        <div class="mp-q__chart" data-chart></div>
+      </div>
+      <details class="wrap mp-sql"><summary>View the SQL</summary><pre><code data-sql></code></pre></details>
+    </section>
+
+    <section class="mp-q" data-q="never_played" aria-labelledby="q5">
+      <div class="wrap mp-q__grid">
+        <div class="mp-q__text">
+          <p class="mp-q__num">05</p>
+          <h2 id="q5">The save-it-for-later pile</h2>
+          <p class="mp-finding" data-finding></p>
+        </div>
+        <div class="mp-q__chart" data-chart></div>
+      </div>
+      <details class="wrap mp-sql"><summary>View the SQL</summary><pre><code data-sql></code></pre></details>
+    </section>
+
+    <section class="mp-q" data-q="skips" aria-labelledby="q6">
+      <div class="wrap mp-q__grid">
+        <div class="mp-q__text">
+          <p class="mp-q__num">06</p>
+          <h2 id="q6">What I skip</h2>
+          <p class="mp-aside">Small sample size, very high variance.</p>
+          <p class="mp-finding" data-finding></p>
+        </div>
+        <div class="mp-q__chart" data-chart></div>
+      </div>
+      <details class="wrap mp-sql"><summary>View the SQL</summary><pre><code data-sql></code></pre></details>
+    </section>
+
+    <section class="mp-q" data-q="decades" aria-labelledby="q7">
+      <div class="wrap mp-q__grid">
+        <div class="mp-q__text">
+          <p class="mp-q__num">07</p>
+          <h2 id="q7">Which era I live in</h2>
+          <p class="mp-finding" data-finding></p>
+        </div>
+        <div class="mp-q__chart" data-chart></div>
+      </div>
+      <details class="wrap mp-sql"><summary>View the SQL</summary><pre><code data-sql></code></pre></details>
+    </section>
+
+    <section class="mp-method" aria-labelledby="method-title">
+      <div class="wrap mp-method__grid">
+        <h2 id="method-title">How I built it</h2>
+        <div class="prose">
+          <p>The Music app exports a library as one XML file. A short Python script loads it into a single SQLite table, <code>tracks</code>, keeping the columns the questions need: song, artist, genre, release year, length, play and skip counts, and dates. File paths, Apple’s internal IDs and playlist names stay out.</p>
+          <p>Apple tags songs with more than 100 genre labels, including duplicates such as “Hip-Hop/Rap”, “Hip Hop/Rap”, “Hip-Hop” and “Rap”. A view groups them into seven families before any question is asked.</p>
+          <details class="mp-sql mp-sql--inline"><summary>View the cleaning step</summary><pre><code data-sql="clean"></code></pre></details>
+          <p><strong>What the numbers are, and aren’t.</strong> Play and skip counts are Apple’s running totals for songs in my library, as of the export on <span data-exported></span>. Songs I streamed without saving aren’t here; Replay covers those. “Hours” multiplies plays by song length, so it assumes every play ran to the end.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mp-listen" aria-labelledby="listen-title">
+      <div class="wrap">
+        <p class="eyebrow">Listen along</p>
+        <h2 id="listen-title">My Replay playlists</h2>
+        <div class="mp-player" data-player>
+          <div class="mp-player__tabs" role="group" aria-label="Choose a Replay playlist">
+            <button type="button" aria-pressed="true" data-src="https://embed.music.apple.com/us/playlist/replay-all-time/pl.rp-D5C1ZDMN08">All time</button>
+            <button type="button" aria-pressed="false" data-src="https://embed.music.apple.com/us/playlist/replay-2026/pl.rp-ZkddSGW6Yx4g">2026</button>
+            <button type="button" aria-pressed="false" data-src="https://embed.music.apple.com/us/playlist/replay-2025/pl.rp-xOzOH4gjbnZB">2025</button>
+            <button type="button" aria-pressed="false" data-src="https://embed.music.apple.com/us/playlist/replay-2024/pl.rp-nWy3sZRMGwXx">2024</button>
+            <button type="button" aria-pressed="false" data-src="https://embed.music.apple.com/us/playlist/replay-2022/pl.rp-L22vHLAjda9D">2022</button>
+            <button type="button" aria-pressed="false" data-src="https://embed.music.apple.com/us/playlist/replay-2021/pl.rp-wPPgUg9l4Dk7">2021</button>
+            <button type="button" aria-pressed="false" data-src="https://embed.music.apple.com/us/playlist/replay-2020/pl.rp-QwwjfRNd06oX">2020</button>
+          </div>
+          <iframe title="Apple Music: All time" src="https://embed.music.apple.com/us/playlist/replay-all-time/pl.rp-D5C1ZDMN08" height="450" loading="lazy" allow="autoplay *; encrypted-media *;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"></iframe>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="contact">
+    <div class="wrap">
+      <p class="eyebrow">Let’s work together</p>
+      <div class="footer__grid">
+        <p class="footer__name"><a href="../">Haley Maes</a></p>
+        <ul class="footer__links">
+          <li><a href="https://github.com/haleymykellemaes-beep" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+          <li><a href="https://www.linkedin.com/in/haleymmaes" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+          <li><a href="../assets/Haley-Maes-Resume.pdf" target="_blank" rel="noopener">Résumé<span class="orbit-sr"> (PDF)</span></a></li>
+        </ul>
+      </div>
+      <p class="fine">Arvada, CO. Open to data analyst, financial analyst, and analytics-focused operations roles.</p>
+    </div>
+  </footer>
+
+  <script src="music-data.js"></script>
+  <script src="music.js"></script>
+</body>
+</html>

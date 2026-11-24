@@ -123,11 +123,22 @@
           <p class="eyebrow">Off the clock</p>
           <h2 id="clock-title">Life outside the spreadsheet.</h2>
         </header>
-        <!-- The Apple Music SQL project joins this row once the listening data is in. -->
+        <!-- The Apple Music project: figures from music/music-data.js, drawn by music/music.js. -->
+        <article class="music-card" data-music-card>
+          <div class="music-card__text">
+            <p class="card__top"><span class="card__label">Personal data project</span><span class="card__num" aria-hidden="true">♪</span></p>
+            <h3 class="music-card__title">My Apple Music library, in SQL</h3>
+            <p class="music-card__desc" data-music-desc></p>
+            <dl class="music-card__stats" data-music-stats></dl>
+            <ul class="card__tools" aria-label="Tools"><li>SQL</li><li>SQLite</li><li>Python</li></ul>
+            <a class="card__link" href="music/">View the analysis<span aria-hidden="true">→</span></a>
+          </div>
+          <figure class="music-card__chart viz" data-music-chart></figure>
+        </article>
         <ul class="clock__tiles">
           <li class="tile"><span class="tile__media"><img src="assets/off-the-clock/gloves.webp" width="630" height="640" alt="A pair of hot-pink boxing gloves" loading="lazy" decoding="async" /></span><h3>Boxing</h3><p>Rounds with my godfather, in the cutest pink gloves.</p></li>
           <li class="tile"><span class="tile__media"><img src="assets/off-the-clock/shoes.webp" width="900" height="467" alt="A hot-pink running shoe" loading="lazy" decoding="async" /></span><h3>Running</h3><p>Logging miles in brand-new (very pink) running shoes.</p></li>
-          <li class="tile"><span class="tile__media tile__media--icon"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="3" y="8" width="26" height="16" rx="2"/><path d="M8.2 8v16M13.4 8v16M18.6 8v16M23.8 8v16"/><path class="ink" d="M6.7 8h3v9h-3zM11.9 8h3v9h-3zM22.3 8h3v9h-3z"/></svg></span><p class="tile__kicker">Currently learning</p><h3>Piano</h3><p>Reteaching myself, powered by sixth-grade muscle memory. <em class="tile__aside">Small sample size, very high variance.</em></p></li>
+          <li class="tile"><span class="tile__media tile__media--icon"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="3" y="8" width="26" height="16" rx="2"/><path d="M8.2 8v16M13.4 8v16M18.6 8v16M23.8 8v16"/><path class="ink" d="M6.7 8h3v9h-3zM11.9 8h3v9h-3zM22.3 8h3v9h-3z"/></svg><span class="tile__note">(unavailable in pink)</span></span><p class="tile__kicker">Currently learning</p><h3>Piano</h3><p>Reteaching myself, powered by sixth-grade muscle memory. <em class="tile__aside">Small sample size, very high variance.</em></p></li>
         </ul>
       </div>
     </section>
@@ -148,6 +159,8 @@
     </div>
   </footer>
 
+  <script src="music/music-data.js"></script>
+  <script src="music/music.js"></script>
   <script src="projects.js"></script>
   <script src="orbit.js"></script>
 </body>
